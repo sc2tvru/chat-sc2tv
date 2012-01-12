@@ -1,0 +1,116 @@
+#dialog2{
+width:220px;
+height:440px;
+}
+#chat{
+margin-left:3px;
+padding-left:3px;
+font-size:12px;
+font-family:Arial, Helvetica, sans-serif;
+overflow: auto;
+height:361px;
+width:100%;
+max-width:195px;
+background: #FFFFFF;}
+#chat-form{
+font-size:12px;
+width:195px;
+height:60px;}
+.chat-text{
+width:215px;
+border:1px #CCCCCC solid;
+font-size:14px;}
+.nick{
+cursor:pointer;
+font-weight:bold;
+font-size:12px;}
+.user1{
+color:#CC3300;
+}
+
+.menushka {
+	background:#0099FF;
+	color:#FFFFFF;
+	font-family:Arial, Helvetica, sans-serif;
+	font-weight:bold;
+	border:2px solid #B6DEDB;
+	width: 150px;
+	position: absolute;
+	margin-top:-15px;
+	left: 20px;
+	text-align: center;
+	font-style: normal;
+	z-index: 2;
+	display: none;
+}
+.menushka li{
+text-align:left;
+list-style-image:none;
+list-style-type:none;
+cursor:pointer;
+border:1px solid #ACD3D5;}
+.menushka li:hover{
+background:#FFFF99;
+color:#0066FF;}
+#dialog2 .chat-title{
+top:50px;
+z-index:3;
+font-size:14px;
+position:absolute;
+background:#FFCC33;
+width:200px;}
+#chat-form input.chat-text{
+margin:5px;}
+.chat-button{
+background:#FFCC66;
+border:1px solid #FF9900;
+margin-left:5px;}
+.user0{
+color: #7797be;
+}
+#chat p.text{
+margin:0px;}
+#dialog2 { background:none; font-family:Verdana, Arial, sans-serif }
+#dialog2 div { color:#cacaca; background:none; font-size:11px; margin-right:10px}
+#dialog2 span { color:#fff }
+/*#dialog2 .user1 {color:#c57c08}*/
+#dialog2 .user1 {color:#7797be;}
+/*#dialog2 .user0{color: #7797be;}*/
+#dialog2 .user0{color: #c57c08;}
+
+#dialog2 .nick {font-size:11px;padding-right:4px;margin:0 }
+#dialog2 .nick:after {content:':';position:relative;left:-3px}
+#dialog2 .mess {padding:.3em 0; border-bottom:1px solid #222222}
+#dialog2 .mess:even {background:red !important }
+#dialog2 .time {display:none }
+#dialog2 .text {display:inline;font-size:11px;}
+.chat-button { padding:2px 10px }
+#dialog2 a {color:#c57c08;text-decoration:none}
+#dialog2 a:hover {color:#c57c08;text-decoration:underline}
+#dialog2 .menushka {
+	background:#0099FF;
+	color:#FFFFFF;
+	font-family:Arial, Helvetica, sans-serif;
+	font-weight:bold;
+	border:2px solid #B6DEDB;
+	width: 150px;
+	position: absolute;
+	top:10px;
+	margin-top:-15px;
+	left: 20px;
+	text-align: center;
+	font-style: normal;
+	z-index: 2;
+	display: none;
+}
+#dialog2 .menushka li{
+text-align:left;
+list-style-image:none;
+list-style-type:none;
+cursor:pointer;
+border:1px solid #ACD3D5;}
+#dialog2 .menushka li:hover{
+background:#FFFF99;
+color:#0066FF;}
+#dialog2 .user2 {color: #006633;}
+#chat .mess img { display:inline !important; margin:0 2px }

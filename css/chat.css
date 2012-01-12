@@ -1,0 +1,253 @@
+/*chat group color*/
+.user-2{
+color:#7797be !important;
+}
+.user-4,
+.user-3{
+color:#BC3C3E !important;
+}
+.user-5 {
+color:#C57C08 !important;
+}
+.user-6,
+.user-7{
+color: #dad871 !important;
+}
+.user-9{
+color: #5DA130 !important;
+}
+
+
+#dialog2{
+width:220px;
+height:440px;
+}
+
+#chat{
+margin-left:3px;
+padding-left:3px;
+font-family:Arial, Helvetica, sans-serif;
+overflow: auto;
+height:395px;
+width:100%;
+background: #FFFFFF;
+}
+
+#chat-form{
+width:215px;
+height:30px;
+}
+
+.chat-text{
+width:195px;
+border:1px #CCCCCC solid;
+font-size:14px;
+}
+
+.nick{
+cursor:pointer;
+font-weight:bold;
+font-size:12px;
+}
+
+
+#dialog2 .chat-title{
+top:50px;
+z-index:3;
+font-size:14px;
+position:absolute;
+background:#FFCC33;
+width:200px;
+}
+
+#chat-form input.chat-text{
+
+}
+#chat-form{
+	margin-left:3px;
+	padding:7px 0px 0px 3px;
+}
+.chat-button{
+background:#FFCC66;
+border:1px solid #FF9900;
+margin-left:5px;
+display:none;
+}
+
+
+#chat p.text{
+margin:0px;
+}
+
+#dialog2 { background:none; font-family:Verdana, Arial, sans-serif }
+#dialog2 div { color:#cacaca; background:none; font-size:11px; margin-right:10px}
+#dialog2 span { color:#fff }
+#dialog2 .nick {font-size:11px;padding-right:7px;margin:0 }
+#dialog2 .nick:after {content:':';position:relative;}
+/*system user*/
+#dialog2 .user-1{color:#808080;font-size:10px;cursor:auto;}
+#dialog2 .system_text{color:#808080;font-size:10px;display:inline;}
+
+#dialog2 .mess {padding:.3em 0; border-bottom:1px solid #222222}
+#dialog2 .mess:even {background:red !important }
+#dialog2 .time {display:none}
+#dialog2 .text {display:inline;font-size:11px;
+white-space: pre-wrap; /* css-3 */
+white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+white-space: -pre-wrap; /* Opera 4-6 */
+white-space: -o-pre-wrap; /* Opera 7 */
+word-wrap: break-word; /* Internet Explorer 5.5+ */
+}
+.chat-button { padding:2px 10px }
+#dialog2 a {color:#c57c08;text-decoration:none}
+#dialog2 a:hover {color:#c57c08;text-decoration:underline}
+
+.menushka {
+	background:#0099FF;
+	color:#FFFFFF;
+	font-family:Arial, Helvetica, sans-serif;
+	font-weight:bold;
+	border:2px solid #B6DEDB;
+	width: 150px;
+	position: absolute;
+	opacity:0.8;
+	text-align: center;
+	font-style: normal;
+	z-index: 1110;
+	display: none;
+	padding:0;
+}
+.menushka li{
+text-align:left;
+list-style-image:none;
+list-style-type:none;
+cursor:pointer;
+border:1px solid #ACD3D5;
+}
+.menushka li:hover{
+background:#FFFF99;
+color:#0066FF;
+}
+.menushka .menushka_close{
+background:#FFFFFF;
+color:#000000;
+position:absolute;
+right:0px;
+top:0px;
+width:14px;
+height: 14px;
+text-align:center;
+cursor:pointer;
+}
+#chat .mess img { display:inline !important; margin:0 2px }
+#scrolling{
+margin-left:5px;
+color:#CCCCCC;
+}
+#tgl-scrl{
+text-decoration:underline;
+cursor:pointer;
+}
+
+#chat_closed{margin-top:150px;}
+#chat_closed div{
+
+	padding-left:10px;
+	color:orange;
+	font-size:150%;
+}
+.img-on, .img-off {
+	cursor:pointer !important;
+}
+.chat-channel-name {
+/*	color: red !important; 
+	font-weight:bold;
+	padding-bottom:3px;
+	display: block; 
+	text-align: center;
+*/
+	clear:both;
+}
+.chat-channel-name > div {
+	float:left;
+	color:#777 !important;
+	border:1px solid #313131;
+	border-top:0;
+	padding:2px 3px;
+	cursor:pointer;
+	margin:0 !important;
+	font-weight:bold;
+}
+.chat-channel-name > div.active {
+	color:#BBB !important;
+}
+
+#chat-smile-panel {
+	display:none;
+	background:#000000 !important;
+	display:none;
+	position:relative;
+	z-index:9999 !important;
+	top:-240px;
+	left:10px;
+	width:165px;
+	border:1px solid #aaa;
+	padding:2px !important;
+	margin:0px !important;
+}
+
+#chat-smile-panel .chat-smile {
+	display:inline;
+	cursor:pointer;
+}
+
+#chat-smile-panel-extended {
+	display:none;
+}
+
+#chat-smile-extend-btn {
+	cursor:pointer;
+}
+
+#chat-smile-panel-close{
+	background:#FFFFFF !important;
+	color:#000000 !important;
+	position:absolute;
+	right:0px;
+	top:0px;
+	width:14px;
+	height: 14px;
+	text-align:center;
+	cursor:pointer;
+	border:1px solid #aaa;
+	margin:0px !important;
+}
+
+#chat-on, #chat-off,#clr_nick_off,#clr_nick_on {
+	cursor:pointer !important;
+	font-weight:normal !important;
+}
+#chat-off, #clr_nick_off {
+	text-decoration:line-through;
+}
+#clr_nick_on {
+	display:none;
+}
+p.ignored, p.ignored * {
+	color:black !important;
+}
+#chat p.ignored  img {
+	display:none !important;
+}
+.chat-error-msg {
+	display:block;
+	position: absolute;
+	/*position:relative;*/
+	background:#000000 !important;
+	z-index:9999 !important;
+	left:10px;
+	width:165px;
+	border:1px solid #aaa;
+	padding:2px !important;
+	margin:0px !important;
+}

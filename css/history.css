@@ -1,0 +1,110 @@
+body {
+	background-color:#000000;
+	color:#FFFFFF;
+}
+div {
+	font-family:Arial, Helvetica, sans-serif;
+	background:none;
+	font-size:13px;
+	margin-right:10px
+}
+/*chat group color*/
+.user-2{
+color:#7797be !important;
+}
+.user-4,
+.user-3{
+color:#BC3C3E !important;
+}
+.user-5 {
+color:#C57C08 !important;
+}
+.user-6,
+.user-7{
+color: #dad871 !important;
+}
+.user-9{
+color: #5DA130 !important;
+}
+
+.nick {font-size:13px;padding-right:4px;margin:0 }
+.nick:after {content:':';position:relative;left:-3px}
+.mess {padding:.3em 0; border-bottom:1px solid #222222}
+.mess:even {background:red !important }
+.time { padding-right:3px;}
+.text {display:inline;font-size:11px;}
+.chat-button { padding:2px 10px }
+a {
+	color:#33CC33;
+	text-decoration:none;
+}
+a:hover {
+	text-decoration:underline;
+}
+
+#chat .mess img { display:inline !important; margin:0 2px }
+#history-form {
+	text-align: center;
+	width: 100%;
+	margin: auto;
+}
+p.text {
+	word-wrap:break-word;
+	overflow:hidden;
+}
+.cancelBanButton {
+	color:#e41515;
+	text-decoration:none;
+}
+.complainBanButton, .editBanButton {
+	color:#33CC33;
+	text-decoration:none;
+}
+.cancelBanButton:hover, .complainBanButton:hover, .editBanButton:hover {
+	cursor: pointer;
+}
+#actionForm{
+	display:inline;
+}
+.banModoficationHeader {
+	font-size:14px;
+	padding-left:40px;
+	color:#dad871;
+}
+.banModoficationReason {
+	font-size:14px;
+	padding-left:40px;
+	color:#5DA130;
+}
+.banWithComplain {
+	border:1px dashed #FF0000;
+	background-color:#333333;
+}
+.complainMessage{
+	font-size:14px;
+	padding-left:40px;
+}
+#statsButton {
+	color:#33CC33;
+	text-decoration:none;
+}
+#statsButton:hover {
+	text-decoration:underline;
+	cursor: pointer;
+}
+#statsInfo {
+	overflow:hidden;
+	margin-top:10px;
+	display:none;
+}
+#moderatorStats, #citizenStats {
+	width:150px;
+}
+.moderatorBansCount {
+	float:right;
+	overflow:hidden;
+}
+#moderatorStatsBlock, #citizensStatsBlock {
+	width:300px;
+	float:left;
+}
