@@ -46,20 +46,41 @@ form_banned = '<div id="chat-form">' + chat_vkl_btn + ' ' + img_btn + ' ' + chat
 form_newbie = '<div id="chat-form">' + chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + chat_history_link + ' <span>Вы зарегистрированы менее трех дней назад.</span></div>';
 
 tpl_chat_stopped = "<div id='chat_closed'><div>Чатик остановлен!</div><div>Остановил: [stopper].</div><div>Остановлено до: [min]</div><div>Причина: [reason].</div></div>";
-
+var chat_channel_id = 0;
 autoScroll = 1;
-var chat_channel_id = '0';
 
 $(document).ready(function(){
+	chat_channel_id = getParameterByName( 'channelId' );
+	whoStopChat = getParameterByName( 'stop' );
+	
 	BuildChat();
 	
-	if ( $.cookie( 'chat-on' ) == null || $.cookie( 'chat-on' ) == '1' ) {
-		StartChat();
+	if ( whoStopChat == '0' || whoStopChat == undefined || whoStopChat == '' ) {
+		if ( $.cookie( 'chat-on' ) == null || $.cookie( 'chat-on' ) == '1' ) {
+			StartChat();
+		}
+		else {
+			StopChat( true , '' );
+		}
 	}
 	else {
-		StopChat( true , '' );
+		StopChat( false, 'Чат отключен. Для включения нажмите кнопку chat.' );
 	}
 });
+
+function getParameterByName( name ) {
+	name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+	var regexS = "[\\?&]" + name + "=([^&#]*)";
+	var regex = new RegExp(regexS);
+	var results = regex.exec(window.location.href);
+	
+	if( results == null ) {
+		return '';
+	}
+	else {
+		return decodeURIComponent(results[1].replace(/\+/g, " "));
+	}
+}
 
 function StartChat(){
 	$.cookie( 'chat-on', '1', { expires: 365, path: '/'} );
@@ -103,7 +124,6 @@ function ReloadChannelList(){
 	$.getJSON( CHAT_URL + 'memfs/channels.json', function( data ) {
 		channelList = data.channel;
 	});
-	$.ajaxSetup({ ifModified: true, cache: true });
 }
 
 function toogleImgBtn() {
@@ -527,35 +547,25 @@ function BuildChat( dataForBuild ) {
 
 //change stream room when userstream channel is loading
 function toogleStreamChatRoom() {
-	stream_channel_name = $("#stream_player_body").attr("class");
-	if(!stream_channel_name) {
-		stream_channel_name = $("#stream_player_body > div > div:visible").attr("class");
-	}
-	if(!stream_channel_name) {
-		return false;
-	}
-	////$.cookie("chat_channel_id", stream_channel_name, {path: "/"});
-	stream_channel_name = stream_channel_name.replace( 'stream-', '' );
-	chat_channel_id = stream_channel_name;
-	
-	$( '#stream-room' ).attr({
-		'class': stream_channel_name,
-		title: 'канал ' + stream_channel_name,
+	$("#stream-room").attr({
+		'class': chat_channel_id,
+		title: 'канал ' + chat_channel_id,
 		style: 'color: #BBB !important'
 	}).text( 'stream' );
 }
 
 function toogleChatRooms() {
-	$( 'div.' + chat_channel_id).attr( 'style', 'color: #BBB !important' );
-	$( 'div.chat-channel-name > div' ).live('click', function() {			
-		if( $(this).attr( 'id' ) == 'stream-room' ) {
+	$( 'div.' + chat_channel_id ).attr( 'style', 'color: #BBB !important' );
+	$( 'div.chat-channel-name > div' ).live('click', function() {
+		if($(this).attr( 'id' ) == 'stream-room' ) {
 			toogleStreamChatRoom();
 		}
-		chat_channel_id = $(this).attr( 'class' );
-		chat_channel_id = chat_channel_id.replace( 'stream-', '' );
-		$( 'div.chat-channel-name > div').attr( 'style', '' );
-		$(this).attr( 'style', 'color: #BBB !important' );
-		ReadChat();
+		channel_name = $(this).attr( 'class' );
+		
+		chat_channel_id = channel_name;
+		$( 'div.chat-channel-name > div' ).attr( 'style', '' );
+		$( this ).attr( 'style', 'color: #BBB !important' );
+		readChat();		
 	});
 }
 
@@ -654,7 +664,7 @@ function getmenu( e, nick, mid, uid, channelId ) {
 
 function WriteMessage(){
 	msg = $( '.chat-text' ).val();
-	console.log( '111 source msg: "' + msg + '"' );
+	//console.log( '111 source msg: "' + msg + '"' );
 	
 	/* удаляем явно не разрешенные символы
 	разрешены
@@ -676,7 +686,7 @@ function WriteMessage(){
 		return false;
 	}
 	
-	console.log( 'post msg: "' + msg + '" to channel ' + chat_channel_id );
+	//console.log( 'post msg: "' + msg + '" to channel ' + chat_channel_id );
 	$.ajaxSetup({ async: false });
 	$.post( CHAT_URL + 'gate.php', { task: 'WriteMessage', message: msg, channel_id: chat_channel_id, token: userInfo.token }, function( jsonData ) {
 		data = $.parseJSON( jsonData );
@@ -692,7 +702,7 @@ function WriteMessage(){
 
 function CheckUserState( currentUserData ) {
 	if( currentUserData.type == userInfo.type && currentUserData.token == userInfo.token ) {
-		console.log( ' read' );
+		//console.log( 'read' );
 		//console.log( currentUserData );
 		//console.log( userInfo );
 		// наверное, пусть лучше будет задержка между отправкой сообщения и появлением его в чате (или другим действием),
@@ -701,20 +711,20 @@ function CheckUserState( currentUserData ) {
 	}
 	else {
 		show_error( currentUserData.error );
-		console.log( ' build' );
-		console.log( currentUserData );
-		console.log( userInfo );
+		//console.log( ' build' );
+		//console.log( currentUserData );
+		//console.log( userInfo );
 		BuildChat( currentUserData );
 	}
 }
 
 function IsStringCaps( str ) {
-	console.log( 'check for caps string "' + str + '"' );
+	//console.log( 'check for caps string "' + str + '"' );
 	// обращения вроде [b]MEGAKILLER[/b]
 	tempStr = str.replace( /\[b\][^\]]+\[\/b\]|[\s]+/gi, '' );
 	
 	if ( tempStr == '' ) {
-		console.log( 'caps 1' );
+		//console.log( 'caps 1' );
 		return true;
 	}
 	
@@ -724,17 +734,17 @@ function IsStringCaps( str ) {
 	caps = tempStr.match( regexp );
 	
 	if ( caps == null ) {
-		console.log( 'no caps 2' );
+		//console.log( 'no caps 2' );
 		return false;
 	}
 	
 	if( caps != '' && caps.length >= 5 && caps.length > ( len / 2 ) ) {
-		console.log( 'caps 3' );
-		console.log( 'caps = "' + caps + '", len = ' + len );
+		//console.log( 'caps 3' );
+		//console.log( 'caps = "' + caps + '", len = ' + len );
 		return true;
 	}
 	else {
-		console.log( 'no caps 4' );
+		//console.log( 'no caps 4' );
 		return false;
 	}
 }
