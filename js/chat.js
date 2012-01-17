@@ -578,29 +578,27 @@ function otvet(nick){
 	$('.menushka').remove();
 }
 
-function getmenu( e, nick, mid, uid, channelId ) {
+function getmenu( nick, mid, uid, channelId ) {
 	user_name = $( nick ).html();
 	if ( user_name == 'system' ) {
 		return false;
 	}
 	
 	$( '.menushka' ).remove();
-	y = ( e.pageY > 500 ) ? e.pageY - 80 : e.pageY;
 	
 	rid = parseInt( userInfo.rid );
 	
 	switch( rid ) {
 		// юзер
 		case 2:
-			$( 'body' ).append( '<ul class="menushka" style="display:block;top:'+y+'px;left:'+e.pageX+'px;"><li onclick=otvet(user_name)>Ответить</li><li onclick="ignoreUnignoreUser(user_name);">Ignore\Unignore</li><li onclick="window.document.location.href=\'' + SC2TV_URL + '/messages/new/' + uid + '\'">Послать ЛС</li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
+			$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick=otvet(user_name)>Ответить</li><li onclick="ignoreUnignoreUser(user_name);">Ignore\Unignore</li><li onclick="window.document.location.href=\'' + SC2TV_URL + '/messages/new/' + uid + '\'">Послать ЛС</li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
 		break;
 		
 		// админ, модер
 		case 3:
 		case 4:
 		case 5:
-			console.log( userInfo.rid );
-			$( 'body' ).append( '<ul class="menushka" style="display:block;top:'+y+'px;left:'+e.pageX+'px;"><li onclick=otvet(user_name)>Ответить</li><li onclick="ignoreUnignoreUser(user_name);">Ignore\Unignore</li><li onclick="DeleteMessage( ' + mid + ', ' + channelId + ')">Удалить сообщение</li><li onclick="JumpToUserChannel(' + mid + ')">В канал к юзеру</li><li onclick="window.document.location.href=\'' + SC2TV_URL + '/messages/new/' + uid + '\'">Послать ЛС</li><li onclick="BanUser( ' + uid + ', user_name, 10, ' + mid + ', ' + channelId + ')">Молчать 10 мин.</li><li onclick="BanUser(' + uid + ', user_name, 1440, ' + mid + ', ' + channelId + ')">Молчать сутки</li><li onclick="BanUser( ' + uid + ', user_name, 4320, ' + mid + ', ' + channelId + ')">Молчать 3 дня</li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
+			$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick=otvet(user_name)>Ответить</li><li onclick="ignoreUnignoreUser(user_name);">Ignore\Unignore</li><li onclick="DeleteMessage( ' + mid + ', ' + channelId + ')">Удалить сообщение</li><li onclick="JumpToUserChannel(' + mid + ')">В канал к юзеру</li><li onclick="window.document.location.href=\'' + SC2TV_URL + '/messages/new/' + uid + '\'">Послать ЛС</li><li onclick="BanUser( ' + uid + ', user_name, 10, ' + mid + ', ' + channelId + ')">Молчать 10 мин.</li><li onclick="BanUser(' + uid + ', user_name, 1440, ' + mid + ', ' + channelId + ')">Молчать сутки</li><li onclick="BanUser( ' + uid + ', user_name, 4320, ' + mid + ', ' + channelId + ')">Молчать 3 дня</li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
 		break;
 		
 		default:
@@ -644,7 +642,7 @@ function BuildHtml( messageList, currentChannelId ) {
 		}
 		
 		// TODO убрать лишнее
-		data = '<div class="channel-' + channelId + ' mess message_' + messageList[ i ].id + '"><span' + colorStyle + ' class="nick' + colorClass + '" onClick="getmenu(event,this,' + messageList[ i ].id + ',' + messageList[ i ].uid + ', ' + channelId + ')" title="' + messageList[ i ].date + '">' + messageList[ i ].name + '</span><p class="' + systemClass + 'text">' + messageList[ i ].message + '</p></div>' + data;
+		data = '<div class="channel-' + channelId + ' mess message_' + messageList[ i ].id + '"><span' + colorStyle + ' class="nick' + colorClass + '" onClick="getmenu(this,' + messageList[ i ].id + ',' + messageList[ i ].uid + ', ' + channelId + ')" title="' + messageList[ i ].date + '">' + messageList[ i ].name + '</span><p class="' + systemClass + 'text">' + messageList[ i ].message + '</p></div>' + data;
 	}
 	
 	data = ProcessReplaces( data );
