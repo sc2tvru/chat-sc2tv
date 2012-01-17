@@ -107,13 +107,14 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 	color:#FFFFFF;
 	font-family:Arial, Helvetica, sans-serif;
 	font-weight:bold;
+	font-size:11px;
 	border:2px solid #B6DEDB;
 	width: 150px;
 	position: absolute;
 	opacity:0.8;
 	text-align: center;
 	font-style: normal;
-	z-index: 1110;
+	z-index: 9999;
 	display: none;
 	padding:0;
 }
@@ -235,6 +236,7 @@ cursor:pointer;
 }
 p.ignored, p.ignored * {
 	color:black !important;
+	display:none !important;
 }
 #chat p.ignored  img {
 	display:none !important;
@@ -250,4 +252,7 @@ p.ignored, p.ignored * {
 	border:1px solid #aaa;
 	padding:2px !important;
 	margin:0px !important;
+}
+body{
+	margin:0;padding:0;
 }

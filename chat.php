@@ -135,7 +135,6 @@ class Chat {
 			case 5:
 				$this->user[ 'type' ] = 'chatAdmin';
 				$this->user[ 'rights' ] = 1;
-				setcookie( 'is_moderator', '1', 0, '/' );
 			break;
 			
 			case 8:

@@ -122,7 +122,9 @@ function StopChat( setStopCookie, message ){
 function ReloadChannelList(){
 	$.ajaxSetup({ ifModified: true, cache: false });
 	$.getJSON( CHAT_URL + 'memfs/channels.json', function( data ) {
-		channelList = data.channel;
+		if ( !( data == undefined || data == '' ) ) {
+			channelList = data.channel;
+		}
 	});
 }
 
@@ -188,7 +190,7 @@ function ReadChat(){
 	if( $.cookie( 'is_moderator' ) ) {
 		channelCount = channelList.length;
 		
-		$.ajaxSetup({ ifModified: true, cache:true });
+		$.ajaxSetup({ ifModified: true, cache: true });
 		
 		for( i=0; i < channelCount; i++ ) {
 			$.getJSON( CHAT_URL + 'memfs/channel-' + channelList[ i ].channelId + '.json', function( jsonData ) {
@@ -211,7 +213,7 @@ function ReadChat(){
 	else {
 		channelId = GetChannelId( chat_channel_id );
 		
-		$.ajaxSetup({ ifModified: true });
+		$.ajaxSetup({ ifModified: true, cache: true });
 		
 		$.getJSON( CHAT_URL + 'memfs/channel-' + channelId + '.json', function( jsonData ){
 			if ( jsonData != undefined ) {
@@ -278,69 +280,6 @@ function PutDataToChat( data ) {
 	if (autoScroll == 1) {
 		$("#chat").scrollTop(10000000);
 	}
-}
-
-// сборка html для канала
-function BuildHtml( messageList, currentChannelId ) {
-	var data = '';
-	var color = '';
-	var colorClass = '';
-	var colorStyle = '';
-	
-	var messageCount = messageList.length;
-	
-	if ( messageCount == 0 ) {
-		return '';
-	}
-	
-	for( i=0; i < messageCount; i++ ) {
-		color = GetSpecColor( messageList[ i ].uid );
-		// если не блат, то цвет по классу группы
-		if ( color == '' ) {
-			colorClass = ' user-' + messageList[ i ].rid;
-		}
-		else {
-			colorStyle = ' style="color:' + color + ';"';
-			colorClass = '';
-		}
-		
-		if ( messageList[ i ].uid == -1 ) {
-			systemClass = 'system_';
-		}
-		else {
-			systemClass = '';
-		}
-		
-		if ( currentChannelId == '' ) {
-			channelId = messageList[ i ].channelId;
-		}
-		
-		// TODO убрать лишнее
-		data = '<div class="channel-' + channelId + ' mess message_' + messageList[ i ].id + '"><span' + colorStyle + ' class="nick' + colorClass + '" onClick="getmenu(event,this,' + messageList[ i ].id + ',' + messageList[ i ].uid + ', ' + channelId + ')" title="' + messageList[ i ].date + '">' + messageList[ i ].name + '</span><p class="' + systemClass + 'text">' + messageList[ i ].message + '</p></div>' + data;
-	}
-	
-	data = ProcessReplaces( data );
-	
-	//img On|Off
-	if($.cookie("chat-img") == "1") {
-		data = data.replace(/<img.*?>/ig, " ");
-	}
-	
-	//colors on|off
-	setStyle4ColorNicks();
-	
-	if( !$.cookie( 'chat_channel_id') ) {
-		$.cookie( 'chat_channel_id', chat_channel_id, {path: '/'} );
-	}
-	
-	//get nickname from profile
-	var nick = $("#myslidemenu > ul > li > a").text();
-	
-	//highlight msg 
-	var regExp = new RegExp("><b>"+ RegExp.escape(nick) +"<\/b>,", "mig");									
-	data = data.replace(regExp, " style='color:#f36223' $&");
-	
-	return data;
 }
 
 // всевозможные замены
@@ -483,6 +422,10 @@ function BuildChat( dataForBuild ) {
 			myform = form_chat;
 	}
 	
+	if ( userInfo.rid = 5 ) {
+		$.cookie( 'is_moderator', '1', { expires: 365, path: '/'} );
+	}
+	
 	$('#dialog2').html('<div id="add_styles"></div><div class="chat-channel-name"><div title="перейти на главный канал" class="0">main</div><div id="stream-room" title="перейти на другой канал" class="other">other</div><br style="clear:both"/></div><div id="chat"></div>'+myform);
 	
 	toogleImgBtn();
@@ -565,7 +508,7 @@ function toogleChatRooms() {
 		chat_channel_id = channel_name;
 		$( 'div.chat-channel-name > div' ).attr( 'style', '' );
 		$( this ).attr( 'style', 'color: #BBB !important' );
-		readChat();		
+		ReadChat();
 	});
 }
 
@@ -641,26 +584,93 @@ function getmenu( e, nick, mid, uid, channelId ) {
 		return false;
 	}
 	
-	$('.menushka').remove();
+	$( '.menushka' ).remove();
 	y = ( e.pageY > 500 ) ? e.pageY - 80 : e.pageY;
 	
-	switch( userInfo.rid ) {
+	rid = parseInt( userInfo.rid );
+	
+	switch( rid ) {
 		// юзер
-		case "2":
-			$('body').append( '<ul class="menushka" style="display:block;top:'+y+'px;left:'+e.pageX+'px;"><li onclick=otvet(user_name)>Ответить</li><li onclick="ignoreUnignoreUser(user_name);">Ignore\Unignore</li><li onclick="window.document.location.href=\'' + SC2TV_URL + '/messages/new/' + uid + '\'">Послать ЛС</li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
+		case 2:
+			$( 'body' ).append( '<ul class="menushka" style="display:block;top:'+y+'px;left:'+e.pageX+'px;"><li onclick=otvet(user_name)>Ответить</li><li onclick="ignoreUnignoreUser(user_name);">Ignore\Unignore</li><li onclick="window.document.location.href=\'' + SC2TV_URL + '/messages/new/' + uid + '\'">Послать ЛС</li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
 		break;
 		
 		// админ, модер
-		case "3":
-		case "4":
-		case "5":
-			$('body').append( '<ul class="menushka" style="display:block;top:'+y+'px;left:'+e.pageX+'px;"><li onclick=otvet(user_name)>Ответить</li><li onclick="ignoreUnignoreUser(user_name);">Ignore\Unignore</li><li onclick="DeleteMessage( ' + mid + ', ' + channelId + ')">Удалить сообщение</li><li onclick="JumpToUserChannel(' + mid + ')">В канал к юзеру</li><li onclick="window.document.location.href=\'' + SC2TV_URL + '/messages/new/' + uid + '\'">Послать ЛС</li><li onclick="BanUser( ' + uid + ', user_name, 10, ' + mid + ', ' + channelId + ')">Молчать 10 мин.</li><li onclick="BanUser(' + uid + ', user_name, 1440, ' + mid + ', ' + channelId + ')">Молчать сутки</li><li onclick="BanUser( ' + uid + ', user_name, 4320, ' + mid + ', ' + channelId + ')">Молчать 3 дня</li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
+		case 3:
+		case 4:
+		case 5:
+			console.log( userInfo.rid );
+			$( 'body' ).append( '<ul class="menushka" style="display:block;top:'+y+'px;left:'+e.pageX+'px;"><li onclick=otvet(user_name)>Ответить</li><li onclick="ignoreUnignoreUser(user_name);">Ignore\Unignore</li><li onclick="DeleteMessage( ' + mid + ', ' + channelId + ')">Удалить сообщение</li><li onclick="JumpToUserChannel(' + mid + ')">В канал к юзеру</li><li onclick="window.document.location.href=\'' + SC2TV_URL + '/messages/new/' + uid + '\'">Послать ЛС</li><li onclick="BanUser( ' + uid + ', user_name, 10, ' + mid + ', ' + channelId + ')">Молчать 10 мин.</li><li onclick="BanUser(' + uid + ', user_name, 1440, ' + mid + ', ' + channelId + ')">Молчать сутки</li><li onclick="BanUser( ' + uid + ', user_name, 4320, ' + mid + ', ' + channelId + ')">Молчать 3 дня</li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
 		break;
 		
 		default:
 			return false;
 	}
 }
+
+// сборка html для канала
+function BuildHtml( messageList, currentChannelId ) {
+	var data = '';
+	var color = '';
+	var colorClass = '';
+	var colorStyle = '';
+	
+	var messageCount = messageList.length;
+	
+	if ( messageCount == 0 ) {
+		return '';
+	}
+	
+	for( i=0; i < messageCount; i++ ) {
+		color = GetSpecColor( messageList[ i ].uid );
+		// если не блат, то цвет по классу группы
+		if ( color == '' ) {
+			colorClass = ' user-' + messageList[ i ].rid;
+		}
+		else {
+			colorStyle = ' style="color:' + color + ';"';
+			colorClass = '';
+		}
+		
+		if ( messageList[ i ].uid == -1 ) {
+			systemClass = 'system_';
+		}
+		else {
+			systemClass = '';
+		}
+		
+		if ( currentChannelId == '' ) {
+			channelId = messageList[ i ].channelId;
+		}
+		
+		// TODO убрать лишнее
+		data = '<div class="channel-' + channelId + ' mess message_' + messageList[ i ].id + '"><span' + colorStyle + ' class="nick' + colorClass + '" onClick="getmenu(event,this,' + messageList[ i ].id + ',' + messageList[ i ].uid + ', ' + channelId + ')" title="' + messageList[ i ].date + '">' + messageList[ i ].name + '</span><p class="' + systemClass + 'text">' + messageList[ i ].message + '</p></div>' + data;
+	}
+	
+	data = ProcessReplaces( data );
+	
+	//img On|Off
+	if($.cookie("chat-img") == "1") {
+		data = data.replace(/<img.*?>/ig, " ");
+	}
+	
+	//colors on|off
+	//setStyle4ColorNicks();
+	
+	if( !$.cookie( 'chat_channel_id') ) {
+		$.cookie( 'chat_channel_id', chat_channel_id, {path: '/'} );
+	}
+	
+	//get nickname from profile
+	var nick = $("#myslidemenu > ul > li > a").text();
+	
+	//highlight msg 
+	var regExp = new RegExp("><b>"+ RegExp.escape(nick) +"<\/b>,", "mig");									
+	data = data.replace(regExp, " style='color:#f36223' $&");
+	
+	return data;
+}
+
 
 function WriteMessage(){
 	msg = $( '.chat-text' ).val();
