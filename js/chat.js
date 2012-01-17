@@ -293,7 +293,7 @@ function ProcessReplaces( str ) {
 	return str;
 }
 
-
+// спеццвета
 function GetSpecColor( uid ) {
 	var color = '';
 	switch( uid ) {
@@ -341,16 +341,6 @@ function IsUserIgnored( uid ) {
 	}
 	
 	return false;
-}
-
-function setStyle4ColorNicks() {
-	style4ColorNicks = "";
-	if($.cookie("chat_color_nicks_off") == "1") {
-		style4ColorNicks = '<style type="text/css">#dialog2 span.nick{color:#7797BE !important;}</style>';	
-		$("#clr_nick_off").hide();
-		$("#clr_nick_on").show();
-	}
-	$("#add_styles").html(style4ColorNicks);	
 }
 
 function BuildChat( dataForBuild ) {
@@ -613,14 +603,20 @@ function BuildHtml( messageList, currentChannelId ) {
 	}
 	
 	for( i=0; i < messageCount; i++ ) {
-		color = GetSpecColor( messageList[ i ].uid );
-		// если не блат, то цвет по классу группы
-		if ( color == '' ) {
-			colorClass = ' user-' + messageList[ i ].rid;
+		// подсветка ников выключена 
+		if ( $.cookie( 'chat_color_nicks_off') == '1') {
+			colorClass = ' user-2';
 		}
 		else {
-			colorStyle = ' style="color:' + color + ';"';
-			colorClass = '';
+			color = GetSpecColor( messageList[ i ].uid );
+			// если не блат, то цвет по классу группы
+			if ( color == '' ) {
+				colorClass = ' user-' + messageList[ i ].rid;
+			}
+			else {
+				colorStyle = ' style="color:' + color + ';"';
+				colorClass = '';
+			}
 		}
 		
 		if ( messageList[ i ].uid == -1 ) {
@@ -650,18 +646,12 @@ function BuildHtml( messageList, currentChannelId ) {
 		data = data.replace(/<img.*?>/ig, '');
 	}
 	
-	//colors on|off
-	//setStyle4ColorNicks();
-	
 	if( !$.cookie( 'chat_channel_id') ) {
 		$.cookie( 'chat_channel_id', chat_channel_id, {path: '/'} );
 	}
 	
-	//get nickname from profile
-	var nick = $("#myslidemenu > ul > li > a").text();
-	
-	//highlight msg 
-	var regExp = new RegExp("><b>"+ RegExp.escape(nick) +"<\/b>,", "mig");									
+	// подсветка своих сообщений
+	var regExp = new RegExp( '><b>' + RegExp.escape( userInfo.name ) +'<\/b>,', 'mig' );
 	data = data.replace(regExp, " style='color:#f36223' $&");
 	
 	return data;
