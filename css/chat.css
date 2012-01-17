@@ -239,6 +239,9 @@ p.ignored, p.ignored * {
 	color:black !important;
 	display:none !important;
 }
+span.nick-ignored{
+	color:#CACACA !important;
+}
 #chat p.ignored  img {
 	display:none !important;
 }

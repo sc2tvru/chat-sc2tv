@@ -10,7 +10,7 @@ var CHAT_RELOAD_INTERVAL = 5000;
 var CHAT_CHANNEL_RELOAD_INTERVAL = 60000;
 var SC2TV_URL = 'http://' + document.location.hostname;
 var CHAT_URL =  'http://chat.shr.dev.sc2tv.ru/';
-var CHAT_IMG_DIR = '/chat/img/';
+var CHAT_IMG_DIR = '/img/';
 var chatTimerId = 0;
 var channelList = [];
 var screen2 = 0;
@@ -271,9 +271,9 @@ function PutDataToChat( data ) {
 		);
 	}
 	else {
+		// TODO убрать?
 		DIV = document.createElement( 'DIV' );
-		if($.cookie("chat_ignored")) data = getChatDataWithIgnoreList(data);					
-		DIV.innerHTML = data;							
+		DIV.innerHTML = data;
 		$( '#chat' ).html( $( 'div.channel-' + channelId, DIV) );
 	}
 	
@@ -317,62 +317,30 @@ function GetSpecColor( uid ) {
 	return color;
 }
 
-function getStrWithSubstr(str, substr, i) {
-    return str.slice(0, i) + substr + str.slice(i);
-}
-
-//need refactoring
-function setDelIgnoredUser(nick) {
-	if(!$.cookie("chat_ignored")) {
-		$.cookie("chat_ignored", '["'+ nick +'"]', { expires: 365, path: '/'} );
-		alert("Вы заигнорили " + nick);
-		return true;
-	}
-	var ignoredList;
-	if($.cookie("chat_ignored").toLowerCase().indexOf('"'+nick.toLowerCase()+'"') == -1) {
-		//add ignored user
-		ignoredList = getStrWithSubstr($.cookie("chat_ignored"), ',"'+nick+'"', $.cookie("chat_ignored").length - 1);		
-		alert("Вы заигнорили " + nick);
-	} else {
-		//del ignored user		
-		var rplsStr = ',"'+ nick +'"';		
-		if($.cookie("chat_ignored").indexOf('"'+ nick +'"') == 1) {
-			rplsStr = '"'+ nick +'"';
-			if($.cookie("chat_ignored").indexOf(',') != -1)
-				rplsStr = '"'+ nick +'",';
-		}		
-		ignoredList = $.cookie("chat_ignored").replace(rplsStr, '');
-		alert("Вы разблокировали " + nick);
-	}
-	
-	$.cookie("chat_ignored", ignoredList, { expires: 365, path: '/'} );
-	if(ignoredList == "[]")
-		$.cookie("chat_ignored", null, { expires: 365, path: '/'} );
-		
-}
-
 RegExp.escape = function(text) {
     return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 }
 
-function getChatDataWithIgnoreList(data) {
-	var ignoreArr = $.cookie("chat_ignored").replace('["','"').replace('"]', '"').split(',');
-	if (!$.isArray(ignoreArr)) return data;
-	var ignoredUser="";	
-	for(var i=0; i<ignoreArr.length; ++i) {
-		//replaceStr = ignoreArr[i].replace(/"/ig, "") + "</span><p class='text";
-		//regexp = new RegExp(,"ig");
-		//data = data.replace(replaceStr, replaceStr+" ignored");
-		ignoredUser = (ignoredUser + RegExp.escape(ignoreArr[i].replace(/"/ig, "")))+ "|";				
+// в игноре ли пользователь
+function IsUserIgnored( uid ) {
+	if ( $.cookie( 'chat_ignored' ) == '' || $.cookie( 'chat_ignored' ) == undefined ) {
+		return false;
 	}
-	//var regExp = new RegExp('(<div (.*?) class=\'channel-.*?><.*?>(?:'+ ignoredUser +'0)<\/span><.*?>).*?(<\/p><\/div>)',"ig");
-	//data = data.replace(regExp, "$1ignored$2");		
-	var regExp = new RegExp(">(?:"+ ignoredUser +"<xxx>)<\/span><p class='text", "mig");	
-	//var regExp = new RegExp("(?:Klayman|rentgen|jjjjjjj)<\/span><p class='text", "mig");
-	data = data.replace(regExp, " style='color:#CACACA' $& ignored");		
-	//result = data.match(regExp);
-	//alert(result.length);
-	return data;
+	
+	var ignoredUids = $.cookie( 'chat_ignored').split( ',' );
+	
+	if ( !$.isArray( ignoredUids ) ) {
+		return false;
+	}
+	
+	var ignoredCount = ignoredUids.length;
+	for( var k = 0; k < ignoredCount; k++ ) {
+		if ( ignoredUids[ k ] == uid ) {
+			return true;
+		}
+	}
+	
+	return false;
 }
 
 function setStyle4ColorNicks() {
@@ -538,8 +506,33 @@ function DeleteMessage( mid, channelId ) {
 	});
 }
 
-function ignoreUnignoreUser(nick) {
-	setDelIgnoredUser(nick);	
+function IgnoreUnignore( username, uid ) {
+	// 1й игнор
+	if( !$.cookie( 'chat_ignored' ) ) {
+		$.cookie( 'chat_ignored', uid + ',', { expires: 365, path: '/'} );
+		alert( 'Вы заигнорили ' + username );
+		$('.menushka').remove();
+		return true;
+	}
+	
+	ignoredString = $.cookie( 'chat_ignored' );
+	
+	// пользователь не найден в игнорлисте, заносим в него
+	if( ignoredString.indexOf( uid ) == -1 ) {
+		ignoredString += uid + ',';
+		alert( 'Вы заигнорили ' + username );
+	}
+	else {
+		// пользователь найден, снимаем игнор
+		uidPattern = new RegExp( '[,]*' + uid + ',', 'i' );
+		ignoredString = ignoredString.replace( uidPattern, ',' );
+		alert( 'Вы разблокировали ' + username );
+	}
+	if ( ignoredString == ',' ) {
+		ignoredString = '';
+	}
+	
+	$.cookie( 'chat_ignored', ignoredString, { expires: 365, path: '/'} );
 	$('.menushka').remove();
 }
 
@@ -591,14 +584,14 @@ function getmenu( nick, mid, uid, channelId ) {
 	switch( rid ) {
 		// юзер
 		case 2:
-			$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick=otvet(user_name)>Ответить</li><li onclick="ignoreUnignoreUser(user_name);">Ignore\Unignore</li><li onclick="window.document.location.href=\'' + SC2TV_URL + '/messages/new/' + uid + '\'">Послать ЛС</li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
+			$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick=otvet(user_name)>Ответить</li><li onclick="IgnoreUnignore(user_name, ' + uid + ');">Ignore\Unignore</li><li onclick="window.document.location.href=\'' + SC2TV_URL + '/messages/new/' + uid + '\'">Послать ЛС</li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
 		break;
 		
 		// админ, модер
 		case 3:
 		case 4:
 		case 5:
-			$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick=otvet(user_name)>Ответить</li><li onclick="ignoreUnignoreUser(user_name);">Ignore\Unignore</li><li onclick="DeleteMessage( ' + mid + ', ' + channelId + ')">Удалить сообщение</li><li onclick="JumpToUserChannel(' + mid + ')">В канал к юзеру</li><li onclick="window.document.location.href=\'' + SC2TV_URL + '/messages/new/' + uid + '\'">Послать ЛС</li><li onclick="BanUser( ' + uid + ', user_name, 10, ' + mid + ', ' + channelId + ')">Молчать 10 мин.</li><li onclick="BanUser(' + uid + ', user_name, 1440, ' + mid + ', ' + channelId + ')">Молчать сутки</li><li onclick="BanUser( ' + uid + ', user_name, 4320, ' + mid + ', ' + channelId + ')">Молчать 3 дня</li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
+			$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick=otvet(user_name)>Ответить</li><li onclick="IgnoreUnignore(user_name, ' + uid + ' );">Ignore\Unignore</li><li onclick="DeleteMessage( ' + mid + ', ' + channelId + ')">Удалить сообщение</li><li onclick="JumpToUserChannel(' + mid + ')">В канал к юзеру</li><li onclick="window.document.location.href=\'' + SC2TV_URL + '/messages/new/' + uid + '\'">Послать ЛС</li><li onclick="BanUser( ' + uid + ', user_name, 10, ' + mid + ', ' + channelId + ')">Молчать 10 мин.</li><li onclick="BanUser(' + uid + ', user_name, 1440, ' + mid + ', ' + channelId + ')">Молчать сутки</li><li onclick="BanUser( ' + uid + ', user_name, 4320, ' + mid + ', ' + channelId + ')">Молчать 3 дня</li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
 		break;
 		
 		default:
@@ -642,14 +635,19 @@ function BuildHtml( messageList, currentChannelId ) {
 		}
 		
 		// TODO убрать лишнее
-		data = '<div class="channel-' + channelId + ' mess message_' + messageList[ i ].id + '"><span' + colorStyle + ' class="nick' + colorClass + '" onClick="getmenu(this,' + messageList[ i ].id + ',' + messageList[ i ].uid + ', ' + channelId + ')" title="' + messageList[ i ].date + '">' + messageList[ i ].name + '</span><p class="' + systemClass + 'text">' + messageList[ i ].message + '</p></div>' + data;
+		if( IsUserIgnored( messageList[ i ].uid ) == true ) {
+			data = '<div class="channel-' + channelId + ' mess message_' + messageList[ i ].id + '"><span' + colorStyle + ' class="nick nick-ignored" onClick="getmenu(this,' + messageList[ i ].id + ',' + messageList[ i ].uid + ', ' + channelId + ')" title="' + messageList[ i ].date + '">' + messageList[ i ].name + '</span><p class="text ignored">' + messageList[ i ].message + '</p></div>' + data;
+		}
+		else {
+			data = '<div class="channel-' + channelId + ' mess message_' + messageList[ i ].id + '"><span' + colorStyle + ' class="nick' + colorClass + '" onClick="getmenu(this,' + messageList[ i ].id + ',' + messageList[ i ].uid + ', ' + channelId + ')" title="' + messageList[ i ].date + '">' + messageList[ i ].name + '</span><p class="' + systemClass + 'text">' + messageList[ i ].message + '</p></div>' + data;
+		}
 	}
 	
 	data = ProcessReplaces( data );
 	
 	//img On|Off
-	if($.cookie("chat-img") == "1") {
-		data = data.replace(/<img.*?>/ig, " ");
+	if($.cookie( 'chat-img' ) == '1' ) {
+		data = data.replace(/<img.*?>/ig, '');
 	}
 	
 	//colors on|off
