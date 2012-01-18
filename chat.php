@@ -378,9 +378,11 @@ class Chat {
 		file_put_contents( $channelFileName, $dataJson );
 		touch( $channelFileName );
 		
-		$fGzip = gzopen( $channelFileName . '.gz', 'w' );
+		$channelFileNameGz = $channelFileName . '.gz';
+		$fGzip = gzopen( $channelFileNameGz, 'w' );
 		gzwrite( $fGzip, $dataJson );
 		gzclose( $fGzip );
+		touch( $channelFileNameGz );
 	}
 	
 	

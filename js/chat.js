@@ -153,10 +153,11 @@ function GetChannelId( id ) {
 }
 
 function AddChannelTitles(){
-	channelCount = channelList.length;
-	for( i=0; i < channelCount; i++) {
-		title =	$( 'div.channel-' + channelList[ i ].channelId + ' > span' ).attr( 'title' ) + ' @ ' + channelList[ i ].channelTitle;
-		$( 'div.channel-' + channelList[ i ].channelId + ' > span' ).attr( 'title', title );
+	var channelMaxNum = channelList.length - 1;
+	for( i=0; i < channelMaxNum; i++) {
+		$( 'div.channel-' + channelList[ i ].channelId + ' > span' ).each(function(index) {
+			$( this ).attr( 'title', $( this ).attr( 'title' ) + ' @ ' + channelList[ i ].channelTitle );
+		});
 	}
 }
 
