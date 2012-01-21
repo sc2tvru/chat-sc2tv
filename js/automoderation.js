@@ -1,6 +1,6 @@
-var SC2TV_URL = 'http://' + document.location.hostname;
-var CHAT_URL =  SC2TV_URL + '/chat/';
-var CHAT_IMG_DIR = '/chat/img/';
+var SC2TV_URL = 'http://shr.dev.sc2tv.ru';
+var CHAT_URL =  'http://chat.shr.dev.sc2tv.ru/';
+var CHAT_IMG_DIR = '/img/';
 var CHAT_MEMFS = CHAT_URL + 'memfs';
 var CHAT_HISTORY_URL = CHAT_MEMFS + '/automoderation_history/';
 var CHAT_MODERATORS_DETAILS_URL = CHAT_MEMFS + '/moderatorsDetails.json';
@@ -14,6 +14,7 @@ var CHAT_COMPLAINS_FOR_BANS_ERROR = 'Ошибка при получении да
 var userInfo = [];
 var moderatorsDetails = [];
 var complainsList = [];
+var smilesCount = smiles.length;
 
 function GetModeratorsData() {
 	Login();
@@ -306,7 +307,7 @@ function ProcessReplaces( str ) {
 	// смайлы
 	for( i = 0; i < smilesCount; i++) {
 		smileHtml = '<img src="' + CHAT_IMG_DIR + smiles[ i ].img +'" width="' + smiles[ i ].width + '" height="' + smiles[ i ].height+ '" class="chat-smile"/>';
-		var smilePattern = new RegExp( RegExp.escape( smiles[ i ].code ), 'gi' );
+		var smilePattern = new RegExp( RegExp.escape( ':s' + smiles[ i ].code ), 'gi' );
 		str = str.replace( smilePattern, smileHtml );
 	}
 	return str;

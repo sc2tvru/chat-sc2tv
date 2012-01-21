@@ -1,4 +1,4 @@
-var SC2TV_URL = 'http://' + document.location.hostname;
+var SC2TV_URL = 'http://shr.dev.sc2tv.ru';
 var CHAT_URL =  'http://chat.shr.dev.sc2tv.ru/';
 var CHAT_HISTORY_URL = CHAT_URL + 'memfs/history/';
 var CHAT_AUTH_INFO_FOR_USERS_ONLY = 'Информация доступна только для авторизованных в чате пользователей.';

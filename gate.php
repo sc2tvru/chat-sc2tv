@@ -57,7 +57,7 @@ switch ( $task ) {
 			}
 		}
 		else {
-			$error = CHAT_USER_MESSAGE_EMPTY .' : _'. $res . '_';
+			$error = CHAT_USER_MESSAGE_ERROR;
 		}
 		
 		SendDefaultResponse( $userInfo, $error );

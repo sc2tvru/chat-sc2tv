@@ -49,7 +49,6 @@ font-weight:bold;
 font-size:12px;
 }
 
-
 #dialog2 .chat-title{
 top:50px;
 z-index:3;
@@ -85,6 +84,17 @@ margin:0px;
 #dialog2 .nick:after {content:':';position:relative;}
 /*system user*/
 #dialog2 .user-1{color:#808080;font-size:10px;cursor:auto;}
+#dialog2 .system-nick {
+	color:#808080;
+	font-size:10px;
+	display:inline;
+	padding-right:7px;
+	margin:0
+}
+#dialog2 .system-nick:after {
+	content:':';
+	position:relative;
+}
 #dialog2 .system_text{color:#808080;font-size:10px;display:inline;}
 
 #dialog2 .mess {padding:.3em 0; border-bottom:1px solid #222222}
@@ -120,15 +130,19 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 	padding:0;
 }
 .menushka li{
-text-align:left;
-list-style-image:none;
-list-style-type:none;
-cursor:pointer;
-border:1px solid #ACD3D5;
+	text-align:left;
+	list-style-image:none;
+	list-style-type:none;
+	cursor:pointer;
+	border:1px solid #ACD3D5;
 }
-.menushka li:hover{
-background:#FFFF99;
-color:#0066FF;
+.menushka li a{
+	text-decoration:none;
+	color:#FFFFFF;
+}
+.menushka li:hover, li a:hover{
+	background:#FFFF99;
+	color:#0066FF;
 }
 .menushka .menushka_close{
 background:#FFFFFF;
@@ -239,7 +253,7 @@ p.ignored, p.ignored * {
 	color:black !important;
 	display:none !important;
 }
-span.nick-ignored{
+span.ignored{
 	color:#CACACA !important;
 }
 #chat p.ignored  img {

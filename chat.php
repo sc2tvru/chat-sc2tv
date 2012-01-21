@@ -122,6 +122,8 @@ class Chat {
 		
 		switch ( $this->user[ 'rid' ] ) {
 			case 2:
+			case 6:
+			case 7:
 				$this->user[ 'type' ] = 'user';
 				$this->user[ 'rights' ] = 0;
 			break;
@@ -295,23 +297,6 @@ class Chat {
 		}
 	}
 	
-
-	/**
-	 *  всевозможные заменты в тексте
-	 *  @param string text исходная строка
-	 *  @return string строка с заменами
-	 */
-	private function ProcessReplaces( $message ) {
-		if( $this->IsStringCaps( $message ) ) {
-			$message = '<span class="red" title="' . $message . '">Предупреждение за КАПС!</span>';
-		}
-		else {
-			$message = preg_replace( '#\[b\](.+?)\[/b\]#uis', '<b>\\1</b>',  $message );
-		}
-		
-		return $message;
-	}
-	
 	
 	/**
 	 *  получение id текущего канала из $_POST[ 'channel_id' ]
@@ -341,12 +326,7 @@ class Chat {
 	 *  запись сообщений из базы в файл в memfs
 	 *  @param int channelId id канала, если не указан, определяется из POST
 	 */
-	private function WriteChannelCache( $channelId = '' ) {		
-		
-		if ( $channelId == '' ) {
-			$channelId = $this->GetChannelId();
-		}
-		
+	private function WriteChannelCache( $channelId = 0 ) {
         // ограничение по дате сделано, чтобы ускорить выборку при большом числе записей
 		$queryString = '
 			SELECT id, chat_message.uid, IFNULL( name, "system" ) as name, message,
@@ -363,6 +343,7 @@ class Chat {
 		$queryResult = $this->db->Query( $queryString );
 		
 		if ( $queryResult === false ) {
+			SaveForDebug( 'WriteChannelCache fail ' . $queryString );
 			return false;
 		}
 		
@@ -393,8 +374,8 @@ class Chat {
 	 */
 	private function CheckForAutoBan( $message ) {
 		// 3 смайла
-		if( preg_match( '/(?::s[\d]{1,2}:.*){3,}/usi', $message ) ) {
-			$this->BanUser( $this->user[ 'uid' ], $this->user[ 'name' ], 10, 0,
+		if( preg_match( '/(?::s.*:.*){3,}/usi', $message ) ) {
+			$this->BanUser( $this->user[ 'uid' ], $this->user[ 'name' ], 10, 0, 0,
 				CHAT_AUTOBAN_REASON_1, true );
 			return true;
 		}
@@ -468,7 +449,12 @@ class Chat {
 		
 		$channelId = $this->GetChannelId();
 		
-		$message = $this->ProcessReplaces( $message );
+		if( $this->IsStringCaps( $message ) ) {
+			$message = '<span class="red" title="' . $message . '">Предупреждение за КАПС!</span>';
+		}
+		else {
+			$message = preg_replace( '#\[b\](.+?)\[/b\]#uis', '<b>\\1</b>',  $message );
+		}
 		
 		if( $this->CheckForAutoBan( $message ) ) {
 			return false;
@@ -676,7 +662,9 @@ class Chat {
 			}
 		}
 		
-		$this->WriteChannelCache( $channelId );
+		if ( !$isAutoBan ) {
+			$this->WriteChannelCache( $channelId );
+		}
 		
 		$message = $moderatorName .' забанил '. $banUserName .' на ' .$banDurationInMin.' минут.';
 		$this->WriteSystemMessage( $message );

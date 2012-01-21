@@ -1,11 +1,12 @@
-var SC2TV_URL = 'http://' + document.location.hostname;
-var CHAT_URL =  SC2TV_URL + '/chat/';
-var CHAT_IMG_DIR = '/chat/img/';
+var SC2TV_URL = 'http://shr.dev.sc2tv.ru';
+var CHAT_URL =  'http://chat.shr.dev.sc2tv.ru/';
+var CHAT_IMG_DIR = '/img/';
 var CHAT_HISTORY_URL = CHAT_URL + 'memfs/history/';
 var CHAT_HISTORY_NOT_FOUND = 'Сообщений по вашему запросу не найдено';
 var CHAT_HISTORY_MAX_TIME_DIFFERENCE = 86400000;
 var CHAT_HISTORY_CHECK_PARAMS = 'Пожалуйста, проверьте правильность данных запроса. Максимальный временной интервал для запроса истории - 24 часа.';
 var CHAT_HISTORY_FOR_USERS_ONLY = 'История доступна только для авторизованных в чате пользователей.';
+var smilesCount = smiles.length;
 
 function GetHistoryData( channelId, startDate, endDate, nick ) {
 	nick = nick.replace( /[^\u0020-\u007E\u0400-\u045F\u0490\u0491\u0207\u0239]+/g, '' );
@@ -88,7 +89,7 @@ function ProcessReplaces( str ) {
 	// смайлы
 	for( i = 0; i < smilesCount; i++) {
 		smileHtml = '<img src="' + CHAT_IMG_DIR + smiles[ i ].img +'" width="' + smiles[ i ].width + '" height="' + smiles[ i ].height+ '" class="chat-smile"/>';
-		var smilePattern = new RegExp( RegExp.escape( smiles[ i ].code ), 'gi' );
+		var smilePattern = new RegExp( RegExp.escape( ':s' + smiles[ i ].code ), 'gi' );
 		str = str.replace( smilePattern, smileHtml );
 	}
 	return str;

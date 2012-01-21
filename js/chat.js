@@ -1,6 +1,8 @@
 var CHAT_USER_MESSAGE_EMPTY = 'Введите сообщение, прежде чем нажимать Enter.';
+var CHAT_USER_MESSAGE_ERROR = 'Ошибка при отправке сообщения.';
 var CHAT_USER_BANNED = 'Вы были забанены.';
 var CHAT_USER_NO_CAPS = 'КАПСИТЬ нельзя. Проверьте caps lock.';
+var CHAT_USER_NO_SPAM_SMILES = 'В одном сообщении нельзя использовать 3 и более смайла.';
 var user_name="";
 var width = 0;
 var height = -231;
@@ -8,7 +10,7 @@ var height = -231;
 // chat reload interval in ms
 var CHAT_RELOAD_INTERVAL = 5000;
 var CHAT_CHANNEL_RELOAD_INTERVAL = 60000;
-var SC2TV_URL = 'http://' + document.location.hostname;
+var SC2TV_URL = 'http://shr.dev.sc2tv.ru';
 var CHAT_URL =  'http://chat.shr.dev.sc2tv.ru/';
 var CHAT_IMG_DIR = '/img/';
 var chatTimerId = 0;
@@ -19,7 +21,7 @@ var moderatorData = '';
 var moderatorMessageList = [];
 var prevModeratorMessageList = [];
 
-smilesCount = smiles.length;
+var smilesCount = smiles.length;
 smileHtml = '';
 for( i=0; i < smilesCount; i++) {
 	smileHtml += '<img src="' + CHAT_IMG_DIR + smiles[i].img +'" title="' + smiles[i].code +'" width="' + smiles[i].width + '" height="' + smiles[i].height+ '"class="chat-smile" alt="' + smiles[i].code + '"/>';
@@ -30,7 +32,7 @@ for( i=0; i < smilesCount; i++) {
 smileHtml += '</div>';
 
 chat_rules_link = '<a title="Правила чата" href="/chat-rules" target="_blank">rules</a>';
-chat_history_link = '<a title="История чата" href="/chat/history.php" target="_blank">history</a>';
+chat_history_link = '<a title="История чата" href="/history.htm" target="_blank">history</a>';
 chat_vkl_btn = '<span id="chat-on" title="включить чат" style="display:none;">chat</span><span title="отключить чат" id="chat-off">chat</span>';
 img_btn = '<strong class="img-on" title="включить смайлы" style="display:none;">img</strong><strong title="отключить смайлы" class="img-off">img</strong>';
 color_btn = '<span id="clr_nick_on" title="включить цветные ники">color</span><span id="clr_nick_off" title="выключить цветные ники">color</span>';
@@ -41,7 +43,7 @@ form_chat = '<div id="chat-form"><form id="chat-form-id" method="post" action=""
 
 form_anon = '<div id="chat-form">'+ chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + chat_history_link + ' <span>В чате могут писать только зарегистрированные пользователи.</span></div>';
  
-form_banned = '<div id="chat-form">' + chat_vkl_btn + ' ' + img_btn + ' ' + chat_history_link + ' <span>Вы были забанены. </span><span id="chat_ban_reason"><a href="/chat/whoami.htm" target="_blank">Причина</a></span></div>';
+form_banned = '<div id="chat-form">' + chat_vkl_btn + ' ' + img_btn + ' ' + chat_history_link + ' <span>Вы были забанены. </span><span id="chat_ban_reason"><a href="/automoderation_history.htm" target="_blank">Причина</a></span></div>';
 
 form_newbie = '<div id="chat-form">' + chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + chat_history_link + ' <span>Вы зарегистрированы менее трех дней назад.</span></div>';
 
@@ -288,7 +290,7 @@ function ProcessReplaces( str ) {
 	// смайлы
 	for( i = 0; i < smilesCount; i++) {
 		smileHtml = '<img src="' + CHAT_IMG_DIR + smiles[ i ].img +'" width="' + smiles[ i ].width + '" height="' + smiles[ i ].height+ '" class="chat-smile"/>';
-		var smilePattern = new RegExp( RegExp.escape( smiles[ i ].code ), 'gi' );
+		var smilePattern = new RegExp( RegExp.escape( ':s' + smiles[ i ].code ), 'gi' );
 		str = str.replace( smilePattern, smileHtml );
 	}
 	return str;
@@ -575,14 +577,14 @@ function getmenu( nick, mid, uid, channelId ) {
 	switch( rid ) {
 		// юзер
 		case 2:
-			$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick=otvet(user_name)>Ответить</li><li onclick="IgnoreUnignore(user_name, ' + uid + ');">Ignore\Unignore</li><li onclick="window.document.location.href=\'' + SC2TV_URL + '/messages/new/' + uid + '\'">Послать ЛС</li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
+			$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick=otvet(user_name)>Ответить</li><li onclick="IgnoreUnignore(user_name, ' + uid + ');">Ignore\Unignore</li><li><a href="' + SC2TV_URL + '/messages/new/' + uid + '" target="_blank" onclick="$(\'.menushka\').remove();">Послать ЛС</a></li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
 		break;
 		
 		// админ, модер
 		case 3:
 		case 4:
 		case 5:
-			$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick=otvet(user_name)>Ответить</li><li onclick="IgnoreUnignore(user_name, ' + uid + ' );">Ignore\Unignore</li><li onclick="DeleteMessage( ' + mid + ', ' + channelId + ')">Удалить сообщение</li><li onclick="JumpToUserChannel(' + mid + ')">В канал к юзеру</li><li onclick="window.document.location.href=\'' + SC2TV_URL + '/messages/new/' + uid + '\'">Послать ЛС</li><li onclick="BanUser( ' + uid + ', user_name, 10, ' + mid + ', ' + channelId + ')">Молчать 10 мин.</li><li onclick="BanUser(' + uid + ', user_name, 1440, ' + mid + ', ' + channelId + ')">Молчать сутки</li><li onclick="BanUser( ' + uid + ', user_name, 4320, ' + mid + ', ' + channelId + ')">Молчать 3 дня</li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
+			$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick=otvet(user_name)>Ответить</li><li onclick="IgnoreUnignore(user_name, ' + uid + ' );">Ignore\Unignore</li><li onclick="DeleteMessage( ' + mid + ', ' + channelId + ')">Удалить сообщение</li><li onclick="JumpToUserChannel(' + mid + ')">В канал к юзеру</li><li><a href="' + SC2TV_URL + '/messages/new/' + uid + '" target="_blank" onclick="$(\'.menushka\').remove();">Послать ЛС</a></li><li onclick="BanUser( ' + uid + ', user_name, 10, ' + mid + ', ' + channelId + ')">Молчать 10 мин.</li><li onclick="BanUser(' + uid + ', user_name, 1440, ' + mid + ', ' + channelId + ')">Молчать сутки</li><li onclick="BanUser( ' + uid + ', user_name, 4320, ' + mid + ', ' + channelId + ')">Молчать 3 дня</li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
 		break;
 		
 		default:
@@ -595,7 +597,7 @@ function BuildHtml( messageList, currentChannelId ) {
 	var data = '';
 	var color = '';
 	var colorClass = '';
-	var colorStyle = '';
+	var customColorStyle = '';
 	
 	var messageCount = messageList.length;
 	
@@ -604,27 +606,31 @@ function BuildHtml( messageList, currentChannelId ) {
 	}
 	
 	for( i=0; i < messageCount; i++ ) {
-		// подсветка ников выключена 
-		if ( $.cookie( 'chat_color_nicks_off') == '1') {
-			colorClass = ' user-2';
-		}
-		else {
-			color = GetSpecColor( messageList[ i ].uid );
-			// если не блат, то цвет по классу группы
-			if ( color == '' ) {
-				colorClass = ' user-' + messageList[ i ].rid;
+		var nicknameClass = 'nick';
+		
+		// сообщения пользователей и системы выглядят по-разному
+		if ( messageList[ i ].uid != -1 ) {
+			var textClass = 'text';
+			
+			// подсветка ников выключена
+			if ( $.cookie( 'chat_color_nicks_off') == '1') {
+				nicknameClass += ' user-2';
 			}
 			else {
-				colorStyle = ' style="color:' + color + ';"';
-				colorClass = '';
+				color = GetSpecColor( messageList[ i ].uid );
+				// если не блат, то цвет по классу группы
+				if ( color == '' ) {
+					nicknameClass += ' user-' + messageList[ i ].rid;
+				}
+				else {
+					customColorStyle = ' style="color:' + color + ';"';
+				}
 			}
 		}
-		
-		if ( messageList[ i ].uid == -1 ) {
-			systemClass = 'system_';
-		}
 		else {
-			systemClass = '';
+			nicknameClass = 'system-nick';
+			var textClass = 'system_text';
+			customColorStyle = '';
 		}
 		
 		if ( currentChannelId == '' ) {
@@ -633,11 +639,16 @@ function BuildHtml( messageList, currentChannelId ) {
 		
 		// TODO убрать лишнее
 		if( IsUserIgnored( messageList[ i ].uid ) == true ) {
-			data = '<div class="channel-' + channelId + ' mess message_' + messageList[ i ].id + '"><span' + colorStyle + ' class="nick nick-ignored" onClick="getmenu(this,' + messageList[ i ].id + ',' + messageList[ i ].uid + ', ' + channelId + ')" title="' + messageList[ i ].date + '">' + messageList[ i ].name + '</span><p class="text ignored">' + messageList[ i ].message + '</p></div>' + data;
+			nicknameClass += ' ignored';
+			textClass += ' ignored';
 		}
-		else {
-			data = '<div class="channel-' + channelId + ' mess message_' + messageList[ i ].id + '"><span' + colorStyle + ' class="nick' + colorClass + '" onClick="getmenu(this,' + messageList[ i ].id + ',' + messageList[ i ].uid + ', ' + channelId + ')" title="' + messageList[ i ].date + '">' + messageList[ i ].name + '</span><p class="' + systemClass + 'text">' + messageList[ i ].message + '</p></div>' + data;
+		
+		var userMenu = '';
+		if ( userInfo.rid != 8 ) {
+			userMenu = 'onClick="getmenu(this,' + messageList[ i ].id + ',' + messageList[ i ].uid + ', ' + channelId + ')" ';
 		}
+		
+		data = '<div class="channel-' + channelId + ' mess message_' + messageList[ i ].id + '"><span' + customColorStyle + ' class="' + nicknameClass + '"' + userMenu + 'title="' + messageList[ i ].date + '">' + messageList[ i ].name + '</span><p class="' + textClass + '">' + messageList[ i ].message + '</p></div>' + data;
 	}
 	
 	data = ProcessReplaces( data );
@@ -658,6 +669,14 @@ function BuildHtml( messageList, currentChannelId ) {
 	return data;
 }
 
+// изменение кода смайлов, к которым привыкли пользователи, на коды, которые можно выделить регуляркой в php
+function FixSmileCode( str ) {
+	for( i = 0; i < smilesCount; i++) {
+		var smilePattern = new RegExp( RegExp.escape( smiles[ i ].code ), 'gi' );
+		str = str.replace( smilePattern, ':s' + smiles[ i ].code  );
+	}
+	return str;
+}
 
 function WriteMessage(){
 	msg = $( '.chat-text' ).val();
@@ -682,6 +701,14 @@ function WriteMessage(){
 		show_error( CHAT_USER_NO_CAPS );
 		return false;
 	}
+	console.log( msg );
+	msg = FixSmileCode( msg );
+	console.log( msg );
+	
+	if ( CheckForAutoBan( msg ) == true ) {
+		show_error( CHAT_USER_NO_SPAM_SMILES );
+		return false;
+	}
 	
 	//console.log( 'post msg: "' + msg + '" to channel ' + chat_channel_id );
 	$.ajaxSetup({ async: false });
@@ -692,6 +719,9 @@ function WriteMessage(){
 		
 		if( data.error == '' ) {
 			$( '.chat-text' ).val('');
+		}
+		else {
+			show_error( CHAT_USER_MESSAGE_ERROR );
 		}
 	});
 	$.ajaxSetup({ async: true });
@@ -743,6 +773,19 @@ function IsStringCaps( str ) {
 	else {
 		//console.log( 'no caps 4' );
 		return false;
+	}
+}
+
+function CheckForAutoBan( str ) {
+	// 3 смайла
+	regexp = /(:s.*:.*){3,}/g;
+	stringWithThreeSmiles = str.match( regexp );
+	
+	if ( stringWithThreeSmiles == null ) {
+		return false;
+	}
+	else {
+		return true;
 	}
 }
 	
