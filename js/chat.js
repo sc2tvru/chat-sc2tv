@@ -34,7 +34,7 @@ smileHtml += '</div>';
 chat_rules_link = '<a title="Правила чата" href="/chat-rules" target="_blank">rules</a>';
 chat_history_link = '<a title="История чата" href="/history.htm" target="_blank">history</a>';
 chat_vkl_btn = '<span id="chat-on" title="включить чат" style="display:none;">chat</span><span title="отключить чат" id="chat-off">chat</span>';
-img_btn = '<strong class="img-on" title="включить смайлы" style="display:none;">img</strong><strong title="отключить смайлы" class="img-off">img</strong>';
+img_btn = '<span id="img-on" title="включить смайлы" style="display:none;">img</span><span id="img-off" title="отключить смайлы">img</span>';
 color_btn = '<span id="clr_nick_on" title="включить цветные ники">color</span><span id="clr_nick_off" title="выключить цветные ники">color</span>';
 smiles_btn = '<span id="smile-btn">smile</span>';
 smile_panel = '<div id="chat-smile-panel">' + smileHtml + '<div id="chat-smile-panel-close">X</div></div>';
@@ -131,18 +131,23 @@ function ReloadChannelList(){
 }
 
 function toogleImgBtn() {
-	if($.cookie("chat-img") == null) $.cookie("chat-img", "0", { expires: 365, path: '/'} );
-	$(".img-on").toggle($.cookie("chat-img") == "1");
-	$(".img-off").toggle($.cookie("chat-img") == "0");
-	$(".img-on").live('click', function() {
-		$.cookie("chat-img", "0", { expires: 365, path: '/'} );
+	if( $.cookie( 'chat-img' ) == null ) {
+		$.cookie( 'chat-img', '1', { expires: 365, path: '/'} );
+	}
+	
+	$( '#img-on' ).toggle( $.cookie( 'chat-img' ) == '0' );
+	$( '#img-off' ).toggle( $.cookie( 'chat-img' ) == '1' );
+	
+	$( '#img-on' ).live( 'click', function() {
+		$.cookie( 'chat-img', '1', { expires: 365, path: '/'} );
 		$(this).hide();
-		$(".img-off").show();		
+		$( '#img-off').show();
 	});
-	$(".img-off").live('click', function() {
-		$.cookie("chat-img", "1", { expires: 365, path: '/'} );
+	
+	$( '#img-off' ).live( 'click', function() {
+		$.cookie( 'chat-img', '0', { expires: 365, path: '/'} );
 		$(this).hide();
-		$(".img-on").show();		
+		$( '#img-on' ).show();
 	});
 }
 
@@ -321,7 +326,9 @@ function GetSpecColor( uid ) {
 }
 
 RegExp.escape = function(text) {
-    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+	if ( text != undefined ) {
+		return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+	}
 }
 
 // в игноре ли пользователь
@@ -383,7 +390,7 @@ function BuildChat( dataForBuild ) {
 			myform = form_chat;
 	}
 	
-	if ( userInfo.rid = 5 ) {
+	if ( userInfo.isModerator == '1' ) {
 		$.cookie( 'is_moderator', '1', { expires: 365, path: '/'} );
 	}
 	
@@ -653,8 +660,8 @@ function BuildHtml( messageList, currentChannelId ) {
 	
 	data = ProcessReplaces( data );
 	
-	//img On|Off
-	if($.cookie( 'chat-img' ) == '1' ) {
+	// img on/off
+	if( $.cookie( 'chat-img' ) == '0' ) {
 		data = data.replace(/<img.*?>/ig, '');
 	}
 	
@@ -662,9 +669,11 @@ function BuildHtml( messageList, currentChannelId ) {
 		$.cookie( 'chat_channel_id', chat_channel_id, {path: '/'} );
 	}
 	
-	// подсветка своих сообщений
-	var regExp = new RegExp( '><b>' + RegExp.escape( userInfo.name ) +'<\/b>,', 'mig' );
-	data = data.replace(regExp, " style='color:#f36223' $&");
+	if ( userInfo.name != undefined ) {
+		// подсветка своих сообщений
+		var regExp = new RegExp( '><b>' + RegExp.escape( userInfo.name ) +'<\/b>,', 'mig' );
+		data = data.replace(regExp, " style='color:#f36223' $&");
+	}
 	
 	return data;
 }
@@ -701,9 +710,8 @@ function WriteMessage(){
 		show_error( CHAT_USER_NO_CAPS );
 		return false;
 	}
-	console.log( msg );
+	
 	msg = FixSmileCode( msg );
-	console.log( msg );
 	
 	if ( CheckForAutoBan( msg ) == true ) {
 		show_error( CHAT_USER_NO_SPAM_SMILES );

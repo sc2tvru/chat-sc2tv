@@ -88,12 +88,12 @@ class Chat {
 		
 		$queryString = '
 			SELECT users.uid as uid, name, created, rid, banExpirationTime, banTime,
-			chat_ban.status as ban
+			chat_ban.status as ban, rid in (3,4,5) as isModerator
 			FROM users INNER JOIN sessions using(uid)
 			LEFT JOIN chat_ban ON users.uid = chat_ban.uid
 			LEFT JOIN users_roles ON users_roles.uid = users.uid
 			WHERE sid = "'. $drupalSession .'"
-			ORDER BY ban DESC, banExpirationTime DESC, rid DESC LIMIT 1';
+			ORDER BY isModerator DESC, ban DESC, banExpirationTime DESC, rid DESC LIMIT 1';
 		
 		$queryResult = $this->db->Query( $queryString );
 		$userInfo = $queryResult->fetch_assoc();
@@ -121,19 +121,16 @@ class Chat {
 		}
 		
 		switch ( $this->user[ 'rid' ] ) {
+			/*
 			case 2:
 			case 6:
 			case 7:
 				$this->user[ 'type' ] = 'user';
 				$this->user[ 'rights' ] = 0;
-			break;
+			break;*/
 			
 			case 3:
 			case 4:
-				$this->user[ 'type' ] = 'chatAdmin';
-				$this->user[ 'rights' ] = 1;
-			break;
-			
 			case 5:
 				$this->user[ 'type' ] = 'chatAdmin';
 				$this->user[ 'rights' ] = 1;
@@ -147,6 +144,10 @@ class Chat {
 				);
 				$result[ 'error' ] = CHAT_USER_BANNED_ON_SITE;
 			break;
+			
+			default:
+				$this->user[ 'type' ] = 'user';
+				$this->user[ 'rights' ] = 0;
 		}
 		
 		// генерируем токен на основе сессии и запоминаем
@@ -167,8 +168,7 @@ class Chat {
 	 */
 	private function GetReasonWhyUserCantChat( $userInfo, $chatAuthMemcacheKey ) {
 		// Drupal обнуляет uid в сессии, если пользователю в профиле поставить статус blocked
-		// либо авторизоваться тем же юзером в другом браузере
-		if ( $userInfo[ 'uid' ] == 0 ) {
+		if ( $userInfo == NULL || $userInfo[ 'uid' ] == 0 ) {
 			return CHAT_UID_FOR_SESSION_NOT_FOUND;
 		}
 		

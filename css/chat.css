@@ -38,9 +38,9 @@ height:30px;
 }
 
 .chat-text{
-width:195px;
-border:1px #CCCCCC solid;
-font-size:14px;
+	width:190px;
+	border:1px #CCCCCC solid;
+	font-size:14px;
 }
 
 .nick{
@@ -172,9 +172,14 @@ cursor:pointer;
 	color:orange;
 	font-size:150%;
 }
-.img-on, .img-off {
+#img-on, #img-off {
 	cursor:pointer !important;
 }
+
+#img-off{
+	text-decoration:line-through
+}
+
 .chat-channel-name {
 /*	color: red !important; 
 	font-weight:bold;
