@@ -246,7 +246,7 @@ class Chat {
 		else {
 			$result[ 'error' ] = CHAT_USER_BANNED_IN_CHAT;
 			
-			if ( $this->user[ 'type' ] != 'bannedInChat' || $banInfo[ 'needUpdate' ] == 1 ) {
+			if ( $this->user[ 'type' ] != 'bannedInChat' || isset( $banInfo[ 'needUpdate' ] ) && ( $banInfo[ 'needUpdate' ] == 1 ) ) {
 				$this->user[ 'ban' ] = 1;
 				$this->user[ 'rights' ] = -1;
 				$this->user[ 'type' ] = 'bannedInChat';
@@ -650,8 +650,13 @@ class Chat {
 			if ( $modetatorsDetails != false ) {
 				if ( isset( $modetatorsDetails[ $moderatorId ] ) ) {
 					// TODO += ?
-					$modetatorsDetails[ $moderatorId ][ 'bansCount' ] = 
-						$modetatorsDetails[ $moderatorId ][ 'bansCount' ] + 1;
+					if ( isset( $modetatorsDetails[ $moderatorId ][ 'bansCount' ] ) ) {
+						$modetatorsDetails[ $moderatorId ][ 'bansCount' ] = 
+							$modetatorsDetails[ $moderatorId ][ 'bansCount' ] + 1;
+					}
+					else {
+						$modetatorsDetails[ $moderatorId ][ 'bansCount' ] = 1;
+					}
 				}
 				else {
 					$modetatorsDetails[ $moderatorId ][ 'bansCount' ] = 1;

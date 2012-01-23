@@ -75,9 +75,6 @@ function GetComplainsList() {
 		
 		$.getJSON( CHAT_COMPLAINS_FOR_BANS_URL, function( jsonData ){
 			complainsList = jsonData.complainsList;
-			if ( complainsList.length == 0 ) {
-				show_error( CHAT_COMPLAINS_FOR_BANS_ERROR );
-			}
 		});
 	}
 }
