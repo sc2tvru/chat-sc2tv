@@ -99,6 +99,7 @@ function CheckIsChannelAllowed( channelId ) {
 				}
 			}
 			StopChat( true , 'Канал с таким ID не найден в списке разрешенных.' );
+			$( '#chat-on').remove();
 		}
 	});
 }

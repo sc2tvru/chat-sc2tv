@@ -63,7 +63,7 @@ class ChatAutomoderationHistory {
 		$channelOptions = '';
 		if ( !( $channelId == '' || $channelId == 'all' ) ) {
 			$channelId = (int)$channelId;
-			$options = 'channelId = "'. $channelId .'" AND ';
+			$options .= 'channelId = "'. $channelId .'" AND ';
 		}
 		
 		$queryString = '
