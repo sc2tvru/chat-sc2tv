@@ -112,7 +112,7 @@ class Chat {
 		$this->user[ 'ban' ] = 0;
 		$result[ 'error' ] = '';
 		
-		// 3 - root, 4 - admin, 5 - moder, 6 - journalist, 7 - editor, 8 - banned, 9 - streamer
+		// 3 - root, 4 - admin, 5 - moder, 6 - journalist, 7 - editor, 8 - banned, 9 - streamer, 10 - userstreamer
 		if ( $userInfo[ 'rid' ] == NULL ) {
 			$this->user[ 'rid' ] = "2";
 		}
@@ -324,26 +324,83 @@ class Chat {
 	
 	/**
 	 *  запись сообщений из базы в файл в memfs
-	 *  @param int channelId id канала, если не указан, определяется из POST
+	 *  @param int $channelId id канала
 	 */
 	private function WriteChannelCache( $channelId = 0 ) {
-        // ограничение по дате сделано, чтобы ускорить выборку при большом числе записей
+		if ( $channelId >= 0 ) {
+			$isCacheActualMemcacheKey = 'ChatChActual-' . $channelId;
+			$channelFileName = CHAT_MEMFS_DIR . '/channel-' . $channelId . '.json';
+		}
+		else {
+			$isCacheActualMemcacheKey = 'ChatModChActual';
+			$channelFileName = CHAT_MEMFS_DIR . '/channel-moderator.json';
+		}
+		
+		$isCacheActual = $this->memcache->Get( $isCacheActualMemcacheKey );
+		
+		// пока кэш актуален, перезаписывать его не нужно
+		if ( $isCacheActual == '1' ) {
+			return;
+		}
+		
+		// пишем в файл, если он не заблокирован
+		$channelCacheFile = fopen( $channelFileName, 'w' );
+	
+		if ( flock( $channelCacheFile, LOCK_EX | LOCK_NB ) ) {
+			$messages = $this->GetMessagesByChannelId( $channelId );
+			$dataJson = json_encode( array( 'messages' => $messages ) );
+			
+			fwrite( $channelCacheFile, $dataJson );
+			fflush( $channelCacheFile );
+			
+			$channelFileNameGz = $channelFileName . '.gz';
+			$channelCacheGzFile = gzopen( $channelFileNameGz, 'w' );
+			gzwrite( $channelCacheGzFile, $dataJson );
+			gzclose( $channelCacheGzFile );
+			
+			// помечаем, что кэш актуален
+			$this->memcache->Set( $isCacheActualMemcacheKey, true, CHANNEL_CACHE_ACTUAL_TTL );
+			
+			flock( $channelCacheFile, LOCK_UN ); 
+		}
+		
+		fclose( $channelCacheFile );
+	}
+	
+	
+	/**
+	 *  получение из базы списка сообщений для заданного канала
+	 *  @param int $channelId id канала
+	 *  @return array
+	 */
+	private function GetMessagesByChannelId( $channelId = -1 ) {
+		// если канал не указан, выбираются сообщения для модераторов по всем каналам
+		if (  $channelId == -1 ) {
+			$channelCondition = '';
+			$messagesCount = CHAT_MODERATORS_MSG_LIMIT;
+		}
+		else {
+			$channelCondition = 'channelId = "' . $channelId . '" AND ';
+			$messagesCount = CHAT_CHANNEL_MSG_LIMIT;
+		}
+		
+		// ограничение по дате сделано, чтобы ускорить выборку при большом числе записей
 		$queryString = '
 			SELECT id, chat_message.uid, IFNULL( name, "system" ) as name, message,
 			IFNULL( min( rid ), 2 ) as rid, date, channelId
 			FROM chat_message
 			LEFT JOIN users on users.uid = chat_message.uid
 			LEFT JOIN users_roles ON users_roles.uid = chat_message.uid
-			WHERE channelId = "' . $channelId . '"
-			AND deletedBy is NULL
+			WHERE '. $channelCondition .'
+			deletedBy is NULL
 			AND date > "' . date( 'Y-m-d H:i:s', CURRENT_TIME - 259200 ) . '"
 			GROUP BY id
-			ORDER BY id	DESC LIMIT '. CHAT_CHANNEL_MSG_LIMIT;
+			ORDER BY id	DESC LIMIT '. $messagesCount;
 		
 		$queryResult = $this->db->Query( $queryString );
 		
 		if ( $queryResult === false ) {
-			SaveForDebug( 'WriteChannelCache fail ' . $queryString );
+			SaveForDebug( 'GetMessagesByChannelId fail ' . $queryString );
 			return false;
 		}
 		
@@ -353,17 +410,7 @@ class Chat {
 			$messages[] = $msg;
 		}
 		
-		$dataJson = json_encode( array( 'messages' => $messages ) );
-		
-		$channelFileName = CHAT_MEMFS_DIR . '/channel-' . $channelId . '.json';
-		file_put_contents( $channelFileName, $dataJson );
-		touch( $channelFileName );
-		
-		$channelFileNameGz = $channelFileName . '.gz';
-		$fGzip = gzopen( $channelFileNameGz, 'w' );
-		gzwrite( $fGzip, $dataJson );
-		gzclose( $fGzip );
-		touch( $channelFileNameGz );
+		return $messages;
 	}
 	
 	
@@ -473,7 +520,10 @@ class Chat {
 		$queryResult = $this->db->Query( $queryString );
 		
 		if ( $queryResult ) {
+			// кэш текущего канала
 			$this->WriteChannelCache( $channelId );
+			// кэш модераторов
+			$this->WriteChannelCache( -1 );
 			return true;
 		}
 		else {
@@ -520,7 +570,10 @@ class Chat {
 			return $result; 
 		}
 		
+		// кэш текущего канала
 		$this->WriteChannelCache( $channelId );
+		// кэш модераторов
+		$this->WriteChannelCache( -1 );
 		
 		$result = array(
 			'code' => 1,
@@ -668,7 +721,10 @@ class Chat {
 		}
 		
 		if ( !$isAutoBan ) {
+			// кэш текущего канала
 			$this->WriteChannelCache( $channelId );
+			// кэш модераторов
+			$this->WriteChannelCache( -1 );
 		}
 		
 		$message = $moderatorName .' забанил '. $banUserName .' на ' .$banDurationInMin.' минут.';

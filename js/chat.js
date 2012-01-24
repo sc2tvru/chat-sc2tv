@@ -53,11 +53,13 @@ autoScroll = 1;
 
 $(document).ready(function(){
 	chat_channel_id = getParameterByName( 'channelId' );
+	
 	whoStopChat = getParameterByName( 'stop' );
 	
 	BuildChat();
 	
 	if ( whoStopChat == '0' || whoStopChat == undefined || whoStopChat == '' ) {
+		CheckIsChannelAllowed( chat_channel_id );
 		if ( $.cookie( 'chat-on' ) == null || $.cookie( 'chat-on' ) == '1' ) {
 			StartChat();
 		}
@@ -84,6 +86,23 @@ function getParameterByName( name ) {
 	}
 }
 
+function CheckIsChannelAllowed( channelId ) {
+	$.ajaxSetup({ ifModified: true, cache: false });
+	$.getJSON( CHAT_URL + 'memfs/channels.json', function( data ) {
+		if ( !( data == undefined || data == '' ) ){
+			channelList = data.channel;
+			var channelMaxNum = channelList.length - 1;
+			
+			for( var i=0; i < channelMaxNum; i++ ) {
+				if ( channelList[ i ].channelId == channelId ) {
+					return true;
+				}
+			}
+			StopChat( true , 'Канал с таким ID не найден в списке разрешенных.' );
+		}
+	});
+}
+
 function StartChat(){
 	$.cookie( 'chat-on', '1', { expires: 365, path: '/'} );
 	
@@ -93,8 +112,8 @@ function StartChat(){
 	
 	chatTimerId = setInterval( 'ReadChat()', CHAT_RELOAD_INTERVAL );
 	if( $.cookie( 'is_moderator') ) {
-		ReloadChannelList();
-		channelListTimerId = setInterval( 'ReloadChannelList()', CHAT_CHANNEL_RELOAD_INTERVAL );
+		GetChannelsList();
+		channelListTimerId = setInterval( 'GetChannelsList()', CHAT_CHANNEL_RELOAD_INTERVAL );
 	}
 	
 	$( '#chat-form-id' ).show();
@@ -121,7 +140,7 @@ function StopChat( setStopCookie, message ){
 	$( '#chat-form-id' ).hide();
 }
 
-function ReloadChannelList(){
+function GetChannelsList(){
 	$.ajaxSetup({ ifModified: true, cache: false });
 	$.getJSON( CHAT_URL + 'memfs/channels.json', function( data ) {
 		if ( !( data == undefined || data == '' ) ) {
@@ -199,7 +218,7 @@ function ReadChat(){
 		channelCount = channelList.length;
 		
 		$.ajaxSetup({ ifModified: true, cache: true });
-		
+		/*
 		for( i=0; i < channelCount; i++ ) {
 			$.getJSON( CHAT_URL + 'memfs/channel-' + channelList[ i ].channelId + '.json', function( jsonData ) {
 				if ( jsonData != undefined ) {
@@ -217,6 +236,15 @@ function ReadChat(){
 				}
 			});
 		}
+		*/
+		$.getJSON( CHAT_URL + 'memfs/channel-moderator.json', function( jsonData ){
+			if ( jsonData != undefined ) {
+				var messageList = [];
+				messageList = jsonData.messages;
+				data = BuildHtml( messageList );
+				PutDataToChat( data );
+			}
+		});
 	}
 	else {
 		channelId = GetChannelId( chat_channel_id );
@@ -227,7 +255,7 @@ function ReadChat(){
 			if ( jsonData != undefined ) {
 				var messageList = [];
 				messageList = jsonData.messages;
-				data = BuildHtml( messageList, channelId );
+				data = BuildHtml( messageList );
 				PutDataToChat( data );
 			}
 		});
@@ -469,6 +497,7 @@ function toogleChatRooms() {
 	$( 'div.' + chat_channel_id ).attr( 'style', 'color: #BBB !important' );
 	$( 'div.chat-channel-name > div' ).live('click', function() {
 		if($(this).attr( 'id' ) == 'stream-room' ) {
+			chat_channel_id = getParameterByName( 'channelId' );
 			toogleStreamChatRoom();
 		}
 		channel_name = $(this).attr( 'class' );
@@ -583,13 +612,21 @@ function getmenu( nick, mid, uid, channelId ) {
 	
 	switch( rid ) {
 		// юзер
-		case 2,6,7,10:
+		case 2:
+		// журналист
+		case 6:
+		// редактор
+		case 7:
+		// фанстример
+		case 10:
 			$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick=otvet(user_name)>Ответить</li><li onclick="IgnoreUnignore(user_name, ' + uid + ');">Ignore\Unignore</li><li><a href="' + SC2TV_URL + '/messages/new/' + uid + '" target="_blank" onclick="$(\'.menushka\').remove();">Послать ЛС</a></li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
 		break;
 		
-		// админ, модер
+		// root
 		case 3:
+		// админ
 		case 4:
+		// модер
 		case 5:
 			$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick=otvet(user_name)>Ответить</li><li onclick="IgnoreUnignore(user_name, ' + uid + ' );">Ignore\Unignore</li><li onclick="DeleteMessage( ' + mid + ', ' + channelId + ')">Удалить сообщение</li><li onclick="JumpToUserChannel(' + mid + ')">В канал к юзеру</li><li><a href="' + SC2TV_URL + '/messages/new/' + uid + '" target="_blank" onclick="$(\'.menushka\').remove();">Послать ЛС</a></li><li onclick="BanUser( ' + uid + ', user_name, 10, ' + mid + ', ' + channelId + ')">Молчать 10 мин.</li><li onclick="BanUser(' + uid + ', user_name, 1440, ' + mid + ', ' + channelId + ')">Молчать сутки</li><li onclick="BanUser( ' + uid + ', user_name, 4320, ' + mid + ', ' + channelId + ')">Молчать 3 дня</li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
 		break;
@@ -600,7 +637,7 @@ function getmenu( nick, mid, uid, channelId ) {
 }
 
 // сборка html для канала
-function BuildHtml( messageList, currentChannelId ) {
+function BuildHtml( messageList ) {
 	var data = '';
 	var color = '';
 	var colorClass = '';
@@ -640,9 +677,7 @@ function BuildHtml( messageList, currentChannelId ) {
 			customColorStyle = '';
 		}
 		
-		if ( currentChannelId == '' ) {
-			channelId = messageList[ i ].channelId;
-		}
+		channelId = messageList[ i ].channelId;
 		
 		// TODO убрать лишнее
 		if( IsUserIgnored( messageList[ i ].uid ) == true ) {

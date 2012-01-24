@@ -3,38 +3,47 @@
  * вспомогательные функции
 */
 
-
 if ( LOG_ERRORS ) {
 	set_error_handler( 'ChatErrorHandler' );
 }
 
 
 function ChatErrorHandler( $errno = '', $errstr = '', $errfile = '', $errline = ''  ) {
-	$serverInfo = var_export( $_SERVER, true );
+	$logFile = fopen( ERROR_FILE, 'a' );
 	
-	$out = date( 'd M H:i:s', CURRENT_TIME ).' - ip '.$_SERVER[ 'REMOTE_ADDR' ]
-		.' - ref '.$_SERVER[ 'HTTP_REFERER' ]."\n $errfile, line $errline, code $errno, $errstr\n\n$serverInfo\n\n";
+	if ( flock( $logFile, LOCK_EX | LOCK_NB ) ) {
+		$serverInfo = var_export( $_SERVER, true );
+		
+		$out = date( 'd M H:i:s', CURRENT_TIME ).' - ip '.$_SERVER[ 'REMOTE_ADDR' ]
+			.' - ref '.$_SERVER[ 'HTTP_REFERER' ]."\n $errfile, line $errline, code $errno, $errstr\n\n$serverInfo\n\n";
+		
+		fwrite( $logFile, $out );
+		fflush( $logFile );
+		flock( $logFile, LOCK_UN );
+	}
 	
-	$log_file = fopen( CHAT_MEMFS_DIR .'/error_log.txt', 'a+' );
-	fwrite( $log_file, $out );
-	fclose( $log_file );
+	fclose( $logFile );
 	
 	return false;
 }
 
 
 function SaveForDebug( $str ) {
-	$log_file = fopen( CHAT_MEMFS_DIR .'/debug.txt', 'a+' );
+	$logFile = fopen( DEBUG_FILE, 'a' );
 	
-	$str = date( 'd M H:i:s', CURRENT_TIME )
-		. ' - '. $_SERVER[ 'REMOTE_ADDR' ]
-		. ' - ' . $_SERVER[ 'HTTP_USER_AGENT' ]
-		. ' - ref '. $_SERVER[ 'HTTP_REFERER' ]. "\n" . $str;
+	if ( flock( $logFile, LOCK_EX | LOCK_NB ) ) {
+		$str = date( 'd M H:i:s', CURRENT_TIME )
+			. ' - '. $_SERVER[ 'REMOTE_ADDR' ]
+			. ' - ' . $_SERVER[ 'HTTP_USER_AGENT' ]
+			. ' - ref '. $_SERVER[ 'HTTP_REFERER' ]. "\n" . $str;
 		
-	fwrite( $log_file, $str."\n\n" );
-	fclose( $log_file );
+		fwrite( $logFile, $str. "\n\n" );
+		fflush( $logFile );
+		flock( $logFile, LOCK_UN ); 
+	}
+	
+	fclose( $logFile );
 }
-
 
 /**
  *	генерация токена

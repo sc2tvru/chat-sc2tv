@@ -1,4 +1,14 @@
 <?php
+// TODO перенести на nginx?
+// без задачи работать не стоит
+if ( isset(  $_REQUEST[ 'task' ] ) ) {
+	$task = $_REQUEST[ 'task' ];
+}
+
+if ( $task == '' ) {
+	exit;
+}
+
 require_once 'core.php';
 require_once 'utils.php';
 require_once 'chat.php';
@@ -15,8 +25,6 @@ if ( $error != '' ) {
 	SendDefaultResponse( $userInfo, $error );
 	exit;
 }
-
-$task = $_REQUEST[ 'task' ];
 
 if ( $task == 'GetUserInfo' ) {
 	SendDefaultResponse( $userInfo, $error );
@@ -191,6 +199,9 @@ switch ( $task ) {
 			echo '{"code":"0","result": "Вы не можете жаловаться на баны."}';
 		}
 	break;
+	
+	default:
+		exit;
 }
 
 function SendDefaultResponse( $userInfo, $error ) {
