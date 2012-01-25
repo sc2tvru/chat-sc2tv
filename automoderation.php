@@ -55,9 +55,11 @@ class AutoModeration {
 		// время, за которое не должно быть нарушений в чате и форуме
 		$timeBeforeNowWithoutInfractions = CITIZEN_DAYS_BEFORE_WITHOUT_INFRACTIONS * 86400;
 		
+		// если с момента регистрации прошло недостаточно времени
 		if ( ( CURRENT_TIME - $userInfo[ 'created' ] < $timeOnSiteAfterReg ) ||
-			$userInfo[ 'banTime' ] > 0 &&
-			( CURRENT_TIME - $userInfo[ 'banTime' ] < $timeBeforeNowWithoutInfractions ) ) {
+			// либо был бан и с его момента прошло недостаточно времени
+			isset( $userInfo[ 'wasBanned' ] ) && $userInfo[ 'wasBanned' ] == '1'
+			&& ( CURRENT_TIME - $userInfo[ 'banTime' ] < $timeBeforeNowWithoutInfractions ) ) {
 			$this->memcache->Set( $isCitizenMemcachekey, false, CITIZEN_STATUS_TTL );
 			return false;
 		}
@@ -362,7 +364,7 @@ class AutoModeration {
 					'banTime' => CURRENT_TIME,
 					'banExpirationTime' => $banExpirationTime
 				),
-				$banDuration
+				$banDurationInSeconds
 			);
 			
 			global $chat;
@@ -466,17 +468,14 @@ class AutoModeration {
 		// удаляем информацию в memcache о гражданинстве
 		$this->DeleteIsUserCitizenInMemcache( $uid );
 		
-		/* сбрасываем данные по бану в memcache через установку фиктивного бана длительностью 0,
-		 * т.к. мы не знаем drupal sid забаненного пользователя
-		 */
+		// форсим релогин
 		$banInfoMemcacheKey = 'Chat_uid_' . $uid . '_BanInfo';
 		
 		$this->memcache->Set(
 			$banInfoMemcacheKey,
 			array(
 				'needUpdate' => 1,
-				'banTime' => CURRENT_TIME, 
-				'banExpirationTime' => CURRENT_TIME
+				'needRelogin' => 1
 			),
 			259200
 		);
@@ -643,20 +642,12 @@ class AutoModeration {
 			. $banInfoMemcacheKey . var_export( $banInfo, true ) );
 		/*/
 		if ( $banInfo == false ) {
-			/* сбрасываем данные по бану в memcache через установку фиктивного бана длительностью 0,
-			 * т.к. мы не знаем drupal sid забаненного пользователя
-			 * 
-			 * пример для данного случая - изменение длительности отмененного бана,
-			 * что д.б. идентично установке нового, но т.к. мы не знаем первоначальное banTime,
-			 * приходится инициировать повторный логин пользователя
-			 */
-			
+			// форсим релогин
 			$this->memcache->Set(
 				$banInfoMemcacheKey,
 				array(
 					'needUpdate' => 1,
-					'banTime' => CURRENT_TIME, 
-					'banExpirationTime' => CURRENT_TIME
+					'needRelogin' => 1
 				),
 				259200
 			);
@@ -680,6 +671,9 @@ class AutoModeration {
 				$banInfoTtl
 			);
 		}
+		
+		// удаляем информацию в memcache о гражданинстве
+		$this->DeleteIsUserCitizenInMemcache( $uid );
 		
 		$result = array(
 			'code' => 1,

@@ -319,8 +319,46 @@ function PutDataToChat( data ) {
 	}
 }
 
+function MakeShrinkUrl( str, proto, url ) {
+    if ( url.length > 60 ) {
+		length = url.length;
+		return '<a rel="nofollow" href="' + str + '" target="_blank" title="' + str + '">' + url.substring( 0, 30 ) + '...' + url.substring( length - 20) + '</a>';
+	}
+	return '<a rel="nofollow" href="' + str + '" target="_blank">' + url + '</a>';
+}
+
+
 // всевозможные замены
 function ProcessReplaces( str ) {
+	/*
+	// URL
+	var urlPattern = new RegExp(
+		'(((ftp)|(https?))(://))' + // протокол
+		'((([a-z\u0430-\u0451\\d]([a-z\u0430-\u0451\\d-]*[a-z\u0430-\u0451\\d])*)\\.)+([a-z]{2,}|\u0440\u0444)' + // хост
+		'|((\\d{1,3}\\.){3}\\d{1,3}))' + // хост в формате IPv4
+		'(:\\d+)?' + // порт 
+		'(/[-a-z\u0430-\u0451\\d%_~\\+\\(\\):]*([\\.,][-a-z\u0430-\u0451\\d%_~\\+\\(\\):]+)*)*' + // путь
+		'(\\?(&amp;|[:;a-z\u0430-\u0451\\d%_~\\+=-])*)?' + // параметры
+		'(#(&amp;|[:;a-z\u0430-\u0451\\d%_~\\+=-])*)?' // якорь
+		, 'gi'
+	);
+	str = str.replace( urlPattern, '<a rel="nofollow" href="$&" target="_blank">$&</a>' );
+	*/
+	
+	// URL
+	var urlPattern = new RegExp(
+		'((?:(?:ftp)|(?:https?))(?:://))' + // протокол (1)
+		// URL без протокола (2)
+		'(((?:(?:[a-z\u0430-\u0451\\d](?:[a-z\u0430-\u0451\\d-]*[a-z\u0430-\u0451\\d])*)\\.)+(?:[a-z]{2,}|\u0440\u0444)' + // хост (3)
+		'|(?:(?:\\d{1,3}\\.){3}\\d{1,3}))' + // хост в формате IPv4 (3)
+		'(:\\d+)?' + // порт (4)
+		'(/[-a-z\u0430-\u0451\\d%_~\\+\\(\\):]*(?:[\\.,][-a-z\u0430-\u0451\\d%_~\\+\\(\\):]+)*)*' + // путь (5)
+		'(\\?(?:&amp;|[:;a-z\u0430-\u0451\\d%_~\\+=-])*)?' + // параметры (6)
+		'(#(?:&amp;|[:;a-z\u0430-\u0451\\d%_~\\+=-])*)?)' // якорь (7)
+		, 'gi'
+	);
+	str = str.replace( urlPattern, MakeShrinkUrl );
+	
 	// смайлы
 	for( i = 0; i < smilesCount; i++) {
 		smileHtml = '<img src="' + CHAT_IMG_DIR + smiles[ i ].img +'" width="' + smiles[ i ].width + '" height="' + smiles[ i ].height+ '" class="chat-smile"/>';

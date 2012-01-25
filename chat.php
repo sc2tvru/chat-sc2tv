@@ -108,9 +108,15 @@ class Chat {
 			return $result;
 		}
 		
-		$this->user = $userInfo;
-		$this->user[ 'ban' ] = 0;
 		$result[ 'error' ] = '';
+		$this->user = $userInfo;
+		
+		// если был бан, но он истек, это нужно запомнить для проверки на гражданство в будущем
+		if ( $this->user[ 'ban' ] == 1 ) {
+			$this->user[ 'wasBanned' ] = 1;
+		}
+		
+		$this->user[ 'ban' ] = 0;
 		
 		// 3 - root, 4 - admin, 5 - moder, 6 - journalist, 7 - editor, 8 - banned, 9 - streamer, 10 - userstreamer
 		if ( $userInfo[ 'rid' ] == NULL ) {
@@ -203,7 +209,7 @@ class Chat {
 	 *	Получение данных для авторизации из memcache
 	 *	@param string key ключ memcache
 	 *	return array массив с ключами code, error - текст ошибки
-	 *	code - 1 для успеха, 0 для ошибки
+	 *	code - 1 для успешной атворизации, 0 для ошибки
 	 */
 	private function GetAuthInfoFromMemcache( $key ) {
 		$result = array (
@@ -219,7 +225,7 @@ class Chat {
 		}
 		
 		$this->user = $userInfo;
-		//SaveForDebug( 'GetAuthInfoFromMemcache userInfo ' .var_export( $userInfo, true ) );
+		// SaveForDebug( 'GetAuthInfoFromMemcache userInfo ' .var_export( $userInfo, true ) );
 		// проверяем флаг в memcache на случай бана от модератора или граждан,
 		// либо изменения длительности бана
 		$banInfoMemcacheKey = 'Chat_uid_' . $this->user[ 'uid' ] . '_BanInfo'; 
@@ -227,7 +233,7 @@ class Chat {
 		/*
 		SaveForDebug( 'GetAuthInfoFromMemcache banInfoMemcacheKey = '
 			. $banInfoMemcacheKey . ' banInfo ' .var_export( $banInfo, true ) );
-		*/
+		//*/
 		if ( $banInfo === false ) {
 			switch ( $userInfo[ 'type' ] ) {
 				case 'bannedInChat':
@@ -246,24 +252,43 @@ class Chat {
 		else {
 			$result[ 'error' ] = CHAT_USER_BANNED_IN_CHAT;
 			
+			// при форсе релогина удаляем информацию о бане и возвращаем код 0 для авторизации чере базу
+			if ( isset( $banInfo[ 'needRelogin' ] ) && ( $banInfo[ 'needRelogin' ] == 1 ) ) {
+				$this->memcache->Delete( $banInfoMemcacheKey );
+				$result[ 'code' ] = 0;
+				return $result;
+			}
+			
+			/** если есть информация о бане, нужно обновить данные по пользователю,
+			 *  но только если это еще не сделано (тип пользователя отличен от bannedInChat)
+			 *	либо установлен флаг needUpdate
+			 */
 			if ( $this->user[ 'type' ] != 'bannedInChat' || isset( $banInfo[ 'needUpdate' ] ) && ( $banInfo[ 'needUpdate' ] == 1 ) ) {
-				$this->user[ 'ban' ] = 1;
-				$this->user[ 'rights' ] = -1;
-				$this->user[ 'type' ] = 'bannedInChat';
-				$this->user[ 'banExpirationTime' ] = $banInfo[ 'banExpirationTime' ];
-				$this->user[ 'banTime' ] = $banInfo[ 'banTime' ];
 				
 				$banInfoTTL = $banInfo[ 'banExpirationTime' ] - CURRENT_TIME;
-				
-				$banInfo[ 'needUpdate' ] = 0;
-				/*
-				SaveForDebug( 'GetAuthInfoFromMemcache new banInfo '
-					. var_export( $banInfo, true ) . "\n\nnew userInfo "
-					. var_export( $this->user, true ) );
-				*/
-				$this->memcache->Set( $banInfoMemcacheKey, $banInfo, $banInfoTTL );
-				
-				$this->memcache->Set( $key, $this->user, $banInfoTTL );
+				//SaveForDebug( var_export( $banInfo, true ) . "banInfoTTL = $banInfoTTL" );
+				// бан уже прошел
+				if ( $banInfoTTL <= 0 ) {
+					$this->memcache->Delete( $banInfoMemcacheKey );
+					$result[ 'code' ] = 0;
+					return $result;
+				}
+				else {
+					$this->user[ 'ban' ] = 1;
+					$this->user[ 'rights' ] = -1;
+					$this->user[ 'type' ] = 'bannedInChat';
+					$this->user[ 'banExpirationTime' ] = $banInfo[ 'banExpirationTime' ];
+					$this->user[ 'banTime' ] = $banInfo[ 'banTime' ];
+					
+					$banInfo[ 'needUpdate' ] = 0;
+					/*
+					SaveForDebug( 'GetAuthInfoFromMemcache new banInfo '
+						. var_export( $banInfo, true ) . "\n\nnew userInfo "
+						. var_export( $this->user, true ) );
+					*/
+					$this->memcache->Set( $banInfoMemcacheKey, $banInfo, $banInfoTTL );
+					$this->memcache->Set( $key, $this->user, $banInfoTTL );
+				}
 			}
 		}
 		
