@@ -22,14 +22,17 @@ var moderatorMessageList = [];
 var prevModeratorMessageList = [];
 
 var smilesCount = smiles.length;
-smileHtml = '';
-for( i=0; i < smilesCount; i++) {
+smileHtml = '<div id="smile-panel-tab-1">';
+smilePanelTabsHtml = '<span id="smile-panel-pager-1">1</span>';
+for( i=0,t=2; i < smilesCount; i++) {
 	smileHtml += '<img src="' + CHAT_IMG_DIR + smiles[i].img +'" title="' + smiles[i].code +'" width="' + smiles[i].width + '" height="' + smiles[i].height+ '"class="chat-smile" alt="' + smiles[i].code + '"/>';
-	if ( i == 30 ) {
-		smileHtml += '<span id="chat-smile-extend-btn">Больше смайлов</span><div id="chat-smile-panel-extended">';
+	if ( i == 41 ) {
+		smileHtml += '</div><div id="smile-panel-tab-' + t + '">';
+		smilePanelTabsHtml += '<span id="smile-panel-pager-1">' + t + '</span>';
+		t++;
 	}
 }
-smileHtml += '</div>';
+smileHtml += '</div>' + smilePanelTabsHtml;
 
 chat_rules_link = '<a title="Правила чата" href="/chat-rules" target="_blank">rules</a>';
 chat_history_link = '<a title="История чата" href="/history.htm" target="_blank">history</a>';
@@ -102,6 +105,7 @@ function CheckIsChannelAllowed( channelId ) {
 			$( '#chat-on').remove();
 		}
 	});
+	$.ajaxSetup({ ifModified: false, cache: true });
 }
 
 function StartChat(){
@@ -118,7 +122,7 @@ function StartChat(){
 	}
 	
 	$( '#chat-form-id' ).show();
-	ReadChat();
+	ReadChat( true );
 }
 
 function StopChat( setStopCookie, message ){
@@ -148,6 +152,7 @@ function GetChannelsList(){
 			channelList = data.channel;
 		}
 	});
+	$.ajaxSetup({ ifModified: true, cache: true });
 }
 
 function toogleImgBtn() {
@@ -208,36 +213,23 @@ function JumpToUserChannel( mid ) {
 	$( '.menushka' ).remove();
 }
 
-function ReadChat(){
+function ReadChat( firstRead ){
 	// проверка, чтобы после отключения чат не обновился
 	if ( $.cookie( 'chat-on' ) == '0' ) {
 		return;
 	}
 	
+	if ( firstRead == true ){
+		$.ajaxSetup({ ifModified: false, cache: false });
+	}
+	else {
+		$.ajaxSetup({ ifModified: true, cache: true });
+	}
+		
 	// модеры читают все каналы
 	if( $.cookie( 'is_moderator' ) ) {
 		channelCount = channelList.length;
 		
-		$.ajaxSetup({ ifModified: true, cache: true });
-		/*
-		for( i=0; i < channelCount; i++ ) {
-			$.getJSON( CHAT_URL + 'memfs/channel-' + channelList[ i ].channelId + '.json', function( jsonData ) {
-				if ( jsonData != undefined ) {
-					var messageList = jsonData.messages;
-					if ( messageList.length > 0 ) {
-						channelId = messageList[ 0 ].channelId;
-						
-						moderatorMessageList = DeleteMessagesByChannelId( moderatorMessageList, channelId );
-						$.merge( moderatorMessageList, messageList );
-						moderatorMessageList = moderatorMessageList.sort( SortModeratorMessageList );
-						
-						moderatorData = BuildHtml( moderatorMessageList, '' );
-						PutDataToChat( moderatorData );
-					}
-				}
-			});
-		}
-		*/
 		$.getJSON( CHAT_URL + 'memfs/channel-moderator.json', function( jsonData ){
 			if ( jsonData != undefined ) {
 				var messageList = [];
@@ -250,8 +242,6 @@ function ReadChat(){
 	else {
 		channelId = GetChannelId( chat_channel_id );
 		
-		$.ajaxSetup({ ifModified: true, cache: true });
-		
 		$.getJSON( CHAT_URL + 'memfs/channel-' + channelId + '.json', function( jsonData ){
 			if ( jsonData != undefined ) {
 				var messageList = [];
@@ -261,17 +251,6 @@ function ReadChat(){
 			}
 		});
 	}
-	/*/ TODO stopped chat
-	if (data.substr(0,7)=='stopped') {
-		data=data.split('|');
-		var tpl=tpl_chat_stopped;
-		var date = new Date(data[1]*1000);
-		tpl=tpl.replace(/\[min\]/,date.getHours()+':'+date.getMinutes());
-		tpl=tpl.replace(/\[stopper\]/,data[2]);
-		tpl=tpl.replace(/\[reason\]/,data[3]);
-		$( '#chat' ).html( tpl );
-		return;
-	}*/
 }
 
 // удаление из массива сообщений с заданного канала
@@ -421,9 +400,6 @@ function IsUserIgnored( uid ) {
 }
 
 function BuildChat( dataForBuild ) {
-	//console.log( 'in BuildChat, do' );
-	//console.log( userInfo );
-	
 	if ( IsAnon() == true ) {
 		userInfo.type = 'anon';
 	}
@@ -440,8 +416,7 @@ function BuildChat( dataForBuild ) {
 	else {
 		userInfo = dataForBuild;
 	}
-	//console.log( 'posle');
-	//console.log( userInfo );
+	
 	switch( userInfo.type ){
 		case 'anon':
 			myform = form_anon;
@@ -472,6 +447,7 @@ function BuildChat( dataForBuild ) {
 	
 	$( '#smile-btn').click( function(){
 		$( '#chat-smile-panel' ).show();
+		$( '#chat-smile-panel > div#smile-panel-tab-1' ).show();
 	});
 	
 	chatObj = document.getElementById( 'chat' );
@@ -481,7 +457,7 @@ function BuildChat( dataForBuild ) {
 	});
 	
 	$( '.chat-smile' ).click( function(){
-		$( '#chat-smile-panel-extended' ).hide();
+		$( '#chat-smile-panel > div' ).hide();
 		$( '#chat-smile-panel' ).hide();
 		chat_text = $( '.chat-text' ).val();
 		$( '.chat-text' ).val( chat_text + ' ' + $(this).attr( 'title' ) + ' ' );
@@ -489,7 +465,7 @@ function BuildChat( dataForBuild ) {
 	});
 	
 	$( '#chat-smile-panel-close').click( function(){
-		$( '#chat-smile-panel-extended' ).hide();
+		$( '#chat-smile-panel > div' ).hide();
 		$( '#chat-smile-panel' ).hide();
 	});
 	
@@ -501,8 +477,9 @@ function BuildChat( dataForBuild ) {
 		StopChat( true, '' );
 	});
 	
-	$( '#chat-smile-extend-btn').click( function(){
-		$( '#chat-smile-panel-extended' ).show();
+	$( '#chat-smile-panel > span').click( function(){
+		$( '#chat-smile-panel > div' ).hide();
+		$( '#chat-smile-panel > div#smile-panel-tab-' + $(this).html() ).show();
 	});
 	
 	//toogle color nick btn
@@ -763,7 +740,6 @@ function FixSmileCode( str ) {
 
 function WriteMessage(){
 	msg = $( '.chat-text' ).val();
-	//console.log( '111 source msg: "' + msg + '"' );
 	
 	/* удаляем явно не разрешенные символы
 	разрешены
@@ -792,7 +768,6 @@ function WriteMessage(){
 		return false;
 	}
 	
-	//console.log( 'post msg: "' + msg + '" to channel ' + chat_channel_id );
 	$.ajaxSetup({ async: false });
 	$.post( CHAT_URL + 'gate.php', { task: 'WriteMessage', message: msg, channel_id: chat_channel_id, token: userInfo.token }, function( jsonData ) {
 		data = $.parseJSON( jsonData );
@@ -811,29 +786,21 @@ function WriteMessage(){
 
 function CheckUserState( currentUserData ) {
 	if( currentUserData.type == userInfo.type && currentUserData.token == userInfo.token ) {
-		//console.log( 'read' );
-		//console.log( currentUserData );
-		//console.log( userInfo );
 		// наверное, пусть лучше будет задержка между отправкой сообщения и появлением его в чате (или другим действием),
 		// чем "прыжки", когда сразу виден чат с сообщением, а потом все затирается старой версией из-за тормозов сервера\сети
 		//ReadChat();
 	}
 	else {
 		show_error( currentUserData.error );
-		//console.log( ' build' );
-		//console.log( currentUserData );
-		//console.log( userInfo );
 		BuildChat( currentUserData );
 	}
 }
 
 function IsStringCaps( str ) {
-	//console.log( 'check for caps string "' + str + '"' );
 	// обращения вроде [b]MEGAKILLER[/b]
 	tempStr = str.replace( /\[b\][^\]]+\[\/b\]|[\s]+/gi, '' );
 	
 	if ( tempStr == '' ) {
-		//console.log( 'caps 1' );
 		return true;
 	}
 	
@@ -843,17 +810,13 @@ function IsStringCaps( str ) {
 	caps = tempStr.match( regexp );
 	
 	if ( caps == null ) {
-		//console.log( 'no caps 2' );
 		return false;
 	}
 	
 	if( caps != '' && caps.length >= 5 && caps.length > ( len / 2 ) ) {
-		//console.log( 'caps 3' );
-		//console.log( 'caps = "' + caps + '", len = ' + len );
 		return true;
 	}
 	else {
-		//console.log( 'no caps 4' );
 		return false;
 	}
 }

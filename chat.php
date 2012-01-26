@@ -386,7 +386,7 @@ class Chat {
 			// помечаем, что кэш актуален
 			$this->memcache->Set( $isCacheActualMemcacheKey, true, CHANNEL_CACHE_ACTUAL_TTL );
 			
-			flock( $channelCacheFile, LOCK_UN ); 
+			flock( $channelCacheFile, LOCK_UN );
 		}
 		
 		fclose( $channelCacheFile );

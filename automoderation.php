@@ -719,8 +719,9 @@ class AutoModeration {
 		}
 		
 		$complain = array(
-			'userName' => $userName . '(' .date( 'm-d H:i:s', CURRENT_TIME ) . ')',
-			'reason' => $reason
+			'userName' => $userName,
+			'reason' => $reason,
+			'date' => date( 'm-d H:i:s', CURRENT_TIME )
 		);
 		
 		// жалоба граждан идет за 2 от обычных пользователей
@@ -784,20 +785,36 @@ class AutoModeration {
 			}
 		}
 		
-		// жалоб не так много, поэтому можно пока перезаписывать весь массив
-		$this->memcache->Set( COMPLAINS_LIST_MEMCACHE_KEY, $complainsList, COMPLAINS_TTL );
+		// пробуем получить файл для записи
+		$complainsCacheFile = fopen( CHAT_COMPLAINS_FOR_BANS, 'w' );
+	
+		if ( flock( $complainsCacheFile, LOCK_EX | LOCK_NB ) ) {
+			// жалоб не так много, поэтому можно пока перезаписывать весь массив
+			$this->memcache->Set( COMPLAINS_LIST_MEMCACHE_KEY, $complainsList, COMPLAINS_TTL );
+			
+			// и перезаписать файл в memfs
+			$dataJson = json_encode( array( 'complainsList' => $complainsListPublic ) );
 		
-		// и перезаписать файл в memfs
-		$dataJson = json_encode( array( 'complainsList' => $complainsListPublic ) );
+			fwrite( $complainsCacheFile, $dataJson );
+			fflush( $complainsCacheFile );
+			
+			flock( $complainsCacheFile, LOCK_UN );
+			
+			$result = array(
+				'code' => 1,
+				'result' => 'Ваша жалоба на бан принята.'
+			);
+		}
+		else {
+			$result = array(
+				'code' => 0,
+				'result' => 'Ошибка. Повторите попытку.'
+			);
+		}
 		
-		file_put_contents( CHAT_COMPLAINS_FOR_BANS, $dataJson );
-		touch( CHAT_COMPLAINS_FOR_BANS );
+		fclose( $complainsCacheFile );
 		
-		$result = array(
-			'code' => 1,
-			'result' => 'Ваша жалоба на бан принята.'
-		);
-		return $result;	
+		return $result;
 	}
 	
 	

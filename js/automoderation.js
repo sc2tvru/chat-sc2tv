@@ -198,7 +198,7 @@ function GetComplainsText( banKey ){
 	result = '<div class="complainMessage">';
 	var j = 0;
 	for( j=0; j < complainsCount; j++ ) {
-		result += '<br/>' + complainsList[ banKey ][ 'complains' ][ j ][ 'userName' ] + ': ' + complainsList[ banKey ][ 'complains' ][ j ][ 'reason' ];
+		result += '<br/>' + complainsList[ banKey ][ 'complains' ][ j ][ 'userName' ] + ' @ ' + complainsList[ banKey ][ 'complains' ][ j ][ 'date' ] + ': ' + complainsList[ banKey ][ 'complains' ][ j ][ 'reason' ];
 	}
 	result += '</div>';
 	

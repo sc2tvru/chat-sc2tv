@@ -207,10 +207,10 @@ cursor:pointer;
 	display:none;
 	background:#000000 !important;
 	display:none;
-	position:relative;
 	z-index:9999 !important;
-	top:-240px;
-	left:10px;
+	position: absolute;
+	top: 40px;
+	left: 25px;
 	width:165px;
 	border:1px solid #aaa;
 	padding:2px !important;
@@ -222,6 +222,13 @@ cursor:pointer;
 	cursor:pointer;
 }
 
+#chat-smile-panel div {
+	display:none;
+}
+#chat-smile-panel  div#smile-panel-tab-1{
+	display:block;
+}
+
 #chat-smile-panel-extended {
 	display:none;
 }
@@ -229,8 +236,13 @@ cursor:pointer;
 #chat-smile-extend-btn {
 	cursor:pointer;
 }
+#chat-smile-panel span{
+	cursor:pointer;
+	margin:3px;
+}
 
 #chat-smile-panel-close{
+	display:block !important;
 	background:#FFFFFF !important;
 	color:#000000 !important;
 	position:absolute;
