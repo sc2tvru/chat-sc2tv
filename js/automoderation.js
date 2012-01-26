@@ -15,6 +15,8 @@ var userInfo = [];
 var moderatorsDetails = [];
 var complainsList = [];
 var smilesCount = smiles.length;
+var topModeratorsCount = 10;
+var moderatorsDetailsHtml = '';
 
 function GetModeratorsData() {
 	Login();
@@ -415,7 +417,6 @@ function Login() {
 
 $( document ).ready( function() {
 	banKey = -1;
-	statsData = '';
 	
 	if ( IsAnon() === true ) {
 		$( '#history-form' ).remove();
@@ -589,14 +590,18 @@ function InstallHooksOnButtons() {
 	} );
 
 	$( '#statsButton' ).click( function (){
-		if ( statsData == '') {
-			$.post( 'http://sc2tv.ru/chat/automoderation_ban_history.php', {task:"GetStats"}, function(data) {
-				data = $.parseJSON(data);
-				if ( data.code == "1" ) {
-					statsData = data.statsData;
-					$( '#statsInfo' ).html( statsData );
+		if ( moderatorsDetailsHtml == '' || moderatorsDetailsHtml == undefined ) {
+			
+			moderatorsDetailsHtml = '<div id="moderatorStatsBlock"><span id="moderatorStatsHeader">Топ - ' + topModeratorsCount + ' модераторов по количеству банов</span><ol id="moderatorStats">';
+						
+			$.each( moderatorsDetails, function( modId, info ) {
+				if ( moderatorsDetails[ modId ].bansCount != undefined && moderatorsDetails[ modId ].bansCount > 0 ) {
+					moderatorsDetailsHtml += '<li><a href="' + SC2TV_URL + '/user/' + modId + '" rel="nofollow" target="_blank">' + moderatorsDetails[ modId ].name + '</a><span class="moderatorBansCount">' + moderatorsDetails[ modId ].bansCount + '</span></li>';
 				}
 			});
+			
+			moderatorsDetailsHtml += '</ol></div>';
+			$( '#statsInfo' ).html( moderatorsDetailsHtml );
 		}
 		
 		if ( $( '#statsInfo' ).css( 'display') == 'none' ) {
@@ -605,6 +610,5 @@ function InstallHooksOnButtons() {
 		else {
 			$( '#statsInfo' ).css( 'display', 'none' );
 		}
-		
 	} );
 }
