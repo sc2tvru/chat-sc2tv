@@ -43,9 +43,11 @@ function GetModeratorsDetails() {
 		});
 		
 		$.getJSON( CHAT_MODERATORS_DETAILS_URL, function( jsonData ){
-			moderatorsDetails = jsonData.moderatorsDetails;
-			if ( moderatorsDetails.length == 0 ) {
-				show_error( CHAT_MODERATORS_DETAILS_ERROR );
+			if ( jsonData != undefined || jsonData == '' ) {
+				moderatorsDetails = jsonData.moderatorsDetails;
+				if ( moderatorsDetails.length == 0 ) {
+					show_error( CHAT_MODERATORS_DETAILS_ERROR );
+				}
 			}
 		});
 	}
@@ -183,7 +185,7 @@ function IsModerator(){
 
 function GetModeratorNameById( uid ){
 	if ( moderatorsDetails[ uid ] == undefined ) {
-		return 'autoban?';
+		return 'Неизвестный ID модератора, возможно, поможет обновление страницы';
 	}
 	else {
 		return moderatorsDetails[ uid ].name;
@@ -393,8 +395,6 @@ function IsAnon(){
 }
 
 function Login() {
-	console.log( 'Login' );
-	console.log( userInfo );
 	if ( userInfo == '' || userInfo == undefined ) {
 		$.ajaxSetup( { async: false, cache: false } );
 			

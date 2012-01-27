@@ -617,7 +617,7 @@ function otvet(nick){
 
 function getmenu( nick, mid, uid, channelId ) {
 	user_name = $( nick ).html();
-	if ( user_name == 'system' ) {
+	if ( user_name == 'system' || userInfo.type == 'bannedInChat' || userInfo.type == 'bannedOnSite' ) {
 		return false;
 	}
 	
