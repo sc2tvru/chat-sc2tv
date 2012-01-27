@@ -90,13 +90,13 @@ function getParameterByName( name ) {
 }
 
 function CheckIsChannelAllowed( channelId ) {
-	$.ajaxSetup({ ifModified: true, cache: false });
+	$.ajaxSetup({ ifModified: false, cache: true });
 	$.getJSON( CHAT_URL + 'memfs/channels.json', function( data ) {
 		if ( !( data == undefined || data == '' ) ){
 			channelList = data.channel;
 			var channelMaxNum = channelList.length - 1;
 			
-			for( var i=0; i < channelMaxNum; i++ ) {
+			for( var i=0; i <= channelMaxNum; i++ ) {
 				if ( channelList[ i ].channelId == channelId ) {
 					return true;
 				}
@@ -105,7 +105,6 @@ function CheckIsChannelAllowed( channelId ) {
 			$( '#chat-on').remove();
 		}
 	});
-	$.ajaxSetup({ ifModified: false, cache: true });
 }
 
 function StartChat(){
