@@ -445,9 +445,10 @@ function BuildChat( dataForBuild ) {
 	});
 	
 	$( '#smile-btn').click( function(){
+		$( '#chat-smile-panel > span').removeClass( 'active' );
+		$( '#chat-smile-panel > div' ).hide();
 		$( '#chat-smile-panel' ).show();
 		$( '#chat-smile-panel > div#smile-panel-tab-1' ).show();
-		$( '#chat-smile-panel > span').removeClass( 'active' );
 	});
 	
 	chatObj = document.getElementById( 'chat' );
