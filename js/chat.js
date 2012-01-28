@@ -26,7 +26,7 @@ smileHtml = '<div id="smile-panel-tab-1">';
 smilePanelTabsHtml = '<span id="smile-panel-pager-1">1</span>';
 for( i=0,t=2; i < smilesCount; i++) {
 	smileHtml += '<img src="' + CHAT_IMG_DIR + smiles[i].img +'" title="' + smiles[i].code +'" width="' + smiles[i].width + '" height="' + smiles[i].height+ '"class="chat-smile" alt="' + smiles[i].code + '"/>';
-	if ( i == 41 ) {
+	if ( i > 0 && i % 37 == 0 ) {
 		smileHtml += '</div><div id="smile-panel-tab-' + t + '">';
 		smilePanelTabsHtml += '<span id="smile-panel-pager-1">' + t + '</span>';
 		t++;
