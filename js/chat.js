@@ -23,12 +23,12 @@ var prevModeratorMessageList = [];
 
 var smilesCount = smiles.length;
 smileHtml = '<div id="smile-panel-tab-1">';
-smilePanelTabsHtml = '<span id="smile-panel-pager-1">1</span>';
+smilePanelTabsHtml = '<span id="smile-panel-pager-1">[ 1 ]</span>';
 for( i=0,t=2; i < smilesCount; i++) {
 	smileHtml += '<img src="' + CHAT_IMG_DIR + smiles[i].img +'" title="' + smiles[i].code +'" width="' + smiles[i].width + '" height="' + smiles[i].height+ '"class="chat-smile" alt="' + smiles[i].code + '"/>';
 	if ( i > 0 && i % 37 == 0 ) {
 		smileHtml += '</div><div id="smile-panel-tab-' + t + '">';
-		smilePanelTabsHtml += '<span id="smile-panel-pager-1">' + t + '</span>';
+		smilePanelTabsHtml += '<span id="smile-panel-pager-' + t + '">[ ' + t + ' ]</span>';
 		t++;
 	}
 }
@@ -447,6 +447,7 @@ function BuildChat( dataForBuild ) {
 	$( '#smile-btn').click( function(){
 		$( '#chat-smile-panel' ).show();
 		$( '#chat-smile-panel > div#smile-panel-tab-1' ).show();
+		$( '#chat-smile-panel > span').removeClass( 'active' );
 	});
 	
 	chatObj = document.getElementById( 'chat' );
@@ -478,7 +479,10 @@ function BuildChat( dataForBuild ) {
 	
 	$( '#chat-smile-panel > span').click( function(){
 		$( '#chat-smile-panel > div' ).hide();
-		$( '#chat-smile-panel > div#smile-panel-tab-' + $(this).html() ).show();
+		smilePanelTabNum = $(this).html().replace( /[[\] ]/g, '' );
+		$( '#chat-smile-panel > div#smile-panel-tab-' + smilePanelTabNum ).show();
+		$( '#chat-smile-panel > span').removeClass( 'active' );
+		$(this).addClass( 'active' );
 	});
 	
 	//toogle color nick btn
