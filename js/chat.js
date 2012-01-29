@@ -42,7 +42,7 @@ color_btn = '<span id="clr_nick_on" title="включить цветные ни�
 smiles_btn = '<span id="smile-btn">smile</span>';
 smile_panel = '<div id="chat-smile-panel">' + smileHtml + '<div id="chat-smile-panel-close">X</div></div>';
 
-form_chat = '<div id="chat-form"><form id="chat-form-id" method="post" action=""><a href="#" onclick=changeScreen()><img align="left" style="padding-top:2px; padding-right:2px;" src="http://sc2tv.ru/chat/full.jpeg"/></a><input maxlength="300" type="text" name="chat-text" class="chat-text"/><input type="button" value="Отправить" onclick="WriteMessage()" class="chat-button"/></form>' + chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + smiles_btn + ' ' + chat_rules_link + ' ' + chat_history_link + smile_panel + '</div>';
+form_chat = '<div id="chat-form"><form id="chat-form-id" method="post" action=""><input maxlength="300" type="text" name="chat-text" class="chat-text"/></form>' + chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + smiles_btn + ' ' + chat_rules_link + ' ' + chat_history_link + smile_panel + '</div>';
 
 form_anon = '<div id="chat-form">'+ chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + chat_history_link + ' <span>В чате могут писать только зарегистрированные пользователи.</span></div>';
  

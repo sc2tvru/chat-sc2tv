@@ -58,7 +58,7 @@ function BuildHtml( messageList ) {
 		return CHAT_HISTORY_NOT_FOUND;
 	}
 	
-	for( i=0; i < messageCount; i++ ) {
+	for( i = messageCount -1; i >= 0 ; i-- ) {
 		color = GetSpecColor( messageList[ i ].uid );
 		// если не блат, то цвет по классу группы
 		if ( color == '' ) {
@@ -178,7 +178,7 @@ function show_error( error ) {
 }
 
 function AddChannels(){
-	$.getJSON( CHAT_URL + 'memfs/channels.json', function( data ) {
+	$.getJSON( CHAT_URL + 'memfs/channels_history.json', function( data ) {
 		channelList = data.channel;
 		channelCount = channelList.length;
 		channelsHtml = '';
