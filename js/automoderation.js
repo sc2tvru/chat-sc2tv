@@ -1,5 +1,5 @@
-var SC2TV_URL = 'http://shr.dev.sc2tv.ru';
-var CHAT_URL =  'http://chat.shr.dev.sc2tv.ru/';
+var SC2TV_URL = 'http://sc2tv.ru';
+var CHAT_URL =  'http://chat.sc2tv.ru/';
 var CHAT_IMG_DIR = '/img/';
 var CHAT_MEMFS = CHAT_URL + 'memfs';
 var CHAT_HISTORY_URL = CHAT_MEMFS + '/automoderation_history/';

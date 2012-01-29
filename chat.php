@@ -88,12 +88,12 @@ class Chat {
 		
 		$queryString = '
 			SELECT users.uid as uid, name, created, rid, banExpirationTime, banTime,
-			chat_ban.status as ban, rid in (3,4,5) as isModerator
+			chat_ban.status as ban, rid in (5) as isModerator
 			FROM users INNER JOIN sessions using(uid)
 			LEFT JOIN chat_ban ON users.uid = chat_ban.uid
 			LEFT JOIN users_roles ON users_roles.uid = users.uid
 			WHERE sid = "'. $drupalSession .'"
-			ORDER BY isModerator DESC, ban DESC, banExpirationTime DESC, rid DESC LIMIT 1';
+			ORDER BY isModerator DESC, ban DESC, banExpirationTime DESC, rid ASC LIMIT 1';
 		
 		$queryResult = $this->db->Query( $queryString );
 		$userInfo = $queryResult->fetch_assoc();

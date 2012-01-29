@@ -8,10 +8,10 @@ var width = 0;
 var height = -231;
 
 // chat reload interval in ms
-var CHAT_RELOAD_INTERVAL = 5000;
+var CHAT_RELOAD_INTERVAL = 8000;
 var CHAT_CHANNEL_RELOAD_INTERVAL = 60000;
-var SC2TV_URL = 'http://shr.dev.sc2tv.ru';
-var CHAT_URL =  'http://chat.shr.dev.sc2tv.ru/';
+var SC2TV_URL = 'http://sc2tv.ru';
+var CHAT_URL =  'http://chat.sc2tv.ru/';
 var CHAT_IMG_DIR = '/img/';
 var chatTimerId = 0;
 var channelList = [];
@@ -354,7 +354,11 @@ function GetSpecColor( uid ) {
 		case '20546':
 		// Kitsune
 		case '11378':
-			color = '#FFC0CB';										
+		// Mary_zerg
+		case '65377':
+		// Siena
+		case '45780':
+			color = '#FFC0CB';
 		break;
 		// Reeves
 		case '21514':
@@ -637,6 +641,8 @@ function getmenu( nick, mid, uid, channelId ) {
 		case 6:
 		// редактор
 		case 7:
+		// стример
+		case 9:
 		// фанстример
 		case 10:
 			$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick=otvet(user_name)>Ответить</li><li onclick="IgnoreUnignore(user_name, ' + uid + ');">Ignore\Unignore</li><li><a href="' + SC2TV_URL + '/messages/new/' + uid + '" target="_blank" onclick="$(\'.menushka\').remove();">Послать ЛС</a></li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );

@@ -1,5 +1,5 @@
-var SC2TV_URL = 'http://shr.dev.sc2tv.ru';
-var CHAT_URL =  'http://chat.shr.dev.sc2tv.ru/';
+var SC2TV_URL = 'http://sc2tv.ru';
+var CHAT_URL =  'http://chat.sc2tv.ru/';
 var CHAT_IMG_DIR = '/img/';
 var CHAT_HISTORY_URL = CHAT_URL + 'memfs/history/';
 var CHAT_HISTORY_NOT_FOUND = 'Сообщений по вашему запросу не найдено';
