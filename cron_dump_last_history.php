@@ -8,8 +8,8 @@ $dateFormat = 'Y-m-d H:i';
 
 $history = new ChatHistory();
 
-// по всем каналам за последний час
-$startDate = date( $dateFormat, CURRENT_TIME - 3600 );
+// по всем каналам за последние 10 минут
+$startDate = date( $dateFormat, CURRENT_TIME - 600 );
 $endDate = date( $dateFormat, CURRENT_TIME );
 
 $result = $history->Get( '', $startDate, $endDate, '', 'last.json' );

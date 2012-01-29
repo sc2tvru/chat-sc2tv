@@ -211,7 +211,7 @@ $( document ).ready( function(){
 		});
 		
 		AddChannels();
-		RequestHistory();
+		//RequestHistory();
 		
 		$( '#history-form' ).submit(function() {
 			RequestHistory();
