@@ -8,7 +8,7 @@ var width = 0;
 var height = -231;
 
 // chat reload interval in ms
-var CHAT_RELOAD_INTERVAL = 8000;
+var CHAT_RELOAD_INTERVAL = 5000;
 var CHAT_CHANNEL_RELOAD_INTERVAL = 60000;
 var SC2TV_URL = 'http://sc2tv.ru';
 var CHAT_URL =  'http://chat.sc2tv.ru/';
@@ -34,7 +34,7 @@ for( i=0,t=2; i < smilesCount; i++) {
 }
 smileHtml += '</div>' + smilePanelTabsHtml;
 
-chat_rules_link = '<a title="Правила чата" href="/chat-rules" target="_blank">rules</a>';
+chat_rules_link = '<a title="Правила чата" href="' + SC2TV_URL + '/chat-rules" target="_blank">rules</a>';
 chat_history_link = '<a title="История чата" href="/history.htm" target="_blank">history</a>';
 chat_vkl_btn = '<span id="chat-on" title="включить чат" style="display:none;">chat</span><span title="отключить чат" id="chat-off">chat</span>';
 img_btn = '<span id="img-on" title="включить смайлы" style="display:none;">img</span><span id="img-off" title="отключить смайлы">img</span>';
