@@ -9,7 +9,7 @@ var height = -231;
 
 // chat reload interval in ms
 var CHAT_RELOAD_INTERVAL = 5000;
-var CHAT_CHANNEL_RELOAD_INTERVAL = 60000;
+var CHAT_CHANNEL_RELOAD_INTERVAL = 300000;
 var SC2TV_URL = 'http://sc2tv.ru';
 var CHAT_URL =  'http://chat.sc2tv.ru/';
 var CHAT_IMG_DIR = '/img/';
@@ -62,7 +62,7 @@ $(document).ready(function(){
 	BuildChat();
 	
 	if ( whoStopChat == '0' || whoStopChat == undefined || whoStopChat == '' ) {
-		CheckIsChannelAllowed( chat_channel_id );
+		//CheckIsChannelAllowed( chat_channel_id );
 		if ( $.cookie( 'chat-on' ) == null || $.cookie( 'chat-on' ) == '1' ) {
 			StartChat();
 		}
@@ -786,6 +786,7 @@ function WriteMessage(){
 		
 		if( data.error == '' ) {
 			$( '.chat-text' ).val('');
+			ReadChat();
 		}
 		else {
 			show_error( CHAT_USER_MESSAGE_ERROR );
