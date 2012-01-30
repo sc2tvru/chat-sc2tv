@@ -252,27 +252,6 @@ function ReadChat( firstRead ){
 	}
 }
 
-// удаление из массива сообщений с заданного канала
-function DeleteMessagesByChannelId( messageList, channelId ) {
-	messageCount = messageList.length;
-	
-	for( i = 0; i < messageCount; ) {
-		if ( messageList[ i ].channelId == channelId ) {
-			messageList.splice( i, 1 );
-			messageCount--;
-		}
-		else {
-			i++;
-		}
-	}
-	
-	return messageList;
-}
-
-function SortModeratorMessageList( message1, message2 ) {
-	return message2.id - message1.id;
-}
-
 function PutDataToChat( data ) {
 	channelId = GetChannelId( chat_channel_id );
 	
@@ -308,21 +287,6 @@ function MakeShrinkUrl( str, proto, url ) {
 
 // всевозможные замены
 function ProcessReplaces( str ) {
-	/*
-	// URL
-	var urlPattern = new RegExp(
-		'(((ftp)|(https?))(://))' + // протокол
-		'((([a-z\u0430-\u0451\\d]([a-z\u0430-\u0451\\d-]*[a-z\u0430-\u0451\\d])*)\\.)+([a-z]{2,}|\u0440\u0444)' + // хост
-		'|((\\d{1,3}\\.){3}\\d{1,3}))' + // хост в формате IPv4
-		'(:\\d+)?' + // порт 
-		'(/[-a-z\u0430-\u0451\\d%_~\\+\\(\\):]*([\\.,][-a-z\u0430-\u0451\\d%_~\\+\\(\\):]+)*)*' + // путь
-		'(\\?(&amp;|[:;a-z\u0430-\u0451\\d%_~\\+=-])*)?' + // параметры
-		'(#(&amp;|[:;a-z\u0430-\u0451\\d%_~\\+=-])*)?' // якорь
-		, 'gi'
-	);
-	str = str.replace( urlPattern, '<a rel="nofollow" href="$&" target="_blank">$&</a>' );
-	*/
-	
 	// URL
 	var urlPattern = new RegExp(
 		'((?:(?:ftp)|(?:https?))(?:://))' + // протокол (1)
