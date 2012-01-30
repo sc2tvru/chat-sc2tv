@@ -593,7 +593,7 @@ function InstallHooksOnButtons() {
 		if ( moderatorsDetailsHtml == '' || moderatorsDetailsHtml == undefined ) {
 			
 			moderatorsDetailsHtml = '<div id="moderatorStatsBlock"><span id="moderatorStatsHeader">Топ - ' + topModeratorsCount + ' модераторов по количеству банов</span><ol id="moderatorStats">';
-						
+			
 			$.each( moderatorsDetails, function( modId, info ) {
 				if ( moderatorsDetails[ modId ].bansCount != undefined && moderatorsDetails[ modId ].bansCount > 0 ) {
 					moderatorsDetailsHtml += '<li><a href="' + SC2TV_URL + '/user/' + modId + '" rel="nofollow" target="_blank">' + moderatorsDetails[ modId ].name + '</a><span class="moderatorBansCount">' + moderatorsDetails[ modId ].bansCount + '</span></li>';
@@ -602,6 +602,12 @@ function InstallHooksOnButtons() {
 			
 			moderatorsDetailsHtml += '</ol></div>';
 			$( '#statsInfo' ).html( moderatorsDetailsHtml );
+			
+			$( '#moderatorStatsBlock > ol#moderatorStats > li' ).sortElements( function( a, b ){
+				res = parseInt( $( b ).children( 'span.moderatorBansCount' ).text() ) >
+					parseInt( $( a ).children( 'span.moderatorBansCount' ).text());
+				return res ? 1 : -1;
+			});
 		}
 		
 		if ( $( '#statsInfo' ).css( 'display') == 'none' ) {
