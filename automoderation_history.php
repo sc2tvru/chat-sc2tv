@@ -14,19 +14,28 @@ class ChatAutomoderationHistory {
 	
 	/**
 	 *	получение истории автомодерации
-	 *	@param channelId id канала
-	 *	@param startDate дата начала
-	 *	@param endDate дата конца
-	 *	@param userNames имена пользователей, разделенные ;
-	 *	@param historyCache имя файла для сохранения кэша, если не задано, будет
-	 *	использоваться 
+	 *	@param int channelId id канала
+	 *	@param string startDate дата начала
+	 *	@param string endDate дата конца
+	 *	@param string userNames имена модераторов, разделенные ;
+	 *	@param string bannedNickNames имена забаненных пользователей, разделенные ;
+	 *	@param boolean isModeratorRequest флаг true, если запрос от модератора, иначе false
+	 *	@param string historyCache имя файла для сохранения кэша, если не задано, будет
+	 *	использоваться last.json
 	 */
-	public function Get( $channelId, $startDate, $endDate, $userNames = '', $historyCache = ''  ) {
+	public function Get( $channelId, $startDate, $endDate, $userNames = '', $bannedNickNames = '', $isModeratorRequest = false, $historyCache = ''  ) {
 		$startDate = $this->PrepareDate( $startDate );
 		$endDate = $this->PrepareDate( $endDate );
 		
-		if( $startDate == 0 || $endDate == 0 ||
-			( strtotime( $endDate ) - strtotime( $startDate ) > CHAT_HISTORY_MAX_TIME_DIFFERENCE ) ) {
+		if ( $isModeratorRequest == true ) {
+			$timeDifference = CHAT_HISTORY_MAX_TIME_DIFFERENCE_MODERATOR;
+		}
+		else {
+			$timeDifference = CHAT_HISTORY_MAX_TIME_DIFFERENCE;
+		}
+		
+		if ( $startDate == 0 || $endDate == 0 ||
+			( strtotime( $endDate ) - strtotime( $startDate ) > $timeDifference ) ) {
 			$result = array(
 				'messages' => '',
 				'error' => CHAT_HISTORY_CHECK_PARAMS
@@ -51,6 +60,31 @@ class ChatAutomoderationHistory {
 				foreach ( $userNames as $currentNick ) {
 					list( $currentNick ) = $this->db->PrepareParams( $currentNick );
 					$options .= $operator .' mu.name = "'. $currentNick .'"';
+					if ( $operator === '' ) {
+						$operator = ' OR ';
+					}
+				}
+				
+				$options .= ') AND ';
+			}
+		}
+		
+		$bannedNickNamesCopy = '';
+		
+		if ( $bannedNickNames != '' ) {
+			$bannedNickNames = $this->PrepareNickNames( $bannedNickNames );
+			$bannedNickNamesCopy = $bannedNickNames;
+			$bannedNickNames = explode( ';', $bannedNickNames );
+			
+			if ( count( $bannedNickNames ) > 0 ) {
+				$options .= '(';
+				$operator = '';
+				
+				$this->db = GetDb();
+				
+				foreach ( $bannedNickNames as $currentNick ) {
+					list( $currentNick ) = $this->db->PrepareParams( $currentNick );
+					$options .= $operator .' ru.name = "'. $currentNick .'"';
 					if ( $operator === '' ) {
 						$operator = ' OR ';
 					}
@@ -102,13 +136,12 @@ class ChatAutomoderationHistory {
 		
 		if ( $historyCache == '' ) {
 			$historyCache = $channelId . '_' . $startDate . '_' . $endDate
-				. '_' . $userNamesCopy . '.json';
+				. '_' . $userNamesCopy . '_' . $bannedNickNamesCopy . '.json';
 			$historyCache = preg_replace( '#[\s]+#uis', '_',  $historyCache );
 		}
 		
 		$historyCache = CHAT_AUTOMODERATION_HISTORY_MEMFS_DIR . $historyCache;
 		file_put_contents( $historyCache, $dataJson );
-		touch( $historyCache );
 		
 		$result = array(
 			'messages' => $messages,

@@ -149,13 +149,16 @@ function GetReasonById( reasonId ) {
 	return reason;
 }
 
-function GetHistoryData( channelId, startDate, endDate, nick ) {
+function GetHistoryData( channelId, startDate, endDate, nick, bannedNick ) {
 	nick = nick.replace( /[^\u0020-\u007E\u0400-\u045F\u0490\u0491\u0207\u0239]+/g, '' );
 	nick = nick.replace( /[\s]+/g, ' ' );
 	
+	bannedNick = bannedNick.replace( /[^\u0020-\u007E\u0400-\u045F\u0490\u0491\u0207\u0239]+/g, '' );
+	bannedNick = bannedNick.replace( /[\s]+/g, ' ' );
+	
 	Login();
 	
-	$.post( CHAT_URL + 'gate.php', { task: 'GetAutoModerationHistory', channelId: channelId, startDate: startDate, endDate: endDate, nick: nick, token: userInfo.token }, function( data ) {
+	$.post( CHAT_URL + 'gate.php', { task: 'GetAutoModerationHistory', channelId: channelId, startDate: startDate, endDate: endDate, nick: nick, bannedNick: bannedNick, token: userInfo.token }, function( data ) {
 		data = $.parseJSON( data );
 		if( data.error == '' ) {
 			historyData = BuildHtml( data.messages );
@@ -323,7 +326,9 @@ function RequestHistory() {
 	endDate = $( '#endDate' ).val();
 	channelId = $( '#channelId' ).val();
 	nick = $( '#nick' ).val();
+	bannedNick = $( '#bannedNick' ).val();
 	nick = encodeURIComponent( nick.replace( /[\s]+/g, '_' ) );
+	bannedNick = encodeURIComponent( bannedNick.replace( /[\s]+/g, '_' ) );
 	
 	$.ajaxSetup( {ifModified: true} );
 	
@@ -338,21 +343,23 @@ function RequestHistory() {
 		endDateForCmp = Date.parse( endDate.replace( /[\s]/g, 'T' ) + ':00' );
 		startDateForCmp = Date.parse( startDate.replace( /[\s]/g, 'T' ) + ':00' );
 		
-		dateInterval = endDateForCmp - startDateForCmp;
-		
-		if ( dateInterval > CHAT_HISTORY_MAX_TIME_DIFFERENCE || dateInterval <= 0 ) {
-			show_error( CHAT_HISTORY_CHECK_PARAMS );
-			return;
+		if ( !IsModerator() ) {
+			dateInterval = endDateForCmp - startDateForCmp;
+			
+			if ( dateInterval > CHAT_HISTORY_MAX_TIME_DIFFERENCE || dateInterval <= 0 ) {
+				show_error( CHAT_HISTORY_CHECK_PARAMS );
+				return;
+			}
 		}
 		
-		historyCache += channelId + '_' + startDate + ':00_' + endDate + ':00_' + nick;
+		historyCache += channelId + '_' + startDate + ':00_' + endDate + ':00_' + nick + '_' + bannedNick;
 		historyCache = historyCache.replace( /[\s]+/g, '_' );
 		
 		$.ajaxSetup( {
 			ifModified: true,
 			statusCode: {
 				404: function() {
-					GetHistoryData( channelId, startDate, endDate, nick );
+					GetHistoryData( channelId, startDate, endDate, nick, bannedNick );
 				}
 			}
 		});
@@ -361,10 +368,12 @@ function RequestHistory() {
 	historyCache += '.json';
 	
 	$.getJSON( historyCache, function( jsonData ){
-		var messageList = jsonData.messages;
-		if ( messageList.length > 0 ) {
-			historyData = BuildHtml( messageList );
-			ShowHistory( historyData );
+		if ( jsonData != undefined ) {
+			var messageList = jsonData.messages;
+			if ( messageList.length > 0 ) {
+				historyData = BuildHtml( messageList );
+				ShowHistory( historyData );
+			}
 		}
 	});
 }

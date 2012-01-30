@@ -129,11 +129,20 @@ switch ( $task ) {
 		
 		$history = new ChatAutomoderationHistory( $memcache );
 		
+		if ( $userInfo[ 'rid' ] == 3 || $userInfo[ 'rid' ] == 4 || $userInfo[ 'rid' ] == 5 ) {
+			$isModeratorRequest = true;
+		}
+		else {
+			$isModeratorRequest = false;
+		}
+		
 		$result = $history->Get(
 			$_POST[ 'channelId' ],
 			$_POST[ 'startDate' ],
 			$_POST[ 'endDate' ],
-			$_POST[ 'nick' ]
+			$_POST[ 'nick' ],
+			$_POST[ 'bannedNick' ],
+			$isModeratorRequest
 		);
 		
 		echo json_encode( $result );

@@ -13,5 +13,5 @@ $history = new ChatAutomoderationHistory( $memcache );
 $startDate = date( $dateFormat, CURRENT_TIME - 3600*2 );
 $endDate = date( $dateFormat, CURRENT_TIME );
 
-$result = $history->Get( '', $startDate, $endDate, '', 'last.json' );
+$result = $history->Get( '', $startDate, $endDate, '', '', false, 'last.json' );
 ?>

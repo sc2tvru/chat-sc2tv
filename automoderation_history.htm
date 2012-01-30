@@ -15,7 +15,7 @@
 </head>
 <body>
 	<div id="history-form">
-		<a href="http://sc2tv.ru">SC2TV.RU</a> | <span id="statsButton">Статистика</span> | <a href="http://forum.sc2tv.ru/showthread.php/17429">Feedback</a> | v.2012-01-30.shr<br/><br/>
+		<a href="http://sc2tv.ru">SC2TV.RU</a> | <span id="statsButton">Статистика</span> | <a href="http://forum.sc2tv.ru/showthread.php/17429">Feedback</a> | v.2012-01-31.shr<br/><br/>
 		<form action="?" method="get" id="history-form">
 			С *: <input type="text" class="dateField" id="startDate"/>
 			По *: <input type="text" class="dateField" id="endDate"/><br>UTC + 4, макс. интервал - 24 часа<br/>
@@ -23,10 +23,11 @@
 				<option value="all" selected="selected">все</option>
 				<option value="0">main</option>
 				   </select><br/>
-			Модератор(ы): <input type="text" id="nick" size="30"/>
+			Модератор(ы): <input type="text" id="nick" size="30"/>&nbsp;
+			Забаненный(е): <input type="text" id="bannedNick" size="30"/><br/>
+			Через ";", пример: Weedle;Ispec и / или Timer;Airfall<br/>
 			<input type="submit" value="Найти" id="searchBtn"/>
-			<input type="reset" value="Сброс"/><br/>
-			через ";", пример: Пример: Weedle;Ispec
+			<input type="reset" value="Сброс"/>
 		</form>
 	</div>
 	<div id="statsInfo">Проблемы с получением статистики. Сообщите разработчикам.</div>
