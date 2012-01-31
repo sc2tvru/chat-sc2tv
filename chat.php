@@ -1,8 +1,4 @@
 <?
-if ( strpos( $_SERVER['PHP_SELF'], basename(__FILE__) ) ) {
-	exit;
-}
-
 class Chat {
 	private $user, $channelId, $memcache, $db;
     
@@ -250,8 +246,6 @@ class Chat {
 			}
 		}
 		else {
-			$result[ 'error' ] = CHAT_USER_BANNED_IN_CHAT;
-			
 			// при форсе релогина удаляем информацию о бане и возвращаем код 0 для авторизации чере базу
 			if ( isset( $banInfo[ 'needRelogin' ] ) && ( $banInfo[ 'needRelogin' ] == 1 ) ) {
 				$this->memcache->Delete( $banInfoMemcacheKey );
@@ -274,6 +268,8 @@ class Chat {
 					return $result;
 				}
 				else {
+					$result[ 'error' ] = CHAT_USER_BANNED_IN_CHAT;
+					
 					$this->user[ 'ban' ] = 1;
 					$this->user[ 'rights' ] = -1;
 					$this->user[ 'type' ] = 'bannedInChat';

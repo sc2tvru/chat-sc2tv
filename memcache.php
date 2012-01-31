@@ -1,8 +1,4 @@
 <?php
-if ( strpos( $_SERVER['PHP_SELF'], basename(__FILE__) ) ) {
-	exit;
-}
-
 /**
  * код для работы с memcache
  * @author shr, forshr@gmail.com
