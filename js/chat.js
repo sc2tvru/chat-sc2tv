@@ -287,6 +287,13 @@ function MakeShrinkUrl( str, proto, url ) {
 
 // всевозможные замены
 function ProcessReplaces( str ) {
+	// смайлы
+	for( i = 0; i < smilesCount; i++ ) {
+		smileHtml = '<img src="' + CHAT_IMG_DIR + smiles[ i ].img +'" width="' + smiles[ i ].width + '" height="' + smiles[ i ].height+ '" class="chat-smile"/>';
+		var smilePattern = new RegExp( RegExp.escape( ':s' + smiles[ i ].code ), 'gi' );
+		str = str.replace( smilePattern, smileHtml );
+	}
+	
 	// URL
 	var urlPattern = new RegExp(
 		'((?:(?:ftp)|(?:https?))(?:://))' + // протокол (1)
@@ -301,12 +308,6 @@ function ProcessReplaces( str ) {
 	);
 	str = str.replace( urlPattern, MakeShrinkUrl );
 	
-	// смайлы
-	for( i = 0; i < smilesCount; i++) {
-		smileHtml = '<img src="' + CHAT_IMG_DIR + smiles[ i ].img +'" width="' + smiles[ i ].width + '" height="' + smiles[ i ].height+ '" class="chat-smile"/>';
-		var smilePattern = new RegExp( RegExp.escape( ':s' + smiles[ i ].code ), 'gi' );
-		str = str.replace( smilePattern, smileHtml );
-	}
 	return str;
 }
 
