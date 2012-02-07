@@ -196,7 +196,6 @@ class ChatAutomoderationHistory {
 		$dataJson = json_encode( array( 'moderatorsDetails' => $modetatorsDetails ) );
 		
 		file_put_contents( CHAT_MODERATORS_DETAILS, $dataJson );
-		touch( CHAT_MODERATORS_DETAILS );
 		
 		$result = array(
 			'moderatorsDetails' => $modetatorsDetails,
@@ -236,6 +235,7 @@ class ChatAutomoderationHistory {
 		$userNames = urldecode( $userNames );
 		// удаление на всякий случай символов, кроме разрешенных и whitespaces
 		$userNames = preg_replace( '/[^\x20-\x7E\x{400}-\x{45F}\x{490}\x{491}\x{207}\x{239}]+/us', '',  $userNames );
+		$userNames = str_replace( '/', '', $userNames );
 		$userNames = preg_replace( '#[\s]+#uis', ' ',  $userNames );
 		return $userNames;
 	}

@@ -10,7 +10,7 @@ global $memcache;
 $history = new ChatAutomoderationHistory( $memcache );
 
 // по всем каналам
-$startDate = date( $dateFormat, CURRENT_TIME - 3600*2 );
+$startDate = date( $dateFormat, CURRENT_TIME - 3600*6 );
 $endDate = date( $dateFormat, CURRENT_TIME );
 
 $result = $history->Get( '', $startDate, $endDate, '', '', false, 'last.json' );

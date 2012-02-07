@@ -321,14 +321,20 @@ RegExp.escape = function(text) {
     return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 }
 
+function PrepareNick( nick ) {
+	nick = nick.replace( /[\/]+/g, '' );
+	nick = encodeURIComponent( nick.replace( /[\s]+/g, '_' ) );
+	return nick;
+}
+
 function RequestHistory() {
 	startDate = $( '#startDate' ).val();
 	endDate = $( '#endDate' ).val();
 	channelId = $( '#channelId' ).val();
 	nick = $( '#nick' ).val();
 	bannedNick = $( '#bannedNick' ).val();
-	nick = encodeURIComponent( nick.replace( /[\s]+/g, '_' ) );
-	bannedNick = encodeURIComponent( bannedNick.replace( /[\s]+/g, '_' ) );
+	nick = PrepareNick( nick );
+	bannedNick = PrepareNick( bannedNick );
 	
 	$.ajaxSetup( {ifModified: true} );
 	
@@ -383,7 +389,7 @@ function show_error( error ) {
 }
 
 function AddChannels(){
-	$.getJSON( CHAT_URL + 'memfs/channels.json', function( data ) {
+	$.getJSON( CHAT_URL + 'memfs/channels_history.json', function( data ) {
 		channelList = data.channel;
 		channelCount = channelList.length;
 		channelsHtml = '';

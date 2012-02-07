@@ -122,12 +122,18 @@ function GetSpecColor( uid ) {
 	return color;
 }
 
+function PrepareNick( nick ) {
+	nick = nick.replace( /[\/]+/g, '' );
+	nick = encodeURIComponent( nick.replace( /[\s]+/g, '_' ) );
+	return nick;
+}
+
 function RequestHistory() {
 	startDate = $( '#startDate' ).val();
 	endDate = $( '#endDate' ).val();
 	channelId = $( '#channelId' ).val();
 	nick = $( '#nick' ).val();
-	nick = encodeURIComponent( nick.replace( /[\s]+/g, '_' ) );
+	nick = PrepareNick( nick );
 	
 	$.ajaxSetup( {ifModified: true} );
 	
