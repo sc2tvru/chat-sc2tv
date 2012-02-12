@@ -1,3 +1,5 @@
 # temp files
 *.json
 *.gz
+index_debug.htm
+js/chat_debug.js
