@@ -88,6 +88,7 @@ var smiles = [
 	{code: ':skalka:', img: 'atata.gif', width: '32', height: '32'},
 	{code: ':fpd:', img: 'fp.png', width: '43', height: '30'},
 	{code: ':sweedlove:', img: 'sweetden.png', width: '34', height: '30'},
+	{code: ':hg:', img: 'hg.png', width: '30', height: '30'},
 	// anime
 	{code: ':yoko:', img: 'yoko.png', width: '60', height: '44'},
 	{code: ':miku:', img: 'miku.png', width: '42', height: '50'},
