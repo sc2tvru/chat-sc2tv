@@ -38,7 +38,7 @@ height:30px;
 }
 
 .chat-text{
-	width:190px;
+	width:100%;
 	border:1px #CCCCCC solid;
 	font-size:14px;
 }

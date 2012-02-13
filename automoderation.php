@@ -548,7 +548,7 @@ class AutoModeration {
 						'banTime' => CURRENT_TIME, 
 						'banExpirationTime' => $moderatorbanExpirationTime
 					),
-					$moderatorbanExpirationTime - CURRENT_TIME
+					$banDurationInSeconds
 				);
 			}
 			

@@ -253,6 +253,8 @@ class Chat {
 				return $result;
 			}
 			
+			$result[ 'error' ] = CHAT_USER_BANNED_IN_CHAT;
+			
 			/** если есть информация о бане, нужно обновить данные по пользователю,
 			 *  но только если это еще не сделано (тип пользователя отличен от bannedInChat)
 			 *	либо установлен флаг needUpdate
@@ -268,8 +270,6 @@ class Chat {
 					return $result;
 				}
 				else {
-					$result[ 'error' ] = CHAT_USER_BANNED_IN_CHAT;
-					
 					$this->user[ 'ban' ] = 1;
 					$this->user[ 'rights' ] = -1;
 					$this->user[ 'type' ] = 'bannedInChat';
@@ -281,7 +281,7 @@ class Chat {
 					SaveForDebug( 'GetAuthInfoFromMemcache new banInfo '
 						. var_export( $banInfo, true ) . "\n\nnew userInfo "
 						. var_export( $this->user, true ) );
-					*/
+					//*/
 					$this->memcache->Set( $banInfoMemcacheKey, $banInfo, $banInfoTTL );
 					$this->memcache->Set( $key, $this->user, $banInfoTTL );
 				}
