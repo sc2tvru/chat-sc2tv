@@ -18,8 +18,8 @@ color: #5DA130 !important;
 }
 
 #dialog2{
-width:220px;
-height:440px;
+	width:216px;
+	height:440px;
 }
 
 #chat{
@@ -33,8 +33,10 @@ background: #FFFFFF;
 }
 
 #chat-form{
-width:215px;
-height:30px;
+	width:210px;
+	height:30px;
+	margin-left:3px;
+	padding:7px 0px 0px 3px;
 }
 
 .chat-text{
@@ -58,13 +60,6 @@ background:#FFCC33;
 width:200px;
 }
 
-#chat-form input.chat-text{
-
-}
-#chat-form{
-	margin-left:3px;
-	padding:7px 0px 0px 3px;
-}
 .chat-button{
 background:#FFCC66;
 border:1px solid #FF9900;
