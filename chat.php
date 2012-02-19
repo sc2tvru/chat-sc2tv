@@ -81,15 +81,15 @@ class Chat {
 		// TODO: регулярки выше должно хватить, но на всякий случай лучше подготовить
 		// убрать?
 		list( $drupalSession ) = $this->db->PrepareParams( $_COOKIE[ DRUPAL_SESSION ] );
-		
-		$queryString = '
-			SELECT users.uid as uid, name, created, rid, banExpirationTime, banTime,
-			chat_ban.status as ban, rid in (5) as isModerator
-			FROM users INNER JOIN sessions using(uid)
-			LEFT JOIN chat_ban ON users.uid = chat_ban.uid
-			LEFT JOIN users_roles ON users_roles.uid = users.uid
-			WHERE sid = "'. $drupalSession .'"
-			ORDER BY isModerator DESC, ban DESC, banExpirationTime DESC, rid ASC LIMIT 1';
+
+    // roles priority Admin > Moderator > Streamer > others
+    $queryString = 'SELECT users.uid as uid, name, created, rid, banExpirationTime, banTime,
+      chat_ban.status as ban, rid in (5) as isModerator, rid in (9) as isStreamer, rid in (4) as isAdmin
+      FROM users INNER JOIN sessions using(uid)
+      LEFT JOIN chat_ban ON users.uid = chat_ban.uid
+      LEFT JOIN users_roles ON users_roles.uid = users.uid
+      WHERE sid = "'. $drupalSession .'"
+      ORDER BY isAdmin DESC, isModerator DESC, isStreamer DESC, ban DESC, banExpirationTime DESC, rid ASC LIMIT 1';
 		
 		$queryResult = $this->db->Query( $queryString );
 		$userInfo = $queryResult->fetch_assoc();
