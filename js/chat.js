@@ -343,6 +343,9 @@ function GetSpecColor( uid ) {
 		// Kas
 		case '62395':
 			color = '#5DA130';
+        // Nami. Usual color of fun streamer
+        case '16231':
+            color = '#DAD871';
 		break;
 		default:
 			color = '';
