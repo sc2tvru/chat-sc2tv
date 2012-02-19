@@ -68,7 +68,7 @@ class Chat {
 		
 		$chatAuthMemcacheKey = 'ChatUserInfo_' . $drupalSession;
 		$memcacheAuthInfo = $this->GetAuthInfoFromMemcache( $chatAuthMemcacheKey );
-		
+
 		if ( $memcacheAuthInfo[ 'code' ] == 1 ) {
 			$result = array(
 				'userInfo' => $this->user,
@@ -406,7 +406,7 @@ class Chat {
 		}
 		
 		// ограничение по дате сделано, чтобы ускорить выборку при большом числе записей
-		$queryString = '
+		/*$queryString = '
 			SELECT id, chat_message.uid, IFNULL( name, "system" ) as name, message,
 			IFNULL( min( rid ), 2 ) as rid, date, channelId
 			FROM chat_message
@@ -416,7 +416,21 @@ class Chat {
 			deletedBy is NULL
 			AND date > "' . date( 'Y-m-d H:i:s', CURRENT_TIME - 259200 ) . '"
 			GROUP BY id
-			ORDER BY id	DESC LIMIT '. $messagesCount;
+			ORDER BY id	DESC LIMIT '. $messagesCount;*/
+
+    // roles priority Admin > Moderator > Streamer > others.
+    $queryString = 'SELECT * FROM (
+        SELECT id, chat_message.uid, IFNULL( name, "system" ) as name, message,
+    			IFNULL(users_roles.rid, 2 ) as rid, date, channelId, users_roles.rid in (5) as isModerator,
+    			  users_roles.rid in (9) as isStreamer, users_roles.rid in (4) as isAdmin
+    			FROM chat_message
+    			LEFT JOIN users on users.uid = chat_message.uid
+    			LEFT JOIN users_roles ON users_roles.uid = chat_message.uid
+    			WHERE '. $channelCondition .'
+    			deletedBy is NULL
+    			AND date > "' . date( 'Y-m-d H:i:s', CURRENT_TIME - 259200 ) . '"
+    			ORDER BY id DESC, isAdmin DESC, isModerator DESC, isStreamer DESC, rid ASC LIMIT '. ($messagesCount * 5) .'
+    		) as tmp_table_chat GROUP BY id ORDER BY id DESC LIMIT '. $messagesCount;
 		
 		$queryResult = $this->db->Query( $queryString );
 		
