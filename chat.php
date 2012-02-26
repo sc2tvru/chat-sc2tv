@@ -423,7 +423,7 @@ class Chat {
         SELECT id, chat_message.uid, IFNULL( name, "system" ) as name, message,
     			IFNULL(users_roles.rid, 2 ) as rid, date, channelId, users_roles.rid in (5) as isModerator,
     			  users_roles.rid in (9) as isStreamer, users_roles.rid in (4) as isAdmin
-    			FROM chat_message
+    			FROM chat_message USE INDEX (date)
     			LEFT JOIN users on users.uid = chat_message.uid
     			LEFT JOIN users_roles ON users_roles.uid = chat_message.uid
     			WHERE '. $channelCondition .'

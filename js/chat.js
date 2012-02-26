@@ -334,6 +334,8 @@ function GetSpecColor( uid ) {
 		case '65377':
 		// Siena
 		case '45780':
+        //milkSHake
+        case '22600':
 			color = '#FFC0CB';
 		break;
 		// Reeves
@@ -343,10 +345,16 @@ function GetSpecColor( uid ) {
 		// Kas
 		case '62395':
 			color = '#5DA130';
-        // Nami. Usual color of fun streamer
+        break;
+        // Nami. Usual color of editors
         case '16231':
             color = '#DAD871';
-		break;
+        break;
+        // Usual color of regular users
+        //BIT
+        case '41386':
+            color = '#7797BE';
+        break;
 		default:
 			color = '';
 	}
