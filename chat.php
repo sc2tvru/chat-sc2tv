@@ -418,19 +418,19 @@ class Chat {
 			GROUP BY id
 			ORDER BY id	DESC LIMIT '. $messagesCount;*/
 
-    // roles priority Admin > Moderator > Streamer > others.
-    $queryString = 'SELECT * FROM (
-        SELECT id, chat_message.uid, IFNULL( name, "system" ) as name, message,
-    			IFNULL(users_roles.rid, 2 ) as rid, date, channelId, users_roles.rid in (5) as isModerator,
-    			  users_roles.rid in (9) as isStreamer, users_roles.rid in (4) as isAdmin
-    			FROM chat_message USE INDEX (date)
+    // roles priority root > Admin > Moderator > Streamer > others.
+    $queryString = 'SELECT *  FROM (
+      SELECT * FROM (
+        SELECT id, IFNULL(rid, 2 ) as rid, chat_message.uid, IFNULL( name, "system" ) as name, message, date, channelId
+          FROM chat_message
     			LEFT JOIN users on users.uid = chat_message.uid
     			LEFT JOIN users_roles ON users_roles.uid = chat_message.uid
-    			WHERE '. $channelCondition .'
-    			deletedBy is NULL
-    			AND date > "' . date( 'Y-m-d H:i:s', CURRENT_TIME - 259200 ) . '"
-    			ORDER BY id DESC, isAdmin DESC, isModerator DESC, isStreamer DESC, rid ASC LIMIT '. ($messagesCount * 5) .'
-    		) as tmp_table_chat GROUP BY id ORDER BY id DESC LIMIT '. $messagesCount;
+          WHERE '. $channelCondition .'
+    			date > "' . date( 'Y-m-d H:i:s', CURRENT_TIME - 259200 ) . '" AND
+          deletedBy is NULL
+          ORDER BY id DESC LIMIT 600
+        ) as tmp_table_chat  ORDER BY id DESC, FIELD(rid,3,4,5,9,6,7,10,2) ASC LIMIT '. $messagesCount * 3 . '
+      ) as tmp_table_chat_limited GROUP BY id ORDER BY id DESC LIMIT '. $messagesCount .'';
 		
 		$queryResult = $this->db->Query( $queryString );
 		
