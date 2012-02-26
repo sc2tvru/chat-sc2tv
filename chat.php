@@ -398,10 +398,12 @@ class Chat {
 		// если канал не указан, выбираются сообщения для модераторов по всем каналам
 		if (  $channelId == -1 ) {
 			$channelCondition = '';
+      $index_condition = '';
 			$messagesCount = CHAT_MODERATORS_MSG_LIMIT;
 		}
 		else {
 			$channelCondition = 'channelId = "' . $channelId . '" AND ';
+      $index_condition = 'USE INDEX(channelId)';
 			$messagesCount = CHAT_CHANNEL_MSG_LIMIT;
 		}
 		
@@ -422,7 +424,7 @@ class Chat {
     $queryString = 'SELECT *  FROM (
       SELECT * FROM (
         SELECT id, IFNULL(rid, 2 ) as rid, chat_message.uid, IFNULL( name, "system" ) as name, message, date, channelId
-          FROM chat_message
+          FROM chat_message '. $index_condition .'
     			LEFT JOIN users on users.uid = chat_message.uid
     			LEFT JOIN users_roles ON users_roles.uid = chat_message.uid
           WHERE '. $channelCondition .'
