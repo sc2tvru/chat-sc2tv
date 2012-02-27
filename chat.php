@@ -430,9 +430,9 @@ class Chat {
           WHERE '. $channelCondition .'
     			date > "' . date( 'Y-m-d H:i:s', CURRENT_TIME - 259200 ) . '" AND
           deletedBy is NULL
-          ORDER BY id DESC LIMIT 600
-        ) as tmp_table_chat  ORDER BY id DESC, FIELD(rid,3,4,5,9,6,7,10,13,2) ASC LIMIT '. $messagesCount * 3 . '
-      ) as tmp_table_chat_limited GROUP BY id ORDER BY id DESC LIMIT '. $messagesCount .'';
+          ORDER BY id DESC LIMIT '. $messagesCount * 3 . '
+        ) as tmp_table_chat  ORDER BY FIELD(rid,3,4,5,9,6,7,10,13,2) ASC LIMIT '. $messagesCount * 3 . '
+      ) as tmp_table_chat_limited GROUP BY id ORDER BY id DESC LIMIT '. $messagesCount;
 		
 		$queryResult = $this->db->Query( $queryString );
 		
