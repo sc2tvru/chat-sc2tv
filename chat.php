@@ -105,7 +105,6 @@ class Chat {
 		}
 		
 		$result[ 'error' ] = '';
-		$this->user = $userInfo;
 		
 		// если был бан, но он истек, это нужно запомнить для проверки на гражданство в будущем
 		if ( $this->user[ 'ban' ] == 1 ) {
@@ -221,7 +220,10 @@ class Chat {
 		}
 		
 		$this->user = $userInfo;
-		// SaveForDebug( 'GetAuthInfoFromMemcache userInfo ' .var_export( $userInfo, true ) );
+		// TODO: удалить после фикса бага
+		if ( !isset( $this->user[ 'uid' ] ) ) {
+			SaveForDebug( 'GetAuthInfoFromMemcache userInfo ' .var_export( $userInfo, true ) );
+		}
 		// проверяем флаг в memcache на случай бана от модератора или граждан,
 		// либо изменения длительности бана
 		$banInfoMemcacheKey = 'Chat_uid_' . $this->user[ 'uid' ] . '_BanInfo'; 
