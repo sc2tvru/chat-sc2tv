@@ -40,7 +40,7 @@ var smiles = [
 	{code: ':cap:', img: 'cap.png', width: '35', height: '25'},
 	{code: ':br:', img: 'br.png', width: '27', height: '30'},
 	{code: ':fpl:', img: 'leefacepalm.png', width: '26', height: '30'},
-	{code: ':)', img: 'smile.gif', width: '15', height: '15'},
+	{code: ':ht:', img: 'heart.png', width: '30', height: '30'},
 	// face
 	{code: ':adolf:', img: 'adolf.gif', width: '25', height: '33'},
 	{code: ':bratok:', img: 'bratok.gif', width: '24', height: '33'},
@@ -95,5 +95,5 @@ var smiles = [
 	{code: ':winry:', img: 'winry.png', width: '30', height: '45'},
 	{code: ':asuka:', img: 'asuka.png', width: '42', height: '50'},
 	{code: ':konata:', img: 'konata.png', width: '30', height: '30'},
-    {code: ':reimu:', img: 'reimu.png', width: '42', height: '50'}
+  {code: ':reimu:', img: 'reimu.png', width: '42', height: '50'}
 ];
