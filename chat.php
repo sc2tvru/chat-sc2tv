@@ -138,11 +138,9 @@ class Chat {
 			break;
 			
 			case 8:
-				$this->user = array (
-					'ban' => 1,
-					'rights' => -1,
-					'type' => 'bannedOnSite'
-				);
+				$this->user[ 'ban' ] = 1;
+				$this->user[ 'rights' ] = -1;
+				$this->user[ 'type' ] = 'bannedOnSite';
 				$result[ 'error' ] = CHAT_USER_BANNED_ON_SITE;
 			break;
 			
@@ -220,10 +218,7 @@ class Chat {
 		}
 		
 		$this->user = $userInfo;
-		// TODO: удалить после фикса бага
-		if ( !isset( $this->user[ 'uid' ] ) ) {
-			SaveForDebug( 'GetAuthInfoFromMemcache userInfo ' .var_export( $userInfo, true ) );
-		}
+		// SaveForDebug( 'GetAuthInfoFromMemcache userInfo ' .var_export( $userInfo, true ) );
 		// проверяем флаг в memcache на случай бана от модератора или граждан,
 		// либо изменения длительности бана
 		$banInfoMemcacheKey = 'Chat_uid_' . $this->user[ 'uid' ] . '_BanInfo'; 
