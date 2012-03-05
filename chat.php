@@ -84,12 +84,12 @@ class Chat {
 
     // roles priority Admin > Moderator > Streamer > others
     $queryString = 'SELECT users.uid as uid, name, created, rid, banExpirationTime, banTime,
-      chat_ban.status as ban, rid in (5) as isModerator, rid in (9) as isStreamer, rid in (4) as isAdmin
+      chat_ban.status as ban, rid in (5) as isModerator, rid in (4) as isAdmin
       FROM users INNER JOIN sessions using(uid)
       LEFT JOIN chat_ban ON users.uid = chat_ban.uid
       LEFT JOIN users_roles ON users_roles.uid = users.uid
       WHERE sid = "'. $drupalSession .'"
-      ORDER BY isAdmin DESC, isModerator DESC, isStreamer DESC, ban DESC, banExpirationTime DESC, rid ASC LIMIT 1';
+      ORDER BY isModerator DESC, isAdmin DESC, ban DESC, banExpirationTime DESC, rid ASC LIMIT 1';
 		
 		$queryResult = $this->db->Query( $queryString );
 		$userInfo = $queryResult->fetch_assoc();
@@ -105,7 +105,6 @@ class Chat {
 		}
 		
 		$result[ 'error' ] = '';
-		$this->user = $userInfo;
 		
 		// если был бан, но он истек, это нужно запомнить для проверки на гражданство в будущем
 		if ( $this->user[ 'ban' ] == 1 ) {
@@ -139,11 +138,9 @@ class Chat {
 			break;
 			
 			case 8:
-				$this->user = array (
-					'ban' => 1,
-					'rights' => -1,
-					'type' => 'bannedOnSite'
-				);
+				$this->user[ 'ban' ] = 1;
+				$this->user[ 'rights' ] = -1;
+				$this->user[ 'type' ] = 'bannedOnSite';
 				$result[ 'error' ] = CHAT_USER_BANNED_ON_SITE;
 			break;
 			
