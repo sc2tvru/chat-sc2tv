@@ -36,7 +36,7 @@ var smiles = [
 	{code: ':joyful:', img: 'ewbte.png', width: '30', height: '29'},
 	{code: ':peka:', img: 'mini-happy.png', width: '30', height: '30'},
 	{code: ':ban:', img: 'banan.png', width: '21', height: '30'},
-	{code: ':bm:', img: 'bm.gif', width: '62', height: '31'},
+	{code: ':bm:', img: 'bm.png', width: '62', height: '31'},
 	{code: ':cap:', img: 'cap.png', width: '35', height: '25'},
 	{code: ':br:', img: 'br.png', width: '27', height: '30'},
 	{code: ':fpl:', img: 'leefacepalm.png', width: '26', height: '30'},
