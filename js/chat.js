@@ -39,7 +39,7 @@ chat_history_link = '<a title="История чата" href="/history.htm" targ
 chat_ban_history_link = '<a title="История банов чата" href="/automoderation_history.htm" target="_blank">bans</a>';
 chat_vkl_btn = '<span id="chat-on" title="включить чат" style="display:none;">chat</span><span title="отключить чат" id="chat-off">chat</span>';
 img_btn = '<span id="img-on" title="включить смайлы" style="display:none;">img</span><span id="img-off" title="отключить смайлы">img</span>';
-color_btn = '<span id="clr_nick_on" title="включить цветные ники">color</span><span id="clr_nick_off" title="выключить цветные ники">col</span>';
+color_btn = '<span id="clr_nick_on" title="включить цветные ники">col</span><span id="clr_nick_off" title="выключить цветные ники">col</span>';
 smiles_btn = '<span id="smile-btn">smile</span>';
 smile_panel = '<div id="chat-smile-panel">' + smileHtml + '<div id="chat-smile-panel-close">X</div></div>';
 
@@ -653,6 +653,7 @@ function getmenu( nick, mid, uid, channelId ) {
 function BuildHtml( messageList ) {
 	var data = '';
 	var color = '';
+	var colorClass = '';
 	var customColorStyle = '';
 	
 	var messageCount = messageList.length;
@@ -676,13 +677,7 @@ function BuildHtml( messageList ) {
 				color = GetSpecColor( messageList[ i ].uid );
 				// если не блат, то цвет по классу группы
 				if ( color == '' ) {
-					var colorClass = '.user-' + messageList[ i ].rid;
-					if ( $( colorClass ).css( 'color' ) !== undefined && $( colorClass ).css( 'color' ) !== $( '.user-2' ). css( 'color' ) ) {
-						nicknameClass += colorClass;
-					}
-					else {
-						nicknameClass += '.user-2';
-					}
+					nicknameClass += ' user-' + messageList[ i ].rid;
 				}
 				else {
 					customColorStyle = ' style="color:' + color + ';"';
