@@ -653,7 +653,6 @@ function getmenu( nick, mid, uid, channelId ) {
 function BuildHtml( messageList ) {
 	var data = '';
 	var color = '';
-	var colorClass = '';
 	var customColorStyle = '';
 	
 	var messageCount = messageList.length;
@@ -677,7 +676,13 @@ function BuildHtml( messageList ) {
 				color = GetSpecColor( messageList[ i ].uid );
 				// если не блат, то цвет по классу группы
 				if ( color == '' ) {
-					nicknameClass += ' user-' + messageList[ i ].rid;
+					var colorClass = '.user-' + messageList[ i ].rid;
+					if ( $( colorClass ).css( 'color' ) !== undefined && $( colorClass ).css( 'color' ) !== $( '.user-2' ). css( 'color' ) ) {
+						nicknameClass += colorClass;
+					}
+					else {
+						nicknameClass += '.user-2';
+					}
 				}
 				else {
 					customColorStyle = ' style="color:' + color + ';"';
