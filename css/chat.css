@@ -74,7 +74,10 @@ margin:0px;
 
 #dialog2 { background:none; font-family:Verdana, Arial, sans-serif }
 #dialog2 div { color:#cacaca; background:none; font-size:11px; margin-right:10px}
-#dialog2 span { color:#fff }
+#dialog2 span { color:#7797be }
+div#dialog2 div#chat-form span {
+	color:#fff;
+}
 #dialog2 .nick {font-size:11px;padding-right:7px;margin:0 }
 #dialog2 .nick:after {content:':';position:relative;}
 /*system user*/

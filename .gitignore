@@ -3,4 +3,5 @@
 *.gz
 index_debug.htm
 js/chat_debug.js
+css/chat_debug.css
 chat_config.php
