@@ -13,7 +13,7 @@ var smiles = [
 	{code: ':whut:', img: 'mhu.png?1', width: '30', height: '30'},
 	{code: ':sad:', img: 'sad.png?1', width: '30', height: '30'},
 	{code: ':spk:', img: 'slowpoke.png?1', width: '29', height: '30'},
-	{code: ':trf:', img: 'trollface.gif?1', width: '30', height: '25'},
+	{code: ':trf:', img: 'trollface.png?1', width: '30', height: '25'},
 	{code: ':hmhm:', img: '2.png?1', width: '30', height: '30'},
 	{code: ':mad:', img: 'mad.png?1', width: '30', height: '30'},
 	{code: ':angry:', img: 'aangry.png?1', width: '30', height: '30'},
