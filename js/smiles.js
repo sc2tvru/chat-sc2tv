@@ -78,7 +78,7 @@ var smiles = [
 	{code: ':volck:', img: 'voOlchik1.png?1', width: '31', height: '31'},
 	{code: ':hpeka:', img: 'harupeka.png?1', width: '30', height: '30'},
 	{code: ':sun:', img: 'sunl.png?1', width: '30', height: '30'},
-	{code: ':cou:', img: 'cougar.png?1', width: '30', height: '30'},
+	{code: ':cou:', img: 'cougar.png?2', width: '30', height: '30'},
 	{code: ':wb:', img: 'wormban.png?1', width: '30', height: '30'},
 	{code: ':dobro:', img: 'dobre.png?1', width: '30', height: '30'},
 	{code: ':theweedle:', img: 'weedle.png?1', width: '30', height: '30'},
