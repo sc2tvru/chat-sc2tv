@@ -426,6 +426,21 @@ function BuildChat( dataForBuild ) {
 		$.cookie( 'is_moderator', '1', { expires: 365, path: '/'} );
 	}
 	
+	var needFullScreen = getParameterByName( 'fullScreen' );
+	
+	if ( needFullScreen === '1' ){
+		var chatWindowHeight = getParameterByName( 'height' );
+		
+		if ( chatWindowHeight !== undefined && chatWindowHeight !== '' ) {
+			$('#dialog2').css( 'height', chatWindowHeight );
+			$('#chat').css( 'height', '94%' );
+		}
+	}
+	else {
+		$('#dialog2').css( 'height', '440px' );
+		$('#chat').css( 'height', '375px' );
+	}
+	
 	$('#dialog2').html('<div id="add_styles"></div><div class="chat-channel-name"><div title="перейти на главный канал" class="0">main</div><div id="stream-room" title="перейти на другой канал" class="other">other</div><br style="clear:both"/></div><div id="chat"></div>'+myform);
 	
 	toogleImgBtn();
