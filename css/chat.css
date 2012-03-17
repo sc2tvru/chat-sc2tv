@@ -19,7 +19,7 @@ color: #5DA130 !important;
 
 #dialog2{
 	width:216px;
-	height:440px;
+	height:100%;
 }
 
 #chat{
@@ -43,6 +43,8 @@ background: #FFFFFF;
 	width:100%;
 	border:1px #CCCCCC solid;
 	font-size:14px;
+	margin-left:18px;
+	font-family:Arial, Helvetica, sans-serif;
 }
 
 .nick{
