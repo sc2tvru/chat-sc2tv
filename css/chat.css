@@ -303,3 +303,7 @@ body{
 	height:100%;
 	margin:0;padding:0;
 }
+#full-screen-place {
+	display:inline;
+	margin-right:18px !important;
+}

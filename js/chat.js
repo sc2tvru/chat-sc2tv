@@ -42,14 +42,15 @@ img_btn = '<span id="img-on" title="включить смайлы" style="displa
 color_btn = '<span id="clr_nick_on" title="включить цветные ники">col</span><span id="clr_nick_off" title="выключить цветные ники">col</span>';
 smiles_btn = '<span id="smile-btn">smile</span>';
 smile_panel = '<div id="chat-smile-panel">' + smileHtml + '<div id="chat-smile-panel-close">X</div></div>';
+divForFullScreen = '<div id="full-screen-place">.</div>';
 
 form_chat = '<div id="chat-form"><form id="chat-form-id" method="post" action=""><input maxlength="300" type="text" name="chat-text" class="chat-text"/></form>' + chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + smiles_btn + ' ' + chat_rules_link + ' ' + chat_history_link + ' ' + chat_ban_history_link + smile_panel + '</div>';
 
-form_anon = '<div id="chat-form">'+ chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + chat_history_link + ' <span>В чате могут писать только зарегистрированные пользователи.</span></div>';
+form_anon = '<div id="chat-form">' + divForFullScreen + chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + chat_history_link + ' <span>В чате могут писать только зарегистрированные пользователи.</span></div>';
  
-form_banned = '<div id="chat-form">' + chat_vkl_btn + ' ' + img_btn + ' ' + chat_history_link + ' <span>Вы были забанены. </span> <a href="/automoderation_history.htm" target="_blank">Причина</a></div>';
+form_banned = '<div id="chat-form">' + divForFullScreen + chat_vkl_btn + ' ' + img_btn + ' ' + chat_history_link + ' <span>Вы были забанены. </span> <a href="/automoderation_history.htm" target="_blank">Причина</a></div>';
 
-form_newbie = '<div id="chat-form">' + chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + chat_history_link + ' <span>Вы зарегистрированы менее трех дней назад.</span></div>';
+form_newbie = '<div id="chat-form">' + divForFullScreen + chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + chat_history_link + ' <span>Вы зарегистрированы менее трех дней назад.</span></div>';
 
 tpl_chat_stopped = "<div id='chat_closed'><div>Чатик остановлен!</div><div>Остановил: [stopper].</div><div>Остановлено до: [min]</div><div>Причина: [reason].</div></div>";
 var chat_channel_id = 0;
@@ -853,49 +854,6 @@ function show_error( err ) {
 
 function show_result(res){
 	//alert (res);
-}
-
-function changeScreen(){
-	if($("div#stream_player_body:visible object").length||screen2==1){
-		if(screen2){
-			unfullScreen();
-			screen2=0;
-		}else{
-			fullScreen();
-			screen2=1;
-		}
-	}
-}
-
-function fullScreen(){
-
-	var h=$(window).height()
-	var w=$(window).width()
-	var mw=$(window).width()-230;
-	$(".main-frame").after("<div id='big-frame' style='position:absolute;z-index:1100;width:"+w+"px;height:"+h+"px;background:#000;top:0;left:0;'><div id='pl' style='float:left; width:"+mw+"px; height:"+h+"'></div><div id='bchat' style='float:left;width:220px'></div></div>");
-	$("#chat").css('height',h-60);
-	$("#bchat").append($("#dialog2"));
-	//$("#dialog2").clone().appendTo($("#bchat"));
-	$("div#stream_player_body:visible").addClass("super");
-	$("div.super").clone().appendTo($("#pl"));
-	//$("#pl").clone($("div.super"));
-	$("div.super object").height((h));
-	$("div.super object").width(mw);
-	$("div.super object embed").height((h));
-	$("div.super object embed").width(mw);
-	$(".main-frame").toggle()
-}
-
-function unfullScreen(){
-	$(".main-frame").toggle();
-	$("#chat").css('height','395px');
-	$("div.super object").height(414);
-	$("div.super object").width(737);
-	$("div.super object embed").height(414);
-	$("div.super object embed").width(737);
-	$("div.super").removeClass("super");
-	$("#dialog2").appendTo("#block-chat_pupsk8 .content");
-	$("#big-frame").remove();
 }
 
 function IsAnon(){
