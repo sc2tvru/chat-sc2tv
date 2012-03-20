@@ -391,14 +391,16 @@ function IsUserIgnored( uid ) {
 }
 
 function BuildChat( dataForBuild ) {
+	/*
 	if ( IsAnon() == true ) {
 		userInfo.type = 'anon';
 	}
-	else if ( dataForBuild == null ) {
+	else if ( dataForBuild == null ) {*/
+	if ( dataForBuild == null ) {
 		// данных для сборки нет, запрашиваем сервер
 		$.ajaxSetup( { async: false, cache: false } );
 		
-		$.getJSON( CHAT_URL + 'gate.php?task=GetUserInfo', function( data ) {
+		$.getJSON( CHAT_URL + 'gate.php?task=GetUserInfo&ref=' + document.referrer, function( data ) {
 			userInfo = data;
 		});
 		
