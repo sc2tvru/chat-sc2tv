@@ -83,7 +83,7 @@ function BanUser( uid, user_name, duration, mid, channelId ){
 
 function PrepareToBanUser( uid, user_name, mid, channelId ){
 	duration = $( '#newBanTime').attr( 'value' );
-	var r = confirm( 'Вы уверены, что хотите забанить ' + user_name + ' на ' + duration + ' минут' );
+	var r = confirm( 'Вы уверены, что хотите забанить ' + user_name + ' на ' + duration + ' минут?' );
 	if ( r == true ) {
 		BanUser( uid, user_name, duration, mid, channelId );
 	}
