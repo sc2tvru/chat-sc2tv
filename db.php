@@ -56,9 +56,13 @@ class MySqlDb {
 		
 		foreach ( $params as $param ) {
 			$param = trim( $param );
+			
 			// TODO php 5.4.0 добавить ENT_SUBSTITUTE ?
-			$param = htmlspecialchars( $param, ENT_QUOTES, 'UTF-8' );
-			$param = $this->mysqli->real_escape_string( $param );
+			if ( $param != '' ) {
+				$param = htmlspecialchars( $param, ENT_QUOTES, 'UTF-8' );
+				$param = $this->mysqli->real_escape_string( $param );
+			}
+			
 			$cleanParams[] = $param;
 		}
 		

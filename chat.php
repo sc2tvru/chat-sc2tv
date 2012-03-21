@@ -78,8 +78,13 @@ class Chat {
 				$referer = '';
 			}
 			
-			$userAgent = $_SERVER[ 'HTTP_USER_AGENT' ];
-			list( $userAgent ) = $this->db->PrepareParams( $userAgent );
+			if ( isset( $_SERVER[ 'HTTP_USER_AGENT' ] ) ) {
+				$userAgent = $_SERVER[ 'HTTP_USER_AGENT' ];
+				list( $userAgent ) = $this->db->PrepareParams( $userAgent );
+			}
+			else {
+				$userAgent = '';
+			}
 			
 			$cookie = var_export( $_COOKIE, true );
 			//list( $cookie ) = $this->db->PrepareParams( $cookie );
@@ -503,45 +508,6 @@ class Chat {
 		
 		return false;
 	}
-
-	
-	// TODO запилить команды
-    /*private function RunCommand( $command ) {
-    	// каналы
-		if ( preg_match( '/^(?:channel)\s+([a-z\d]{1,32})$/iu', $command, $match ) ){
-			setcookie( 'chat_channel_id', $match[1], 0, '/' );
-			return true;
-		}
-		
-		// остальные для админов
-    	if ( $this->user[ 'rights' ] == 1 ) {
-    		$this->RunAdminCommand( $command );
-    	}
-        //custom user ban
-        if (preg_match('/^\[b\](.*?)\[\/b\],\s+(ban|бан)\s+(\d+)\s+(.*?)$/', $command, $matches) && $this->user['rights']==1){
-            // we have nick only, try to get uid
-            $res=mysql_query("SELECT uid FROM users WHERE name='".mysql_escape_string($matches[1])."'");
-            $tmp = mysql_fetch_assoc($res);
-            $uid=(int)$tmp['uid'];
-            if ($uid!==0){
-                $this->BanUser($uid,$matches[3],0,$matches[4]);
-                return true;
-            }
-        }
-        //stop chat
-        if (preg_match('/^(stop|стоп)\s+(\d+)\s+(.*?)$/u',$command,$matches) && $this->user['rights']==1){
-            $command = "stopped|"  . (time()+$matches[2]*60) . "|" . $this->user['name'] . "|" . $matches[3];
-            file_put_contents("chat_stop",$command);
-            return true;
-        }
-        //start chat
-        if (preg_match('/^(start|старт).*?$/',$command,$matches) && $this->user['rights']==1){
-            unlink("chat_stop");
-            return true;
-        }
-		
-        return false;
-    }*/
 	
 	
 	/**
@@ -699,11 +665,23 @@ class Chat {
 			return $result;
 		}
 		
-		// проверяем флаг в memcache на случай бана от модератора или граждан
-		$banInfoMemcacheKey = 'Chat_uid_' . $banUid . '_BanInfo'; 
-		$banInfo = $this->memcache->Get( $banInfoMemcacheKey );
+		$banDuration = $banDurationInMin * 60;
+		$banExpirationTime = CURRENT_TIME + $banDuration;
 		
-		if ( $banInfo != false ) {
+		// проверяем флаг в memcache на случай бана от модератора или граждан
+		$banInfoMemcacheKey = 'Chat_uid_' . $banUid . '_BanInfo';
+		
+		// делаем через Add, чтобы одновременно проверить отсутствие флага и установить его
+		$isUserBanned = $this->memcache->Add(
+			$banInfoMemcacheKey,
+			array(
+				'banTime' => CURRENT_TIME, 
+				'banExpirationTime' => $banExpirationTime
+			),
+			$banDuration
+		);
+		
+		if ( $isUserBanned === false ) {
 			$result = array(
 				'code' => 0,
 				'error' => 'Уже забанен'
@@ -712,9 +690,6 @@ class Chat {
 		}
 		
 		list( $banUserName ) = $this->db->PrepareParams( $banUserName );
-		
-		$banDuration = $banDurationInMin * 60;
-		$banExpirationTime = CURRENT_TIME + $banDuration;
 		
 		$moderatorName = $this->user[ 'name' ];
 		$moderatorId = $this->user[ 'uid' ];
@@ -736,6 +711,8 @@ class Chat {
 		$queryResult = $this->db->Query( $queryString );
 		
 		if( $queryResult === false ) {
+			// в случае ошибки с запросом удаляем флаг в мемкеше, чтобы юзера можно было забанить в следующий раз
+			$this->memcache->Delete( $banInfoMemcacheKey );
 			$result = array(
 				'code' => 0,
 				'error' => CHAT_RUNTIME_ERROR . '3'
@@ -752,6 +729,7 @@ class Chat {
 			$queryResult = $this->db->Query( $queryString );
 			
 			if( $queryResult === false ) {
+				$this->memcache->Delete( $banInfoMemcacheKey );
 				$result = array(
 					'code' => 0,
 					'error' => CHAT_RUNTIME_ERROR . '4'
@@ -759,16 +737,6 @@ class Chat {
 				return $result;
 			}
 		}
-		
-		// сохраняем данные по бану в memcache
-		$this->memcache->Set(
-			$banInfoMemcacheKey,
-			array(
-				'banTime' => CURRENT_TIME, 
-				'banExpirationTime' => $banExpirationTime
-			),
-			$banDuration
-		);
 		
 		// сохраняем для модераторов кол-во банов
 		if ( $this->user[ 'type' ] == 'chatAdmin' ) {

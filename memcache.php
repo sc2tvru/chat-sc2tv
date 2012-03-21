@@ -36,5 +36,9 @@ class ChatMemcache {
 	public function Delete( $key ) {
 		$this->memcache->delete( $key );
 	}
+	
+	public function Add( $key, $value, $expire ) {
+		return $this->memcache->add( $key, $value, false, $expire );
+	}
 }
 ?>

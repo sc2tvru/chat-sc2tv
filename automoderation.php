@@ -275,9 +275,19 @@ class AutoModeration {
 		// проверяем флаг в memcache на случай бана от модератора или граждан
 		$banInfoMemcacheKey = 'Chat_uid_' . $uid . '_BanInfo';
 		//SaveForDebug( 'BanUserByCitizens ' . $banInfoMemcacheKey );
-		$banInfo = $this->memcache->Get( $banInfoMemcacheKey );
 		
-		if ( $banInfo != false ) {
+		// делаем через Add, чтобы одновременно проверить отсутствие флага и установить его
+		// здесь ставится бан на 10 мин, чтобы застолбить бан, значения правильные выставляются дальше по коду
+		$isUserBanned = $this->memcache->Add(
+			$banInfoMemcacheKey,
+			array(
+				'banTime' => CURRENT_TIME,
+				'banExpirationTime' => CURRENT_TIME + 600
+			),
+			600
+		);
+		
+		if ( $isUserBanned === false ) {
 			$result = array(
 				'code' => 0,
 				'result' => 'Уже забанен'
@@ -292,7 +302,7 @@ class AutoModeration {
 		
 		$banDuration = $banDurationInfo[ 'banDuration' ];
 		$banSerialNumber = $banDurationInfo[ 'banSerialNumber' ];  
-		 
+		
 		$banDurationInSeconds = $banDuration * 60;
 		$banExpirationTime = CURRENT_TIME + $banDurationInSeconds;
 		
@@ -336,8 +346,7 @@ class AutoModeration {
 			SaveForDebug( $resultQuery );
 			$noError = false;
 		}
-		
-		if ( CHAT_DELETE_BANNED_USERS_MESSAGE ) {
+		elseif ( CHAT_DELETE_BANNED_USERS_MESSAGE ) {
 			$updateQueryArray = array_unique( $updateQueryArray );
 			
 			foreach( $updateQueryArray as $queryString ) {
@@ -376,6 +385,16 @@ class AutoModeration {
 			$result = array(
 				'code' => 1,
 				'result' => 'Вы успешно забанили пользователя.'
+			);
+			return $result;
+		}
+		else {
+			// в случае ошибки нужно удалить флаг о бане, чтобы юзера могли забанить при следующей попытке
+			$this->memcache->Delete( $banInfoMemcacheKey );
+			
+			$result = array(
+				'code' => 0,
+				'result' => 'Ошибка бана автомодерации #1. Сообщите разработчикам.'
 			);
 			return $result;
 		}
@@ -641,7 +660,7 @@ class AutoModeration {
 		/*SaveForDebug( 'EditBan banInfo banInfoMemcacheKey ='
 			. $banInfoMemcacheKey . var_export( $banInfo, true ) );
 		/*/
-		if ( $banInfo == false ) {
+		if ( $banInfo == false || !isset( $banInfo[ 'banTime' ] ) ) {
 			// форсим релогин
 			$this->memcache->Set(
 				$banInfoMemcacheKey,
