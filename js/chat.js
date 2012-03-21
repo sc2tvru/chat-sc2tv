@@ -642,6 +642,8 @@ function getmenu( nick, mid, uid, channelId ) {
 		case 9:
 		// фанстример
 		case 10:
+		// real стример
+		case 14:
 			$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick=otvet(user_name)>Ответить</li><li onclick="IgnoreUnignore(user_name, ' + uid + ');">Ignore\Unignore</li><li><a href="' + SC2TV_URL + '/messages/new/' + uid + '" target="_blank" onclick="$(\'.menushka\').remove();">Послать ЛС</a></li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
 		break;
 		
