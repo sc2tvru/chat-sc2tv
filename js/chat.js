@@ -338,17 +338,9 @@ function GetSpecColor( uid ) {
         case '22600':
 			color = '#FFC0CB';
 		break;
-		// Reeves
-		case '21514':
-			color = '#DAD871';
-		break;
 		// Kas
 		case '62395':
 			color = '#5DA130';
-        break;
-        // Nami. Usual color of editors
-        case '16231':
-            color = '#DAD871';
         break;
         // Usual color of regular users
         //BIT
