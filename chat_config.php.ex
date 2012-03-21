@@ -5,6 +5,7 @@ define( 'CHAT_DB_HOST', '176.9.19.112' );
 define( 'CHAT_DB_USER', '' );
 define( 'CHAT_DB_PASSWORD', '' );
 define( 'CHAT_DB_NAME', '' );
+define( 'CHAT_DB_CONNECT_TIMEOUT', 5 );
 
 define( 'CHAT_MEMCACHE_HOST', 'localhost' );
 define( 'CHAT_MEMCACHE_PORT', 11211 );

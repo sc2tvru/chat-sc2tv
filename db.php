@@ -5,7 +5,7 @@
 function GetDb(){
 	global $db;
 	if ( !isset( $db ) ) {
-		$db = new MySqlDb( CHAT_DB_HOST, CHAT_DB_NAME, CHAT_DB_USER, CHAT_DB_PASSWORD );
+		$db = new MySqlDb( CHAT_DB_HOST, CHAT_DB_NAME, CHAT_DB_USER, CHAT_DB_PASSWORD, CHAT_DB_CONNECT_TIMEOUT );
 	}
 	return $db;
 }
@@ -17,13 +17,23 @@ function GetDb(){
 class MySqlDb {
 	public $mysqli;
 	
-	public function __construct( $dbHost, $dbName, $dbUser, $dbPassword ) {
-		$this->mysqli = new mysqli( $dbHost, $dbUser, $dbPassword, $dbName );
+	public function __construct( $dbHost, $dbName, $dbUser, $dbPassword, $dbConnectTimeout = 5 ) {
+		$this->mysqli = mysqli_init();
 		
-		if ( !$this->mysqli->connect_error ) {
-			$this->mysqli->query( 'SET NAMES utf8' );
-			return $this->mysqli;
+		if ( !$this->mysqli ) {
+			die( 'mysqli_init failed' );
 		}
+		
+		if ( !$this->mysqli->options( MYSQLI_OPT_CONNECT_TIMEOUT, $dbConnectTimeout ) ) {
+			die( 'Setting MYSQLI_OPT_CONNECT_TIMEOUT failed' );
+		}
+		
+		if ( !$this->mysqli->real_connect( $dbHost, $dbUser, $dbPassword, $dbName ) ) {
+			die( 'mysqli Connect Error' );
+		}
+		
+		$this->mysqli->query( 'SET NAMES utf8' );
+		return $this->mysqli;
 	}
 
 
