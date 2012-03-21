@@ -59,7 +59,13 @@ class MySqlDb {
 			
 			// TODO php 5.4.0 добавить ENT_SUBSTITUTE ?
 			if ( $param != '' ) {
-				$param = htmlspecialchars( $param, ENT_QUOTES, 'UTF-8' );
+				if ( $this->ValidateUtf8( $param ) ) {
+					$param = htmlspecialchars( $param, ENT_QUOTES, 'UTF-8' );
+				}
+				else {
+					$param = htmlspecialchars( $param, ENT_QUOTES );
+				}
+				
 				$param = $this->mysqli->real_escape_string( $param );
 			}
 			
@@ -67,6 +73,14 @@ class MySqlDb {
 		}
 		
 		return $cleanParams;
+	}
+	
+	// http://api.drupal.org/api/drupal/includes!bootstrap.inc/function/drupal_validate_utf8/7
+	private function ValidateUtf8( $text ) {
+		// With the PCRE_UTF8 modifier 'u', preg_match() fails silently on strings
+		// containing invalid UTF-8 byte sequences. It does not reject character
+		// codes above U+10FFFF (represented by 4 or more octets), though.
+		return ( preg_match( '/^./us', $text ) == 1 );
 	}
 }
 ?>
