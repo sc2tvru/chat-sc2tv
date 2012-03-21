@@ -70,8 +70,13 @@ class Chat {
 			$uri = $_SERVER[ 'REQUEST_URI' ];
 			list( $uri ) = $this->db->PrepareParams( $uri );
 			
-			$referer = $_GET[ 'ref' ];
-			list( $referer ) = $this->db->PrepareParams( $referer );
+			if ( isset( $_GET[ 'ref' ] ) ) {
+				$referer = $_GET[ 'ref' ];
+				list( $referer ) = $this->db->PrepareParams( $referer );
+			}
+			else {
+				$referer = '';
+			}
 			
 			$userAgent = $_SERVER[ 'HTTP_USER_AGENT' ];
 			list( $userAgent ) = $this->db->PrepareParams( $userAgent );
