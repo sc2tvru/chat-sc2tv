@@ -17,6 +17,10 @@ function ChatErrorHandler( $errno = '', $errstr = '', $errfile = '', $errline = 
 		$out = date( 'd M H:i:s', CURRENT_TIME ).' - ip '.$_SERVER[ 'REMOTE_ADDR' ]
 			.' - ref '.$_SERVER[ 'HTTP_REFERER' ]."\n $errfile, line $errline, code $errno, $errstr\n\n$serverInfo\n\n";
 		
+		if ( count( $_POST ) ) {
+			$out .= var_export( $_POST, true );
+		}
+		
 		fwrite( $logFile, $out );
 		fflush( $logFile );
 		flock( $logFile, LOCK_UN );

@@ -52,7 +52,7 @@ p.text {
 	word-wrap:break-word;
 	overflow:hidden;
 }
-.cancelBanButton {
+.cancelBanButton, .banButton {
 	color:#e41515;
 	text-decoration:none;
 }
@@ -60,7 +60,7 @@ p.text {
 	color:#33CC33;
 	text-decoration:none;
 }
-.cancelBanButton:hover, .complainBanButton:hover, .editBanButton:hover {
+.cancelBanButton:hover, .complainBanButton:hover, .editBanButton:hover, .banButton:hover {
 	cursor: pointer;
 }
 #actionForm{

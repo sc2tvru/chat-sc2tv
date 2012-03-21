@@ -19,7 +19,7 @@ color: #5DA130 !important;
 
 #dialog2{
 	width:216px;
-	height:440px;
+	height:100%;
 }
 
 #chat{
@@ -27,7 +27,7 @@ margin-left:3px;
 padding-left:3px;
 font-family:Arial, Helvetica, sans-serif;
 overflow: auto;
-height:375px;
+height:85%;
 width:100%;
 background: #FFFFFF;
 }
@@ -40,9 +40,11 @@ background: #FFFFFF;
 }
 
 .chat-text{
-	width:100%;
+	width:92%;
 	border:1px #CCCCCC solid;
 	font-size:14px;
+	margin-left:18px;
+	font-family:Arial, Helvetica, sans-serif;
 }
 
 .nick{
@@ -298,5 +300,10 @@ span.ignored{
 	margin:0px !important;
 }
 body{
+	height:100%;
 	margin:0;padding:0;
+}
+#full-screen-place {
+	display:inline;
+	margin-right:18px !important;
 }

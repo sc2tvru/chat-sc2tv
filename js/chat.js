@@ -42,14 +42,15 @@ img_btn = '<span id="img-on" title="включить смайлы" style="displa
 color_btn = '<span id="clr_nick_on" title="включить цветные ники">col</span><span id="clr_nick_off" title="выключить цветные ники">col</span>';
 smiles_btn = '<span id="smile-btn">smile</span>';
 smile_panel = '<div id="chat-smile-panel">' + smileHtml + '<div id="chat-smile-panel-close">X</div></div>';
+divForFullScreen = '<div id="full-screen-place">.</div>';
 
 form_chat = '<div id="chat-form"><form id="chat-form-id" method="post" action=""><input maxlength="300" type="text" name="chat-text" class="chat-text"/></form>' + chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + smiles_btn + ' ' + chat_rules_link + ' ' + chat_history_link + ' ' + chat_ban_history_link + smile_panel + '</div>';
 
-form_anon = '<div id="chat-form">'+ chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + chat_history_link + ' <span>В чате могут писать только зарегистрированные пользователи.</span></div>';
+form_anon = '<div id="chat-form">' + divForFullScreen + chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + chat_history_link + ' <span>В чате могут писать только зарегистрированные пользователи.</span></div>';
  
-form_banned = '<div id="chat-form">' + chat_vkl_btn + ' ' + img_btn + ' ' + chat_history_link + ' <span>Вы были забанены. </span> <a href="/automoderation_history.htm" target="_blank">Причина</a></div>';
+form_banned = '<div id="chat-form">' + divForFullScreen + chat_vkl_btn + ' ' + img_btn + ' ' + chat_history_link + ' <span>Вы были забанены. </span> <a href="/automoderation_history.htm" target="_blank">Причина</a></div>';
 
-form_newbie = '<div id="chat-form">' + chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + chat_history_link + ' <span>Вы зарегистрированы менее трех дней назад.</span></div>';
+form_newbie = '<div id="chat-form">' + divForFullScreen + chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + chat_history_link + ' <span>Вы зарегистрированы менее трех дней назад.</span></div>';
 
 tpl_chat_stopped = "<div id='chat_closed'><div>Чатик остановлен!</div><div>Остановил: [stopper].</div><div>Остановлено до: [min]</div><div>Причина: [reason].</div></div>";
 var chat_channel_id = 0;
@@ -382,14 +383,16 @@ function IsUserIgnored( uid ) {
 }
 
 function BuildChat( dataForBuild ) {
+	/*
 	if ( IsAnon() == true ) {
 		userInfo.type = 'anon';
 	}
-	else if ( dataForBuild == null ) {
+	else if ( dataForBuild == null ) {*/
+	if ( dataForBuild == null ) {
 		// данных для сборки нет, запрашиваем сервер
 		$.ajaxSetup( { async: false, cache: false } );
 		
-		$.getJSON( CHAT_URL + 'gate.php?task=GetUserInfo', function( data ) {
+		$.getJSON( CHAT_URL + 'gate.php?task=GetUserInfo&ref=' + document.referrer, function( data ) {
 			userInfo = data;
 		});
 		
@@ -416,6 +419,21 @@ function BuildChat( dataForBuild ) {
 	
 	if ( userInfo.isModerator == '1' ) {
 		$.cookie( 'is_moderator', '1', { expires: 365, path: '/'} );
+	}
+	
+	var needFullScreen = getParameterByName( 'fullScreen' );
+	
+	if ( needFullScreen === '1' ){
+		var chatWindowHeight = getParameterByName( 'height' );
+		
+		if ( chatWindowHeight !== undefined && chatWindowHeight !== '' ) {
+			$('#dialog2').css( 'height', chatWindowHeight );
+			$('#chat').css( 'height', '94%' );
+		}
+	}
+	else {
+		$('#dialog2').css( 'height', '440px' );
+		$('#chat').css( 'height', '375px' );
 	}
 	
 	$('#dialog2').html('<div id="add_styles"></div><div class="chat-channel-name"><div title="перейти на главный канал" class="0">main</div><div id="stream-room" title="перейти на другой канал" class="other">other</div><br style="clear:both"/></div><div id="chat"></div>'+myform);
@@ -830,49 +848,6 @@ function show_error( err ) {
 
 function show_result(res){
 	//alert (res);
-}
-
-function changeScreen(){
-	if($("div#stream_player_body:visible object").length||screen2==1){
-		if(screen2){
-			unfullScreen();
-			screen2=0;
-		}else{
-			fullScreen();
-			screen2=1;
-		}
-	}
-}
-
-function fullScreen(){
-
-	var h=$(window).height()
-	var w=$(window).width()
-	var mw=$(window).width()-230;
-	$(".main-frame").after("<div id='big-frame' style='position:absolute;z-index:1100;width:"+w+"px;height:"+h+"px;background:#000;top:0;left:0;'><div id='pl' style='float:left; width:"+mw+"px; height:"+h+"'></div><div id='bchat' style='float:left;width:220px'></div></div>");
-	$("#chat").css('height',h-60);
-	$("#bchat").append($("#dialog2"));
-	//$("#dialog2").clone().appendTo($("#bchat"));
-	$("div#stream_player_body:visible").addClass("super");
-	$("div.super").clone().appendTo($("#pl"));
-	//$("#pl").clone($("div.super"));
-	$("div.super object").height((h));
-	$("div.super object").width(mw);
-	$("div.super object embed").height((h));
-	$("div.super object embed").width(mw);
-	$(".main-frame").toggle()
-}
-
-function unfullScreen(){
-	$(".main-frame").toggle();
-	$("#chat").css('height','395px');
-	$("div.super object").height(414);
-	$("div.super object").width(737);
-	$("div.super object embed").height(414);
-	$("div.super object embed").width(737);
-	$("div.super").removeClass("super");
-	$("#dialog2").appendTo("#block-chat_pupsk8 .content");
-	$("#big-frame").remove();
 }
 
 function IsAnon(){

@@ -57,6 +57,41 @@ class Chat {
 	public function GetAuthInfo() {
 		if( !isset( $_COOKIE[ DRUPAL_SESSION ] ) || 
 			preg_match( '/[^a-z\d]+/i', $_COOKIE[ DRUPAL_SESSION ] ) ) {
+			// запись для отладки кэширования по просьбе Данила
+			$this->SetDatabase();
+			
+			$ipAddress = $_SERVER[ 'REMOTE_ADDR' ];
+			if ( $ipAddress == '' ) {
+				$ipAddress = '0';
+			}
+			
+			$ipAddress = sprintf( "%u", ip2long( $ipAddress ) );
+			
+			$uri = $_SERVER[ 'REQUEST_URI' ];
+			list( $uri ) = $this->db->PrepareParams( $uri );
+			
+			$referer = $_GET[ 'ref' ];
+			list( $referer ) = $this->db->PrepareParams( $referer );
+			
+			$userAgent = $_SERVER[ 'HTTP_USER_AGENT' ];
+			list( $userAgent ) = $this->db->PrepareParams( $userAgent );
+			
+			$cookie = var_export( $_COOKIE, true );
+			//list( $cookie ) = $this->db->PrepareParams( $cookie );
+			
+			$queryString = 'INSERT INTO chat_anon VALUES(
+				"'. $ipAddress . '",
+				"'. CURRENT_DATE .'",
+				"'. $uri .'",
+				"'. $referer .'",
+				"'. $userAgent .'",
+				"'. $cookie .'"
+			)';
+			
+			$queryResult = $this->db->Query( $queryString );
+			
+			//*/
+			
 			$result = array(
 				'userInfo' => $this->user,
 				'error' => CHAT_COOKIE_NOT_FOUND
@@ -80,7 +115,7 @@ class Chat {
 		$this->SetDatabase();
 		// TODO: регулярки выше должно хватить, но на всякий случай лучше подготовить
 		// убрать?
-		list( $drupalSession ) = $this->db->PrepareParams( $_COOKIE[ DRUPAL_SESSION ] );
+		list( $drupalSession ) = $this->db->PrepareParams( $drupalSession );
 
     // roles priority Admin > Moderator > Streamer > others
     $queryString = 'SELECT users.uid as uid, name, created, rid, banExpirationTime, banTime,
