@@ -183,7 +183,7 @@ function IsModerator(){
 		return false;
 	}
 	
-	return moderatorsDetails[ uid ].name === $.cookie( 'drupal_user' );
+	return moderatorsDetails[ uid ].name !== '';
 }
 
 function GetModeratorNameById( uid ){

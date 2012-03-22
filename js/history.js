@@ -1,57 +1,24 @@
 var SC2TV_URL = 'http://sc2tv.ru';
 var CHAT_URL =  'http://chat.sc2tv.ru/';
 var CHAT_IMG_DIR = '/img/';
-var CHAT_MEMFS = CHAT_URL + 'memfs';
 var CHAT_HISTORY_URL = CHAT_URL + 'memfs/history/';
-var CHAT_MODERATORS_DETAILS_URL = CHAT_MEMFS + '/moderatorsDetails.json';
 var CHAT_HISTORY_NOT_FOUND = 'Сообщений по вашему запросу не найдено';
 var CHAT_HISTORY_MAX_TIME_DIFFERENCE = 86400000;
 var CHAT_HISTORY_CHECK_PARAMS = 'Пожалуйста, проверьте правильность данных запроса. Максимальный временной интервал для запроса истории - 24 часа.';
 var CHAT_HISTORY_FOR_USERS_ONLY = 'История доступна только для авторизованных в чате пользователей.';
 var smilesCount = smiles.length;
 var userInfo = [];
-var moderatorsDetails = [];
-
-function GetModeratorsData() {
-	Login();
-	$.post( CHAT_URL + 'gate.php', { task: 'GetModeratorsDetails', token: userInfo.token }, function( data ) {
-		data = $.parseJSON( data );
-		if( data.error == '' ) {
-			moderatorsDetails = data.moderatorsDetails;
-		}
-		else {
-			show_error( data.error );
-		}
-	});
-}
-
-function GetModeratorsDetails() {
-	if ( moderatorsDetails.length == 0 ) {
-		$.ajaxSetup( {
-			ifModified: true,
-			statusCode: {
-				404: function() {
-					GetModeratorsData();
-				}
-			}
-		});
-		
-		$.getJSON( CHAT_MODERATORS_DETAILS_URL, function( jsonData ){
-			if ( jsonData != undefined || jsonData == '' ) {
-				moderatorsDetails = jsonData.moderatorsDetails;
-				if ( moderatorsDetails.length == 0 ) {
-					show_error( CHAT_MODERATORS_DETAILS_ERROR );
-				}
-			}
-		});
-	}
-}
 
 function GetHistoryData( channelId, startDate, endDate, nick ) {
 	nick = nick.replace( /[^\u0020-\u007E\u0400-\u045F\u0490\u0491\u0207\u0239]+/g, '' );
 	nick = nick.replace( /[\s]+/g, ' ' );
 	
 	Login();
+	
+	$.ajaxSetup( {
+		ifModified: true,
+		cache: true,
+	});
 	
 	$.post( CHAT_URL + 'gate.php', { task: 'GetHistory', channelId: channelId, startDate: startDate, endDate: endDate, nick: nick, token: userInfo.token }, function( data ) {
 		data = $.parseJSON( data );
@@ -104,15 +71,15 @@ function InstallHooksOnButtons() {
 		
 		divClass = interactiveElement.attr( 'class' );
 		
-		var regExpr = new RegExp( 'message_([\\d]+)' );
+		var regExpr = /message_(\d+)/gi;
 		res = regExpr.exec( divClass );
 		mid = res[1];
 		
-		regExpr = new RegExp( 'channel-([\\d]+)' );
+		var regExpr = /channel-(\d+)/gi;
 		res = regExpr.exec( divClass );
 		channelId = res[1];
 		
-		regExpr = new RegExp( 'uid_([\\d]+)' );
+		var regExpr = /uid_(\d+)/gi;
 		res = regExpr.exec( divClass );
 		uid = res[1];
 		
@@ -221,7 +188,7 @@ function RequestHistory() {
 	nick = $( '#nick' ).val();
 	nick = PrepareNick( nick );
 	
-	$.ajaxSetup( {ifModified: true} );
+	$.ajaxSetup( {ifModified: true, cache:true} );
 	
 	historyCache = CHAT_HISTORY_URL;
 	
@@ -287,14 +254,7 @@ function AddChannels(){
 }
 
 function IsModerator(){
-	uid = $.cookie( 'drupal_uid' );
-	var moderatorsCount = moderatorsDetails.length;
-	
-	if ( uid == undefined || moderatorsCount == 0 || moderatorsDetails[ uid ] == undefined ) {
-		return false;
-	}
-	
-	return moderatorsDetails[ uid ].name === $.cookie( 'drupal_user' );
+	return ( userInfo.isModerator === '1' || userInfo.isAdmin === '1' );
 }
 
 function IsAnon(){
@@ -335,7 +295,6 @@ $( document ).ready( function(){
 		});
 		
 		AddChannels();
-		GetModeratorsDetails();
 		//RequestHistory();
 		
 		$( '#history-form' ).submit(function() {
