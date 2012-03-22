@@ -340,19 +340,22 @@ class Chat {
 	 *  @return bool true | false
 	 */
 	private function IsStringCaps( $str ) {
-		// обращения вроде [b]MEGAKILLER[/b]
-		$tempStr = preg_replace( '/^\[b\][^\]]+\[\/b\]|[\s]+/uis', '',  $str );
+		// удаляем обращения вроде [b]MEGAKILLER[/b], bb-код [b][/b], пробелы
+		$tempStr = preg_replace( '/^\[b\][-\._\w\d\x{400}-\x{45F}\x{490}\x{491}\x{207}\x{239}\[\]]+\[\/b\]|\[b\]|\[\/b\]|[\s]+/uis', '',  $str );
 		
 		if ( $tempStr == '' ) {
 			return true;
 		}
+		
+		// коды смайлов
+		$tempStr = preg_replace( '/:s:[^:]+:/uis', '',  $tempStr );
 		
 		$len = mb_strlen( $tempStr );
 		
 		preg_match_all( '/[A-ZА-Я]/u', $tempStr, $matches );
 		$capsCount = count( $matches[ 0 ] );
 		
-		if( $capsCount >= 5 && $capsCount > ( $len / 2 ) ) {
+		if( $capsCount >= 5 && $capsCount >= ( $len / 2 ) ) {
 			return true;
 		}
 		else {
@@ -537,6 +540,8 @@ class Chat {
 		$channelId = $this->GetChannelId();
 		
 		if( $this->IsStringCaps( $message ) ) {
+			// предотвращаем перевод кодов смайлов в картинки, чтобы не бился html
+			$message = preg_replace( '/(?::s)+(:[^:]+:)/uis', '\\1', $message );
 			$message = '<span class="red" title="' . $message . '">Предупреждение за КАПС!</span>';
 		}
 		else {

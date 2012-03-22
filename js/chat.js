@@ -807,12 +807,15 @@ function CheckUserState( currentUserData ) {
 }
 
 function IsStringCaps( str ) {
-	// обращения вроде [b]MEGAKILLER[/b]
-	tempStr = str.replace( /\[b\][^\]]+\[\/b\]|[\s]+/gi, '' );
+	// удаляем обращения вроде [b]MEGAKILLER[/b], bb-код [b][/b], пробелы
+	tempStr = str.replace( /\[b\][-\._\w\d\u0400-\u045F\u0490\u0491\u0207\u0239\[\]]+\[\/b\]|\[b\]|\[\/b\]|\s+/gi, '' );
 	
 	if ( tempStr == '' ) {
 		return true;
 	}
+	
+	// коды смайлов
+	tempStr = tempStr.replace( /:s:[^:]+:/gi, '' );
 	
 	len = tempStr.length;
 	

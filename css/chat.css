@@ -77,6 +77,9 @@ margin:0px;
 #dialog2 { background:none; font-family:Verdana, Arial, sans-serif }
 #dialog2 div { color:#cacaca; background:none; font-size:11px; margin-right:10px}
 #dialog2 span { color:#7797be }
+#dialog2 div#chat div p.text span.red {
+	color:#ff0000;
+}
 div#dialog2 div#chat-form span {
 	color:#fff;
 }
