@@ -23,18 +23,15 @@ $userInfo = $authInfo[ 'userInfo' ];
 // если есть ошибка авторизации, лучше сразу отдать ее и прекратить выполнение
 if ( $error != '' ) {
 	SendDefaultResponse( $userInfo, $error );
-	exit;
 }
 
 if ( $task == 'GetUserInfo' ) {
 	SendDefaultResponse( $userInfo, $error );
-	exit;
 }
 
 // для всех действий, кроме авторизации, проверяем установленный токен
 if ( !isset( $_REQUEST[ 'token' ] ) || $userInfo[ 'token' ] != $_REQUEST[ 'token' ] ) {
 	SendDefaultResponse( $userInfo, CHAT_TOKEN_VERIFICATION_FAILED );
-	exit;
 }
 
 // выполняем действия для задачи
@@ -216,5 +213,6 @@ switch ( $task ) {
 function SendDefaultResponse( $userInfo, $error ) {
 	$userInfo[ 'error' ] = $error;
 	echo json_encode( $userInfo );
+	exit;
 }
 ?>

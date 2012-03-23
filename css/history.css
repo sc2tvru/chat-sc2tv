@@ -52,13 +52,18 @@ p.text {
 	word-wrap:break-word;
 	overflow:hidden;
 }
-.cancelBanButton, .banButton {
+.cancelBanButton {
 	color:#e41515;
 	text-decoration:none;
 }
 .complainBanButton, .editBanButton {
 	color:#33CC33;
 	text-decoration:none;
+}
+.banButton {
+	color:#7797be;
+	text-decoration:none;
+	display:none;
 }
 .cancelBanButton:hover, .complainBanButton:hover, .editBanButton:hover, .banButton:hover {
 	cursor: pointer;

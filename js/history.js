@@ -99,6 +99,14 @@ function ShowHistory( historyData ) {
 	InstallHooksOnButtons();
 }
 
+function ShowActionButton( mid ){
+	$( 'div.message_' + mid + ' > span.banButton' ).show();
+}
+
+function HideActionButton( mid ){
+	$( 'div.message_' + mid + ' > span.banButton' ).hide();
+}
+
 function BuildHtml( messageList ) {
 	var data = '';
 	var color = '';
@@ -130,7 +138,7 @@ function BuildHtml( messageList ) {
 		}
 		
 		// TODO убрать лишнее
-		data = '<div class="channel-' + messageList[ i ].channelId + ' mess message_' + messageList[ i ].id + ' uid_' + messageList[ i ].uid + '"><span' + colorStyle + ' class="nick' + colorClass + '" title="' + messageList[ i ].date + '">' + messageList[ i ].name + '</span><p class="text">' + messageList[ i ].message + '</p>' + actionButton + '</div>' + data;
+		data = '<div class="channel-' + messageList[ i ].channelId + ' mess message_' + messageList[ i ].id + ' uid_' + messageList[ i ].uid + '" onmouseover="ShowActionButton(' + messageList[ i ].id +');" onmouseout="HideActionButton('+ messageList[ i ].id +');"><span' + colorStyle + ' class="nick' + colorClass + '" title="' + messageList[ i ].date + '">' + messageList[ i ].name + '</span><p class="text">' + messageList[ i ].message + '</p>' + actionButton + '</div>' + data;
 	}
 	
 	data = ProcessReplaces( data );
