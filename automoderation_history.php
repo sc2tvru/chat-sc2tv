@@ -59,6 +59,17 @@ class ChatAutomoderationHistory {
 				
 				foreach ( $userNames as $currentNick ) {
 					list( $currentNick ) = $this->db->PrepareParams( $currentNick );
+					
+					// если длина логина больше максимальной, прислали что-то не то
+					if ( mb_strlen( $currentNick ) > CHAT_MAX_USERNAME_LENGTH ) {
+						SaveForDebug( $userNamesCopy ."\n\n". $currentNick );
+						$result = array(
+							'messages' => '',
+							'error' => CHAT_USERNAME_TOO_LONG
+						);
+						return $result;
+					}
+					
 					$options .= $operator .' mu.name = "'. $currentNick .'"';
 					if ( $operator === '' ) {
 						$operator = ' OR ';
@@ -84,6 +95,17 @@ class ChatAutomoderationHistory {
 				
 				foreach ( $bannedNickNames as $currentNick ) {
 					list( $currentNick ) = $this->db->PrepareParams( $currentNick );
+					
+					// если длина логина больше максимальной, прислали что-то не то
+					if ( mb_strlen( $currentNick ) > CHAT_MAX_USERNAME_LENGTH ) {
+						SaveForDebug( $userNamesCopy ."\n\n". $currentNick );
+						$result = array(
+							'messages' => '',
+							'error' => CHAT_USERNAME_TOO_LONG
+						);
+						return $result;
+					}
+					
 					$options .= $operator .' ru.name = "'. $currentNick .'"';
 					if ( $operator === '' ) {
 						$operator = ' OR ';
@@ -143,6 +165,11 @@ class ChatAutomoderationHistory {
 		$historyCache = CHAT_AUTOMODERATION_HISTORY_MEMFS_DIR . $historyCache;
 		file_put_contents( $historyCache, $dataJson );
 		
+		$historyCacheGz = $historyCache . '.gz';
+		$historyCacheGzFile = gzopen( $historyCacheGz, 'w' );
+		gzwrite( $historyCacheGzFile, $dataJson );
+		gzclose( $historyCacheGzFile );
+		
 		$result = array(
 			'messages' => $messages,
 			'error' => ''
@@ -197,6 +224,11 @@ class ChatAutomoderationHistory {
 		
 		file_put_contents( CHAT_MODERATORS_DETAILS, $dataJson );
 		
+		$moderatorsDetailsGz = CHAT_MODERATORS_DETAILS . '.gz';
+		$moderatorsDetailsGzFile = gzopen( $moderatorsDetailsGz, 'w' );
+		gzwrite( $moderatorsDetailsGzFile, $dataJson );
+		gzclose( $moderatorsDetailsGzFile );
+		
 		$result = array(
 			'moderatorsDetails' => $modetatorsDetails,
 			'error' => ''
@@ -225,7 +257,11 @@ class ChatAutomoderationHistory {
 		$dataJson = json_encode( array( 'complainsList' => $result ) );
 		
 		file_put_contents( CHAT_COMPLAINS_FOR_BANS, $dataJson );
-		touch( CHAT_COMPLAINS_FOR_BANS );
+		
+		$complainsGz = CHAT_COMPLAINS_FOR_BANS . '.gz';
+		$complainsGzFile = gzopen( $complainsGz, 'w' );
+		gzwrite( $complainsGzFile, $dataJson );
+		gzclose( $complainsGzFile );
 		
 		return $result;
 	}
@@ -234,8 +270,7 @@ class ChatAutomoderationHistory {
 	private function PrepareNickNames( $userNames ){
 		$userNames = urldecode( $userNames );
 		// удаление на всякий случай символов, кроме разрешенных и whitespaces
-		$userNames = preg_replace( '/[^\x20-\x7E\x{400}-\x{45F}\x{490}\x{491}\x{207}\x{239}]+/us', '',  $userNames );
-		$userNames = str_replace( '/', '', $userNames );
+		$userNames = preg_replace( '/[^\x20-\x7E\x{400}-\x{45F}\x{490}\x{491}\x{207}\x{239}]+|[\/]+/us', '',  $userNames );
 		$userNames = preg_replace( '#[\s]+#uis', ' ',  $userNames );
 		return $userNames;
 	}

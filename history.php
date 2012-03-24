@@ -42,6 +42,17 @@ class ChatHistory {
 				
 				foreach ( $userNames as $userName ) {
 					list( $userName ) = $this->db->PrepareParams( $userName );
+					
+					// если длина логина больше максимальной, прислали что-то не то
+					if ( mb_strlen( $userName ) > CHAT_MAX_USERNAME_LENGTH ) {
+						SaveForDebug( $userNamesCopy ."\n\n". $userName );
+						$result = array(
+							'messages' => '',
+							'error' => CHAT_USERNAME_TOO_LONG
+						);
+						return $result;
+					}
+			
 					$options .= $operator .'name="'. $userName .'"';
 					if ( $operator === '' ) {
 						$operator = ' OR ';
@@ -101,7 +112,11 @@ class ChatHistory {
 		
 		$historyCache = CHAT_HISTORY_MEMFS_DIR . $historyCache;
 		file_put_contents( $historyCache, $dataJson );
-		touch( $historyCache );
+		
+		$historyCacheGz = $historyCache . '.gz';
+		$historyCacheGzFile = gzopen( $historyCacheGz, 'w' );
+		gzwrite( $historyCacheGzFile, $dataJson );
+		gzclose( $historyCacheGzFile );
 		
 		$result = array(
 			'messages' => $messages,
@@ -115,8 +130,7 @@ class ChatHistory {
 	private function PrepareUserNames( $userNames ){
 		$userNames = urldecode( $userNames );
 		// удаление на всякий случай символов, кроме разрешенных и whitespaces
-		$userNames = preg_replace( '/[^\x20-\x7E\x{400}-\x{45F}\x{490}\x{491}\x{207}\x{239}]+/us', '',  $userNames );
-		$userNames = str_replace( '/', '', $userNames );
+		$userNames = preg_replace( '/[^\x20-\x7E\x{400}-\x{45F}\x{490}\x{491}\x{207}\x{239}]+|[\/]+/us', '',  $userNames );
 		$userNames = preg_replace( '#[\s]+#uis', ' ',  $userNames );
 		return $userNames;
 	}
