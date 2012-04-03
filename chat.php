@@ -57,7 +57,7 @@ class Chat {
 	public function GetAuthInfo() {
 		if( !isset( $_COOKIE[ DRUPAL_SESSION ] ) || 
 			preg_match( '/[^a-z\d]+/i', $_COOKIE[ DRUPAL_SESSION ] ) ) {
-			// запись для отладки кэширования по просьбе Данила
+			/*/ запись для отладки кэширования по просьбе Данила
 			$this->SetDatabase();
 			
 			$ipAddress = $_SERVER[ 'REMOTE_ADDR' ];
