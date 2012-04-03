@@ -10,7 +10,12 @@ function ShowHistory( historyData ) {
 
 function GetGroupNameByRid( rid ){
 	switch( rid ){
+    // authenticated user
 		case '2':
+    //fun streamer
+    case '10':
+    // real streamer
+    case '14':
 			name = 'пользователь';
 		break;
 		case '3':
