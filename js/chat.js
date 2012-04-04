@@ -664,9 +664,6 @@ function getmenu( nick, mid, uid, channelId ) {
 // сборка html для канала
 function BuildHtml( messageList ) {
 	var data = '';
-	var color = '';
-	var colorClass = '';
-	var customColorStyle = '';
 	
 	var messageCount = messageList.length;
 	
@@ -676,6 +673,8 @@ function BuildHtml( messageList ) {
 	
 	for( i=0; i < messageCount; i++ ) {
 		var nicknameClass = 'nick';
+		var color = '';
+		var customColorStyle = '';
 		
 		// сообщения пользователей и системы выглядят по-разному
 		if ( messageList[ i ].uid != -1 ) {
