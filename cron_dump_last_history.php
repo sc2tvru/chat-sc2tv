@@ -12,5 +12,5 @@ $history = new ChatHistory();
 $startDate = date( $dateFormat, CURRENT_TIME - 600 );
 $endDate = date( $dateFormat, CURRENT_TIME );
 
-$result = $history->Get( '', $startDate, $endDate, '', 'last.json' );
+$result = $history->Get( '', $startDate, $endDate, '', false, 'last.json' );
 ?>
