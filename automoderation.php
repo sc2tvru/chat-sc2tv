@@ -59,7 +59,8 @@ class AutoModeration {
 		if ( ( CURRENT_TIME - $userInfo[ 'created' ] < $timeOnSiteAfterReg ) ||
 			// либо был бан и с его момента прошло недостаточно времени
 			isset( $userInfo[ 'wasBanned' ] ) && $userInfo[ 'wasBanned' ] == '1'
-			&& ( CURRENT_TIME - $userInfo[ 'banTime' ] < $timeBeforeNowWithoutInfractions ) ) {
+			&& ( CURRENT_TIME - $userInfo[ 'banTime' ] < $timeBeforeNowWithoutInfractions )
+			&& $userInfo[ 'banExpirationTime' ] - $userInfo[ 'banTime' ] > CITIZEN_ALLOWED_BAN_TIME ) {
 			$this->memcache->Set( $isCitizenMemcachekey, false, CITIZEN_STATUS_TTL );
 			return false;
 		}
