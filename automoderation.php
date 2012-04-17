@@ -67,22 +67,21 @@ class AutoModeration {
 		
 		// на форуме
 		$queryString = '
-			SELECT dateline
+			SELECT SUM(points) as infractionTotalCount
 			FROM forum_infraction
 			WHERE userid = "' . $uid . '"
-			ORDER BY dateline DESC LIMIT 1';
+			AND points >= 1
+			AND dateline > ' .( CURRENT_TIME - $timeBeforeNowWithoutInfractions );
 		
 		$this->SetDatabase();
 		$queryResult = $this->db->Query( $queryString );
 		
-		if( $queryResult->num_rows == 1 ) {
-			$userData = $queryResult->fetch_assoc();
-			$lastInfractionTime = $userData[ 'dateline' ];
-
-			if ( CURRENT_TIME - $lastInfractionTime < $timeBeforeNowWithoutInfractions ) {
-				$this->memcache->Set( $isCitizenMemcachekey, false, CITIZEN_STATUS_TTL );
-				return false;
-			}
+		$userData = $queryResult->fetch_assoc();
+		$infractionTotalCount = $userData[ 'infractionTotalCount' ];
+			
+		if( $infractionTotalCount > 1 ) {
+			$this->memcache->Set( $isCitizenMemcachekey, false, CITIZEN_STATUS_TTL );
+			return false;
 		}
 		
 		/* / общее число сообщений на форуме и комментариев в новостях
