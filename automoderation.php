@@ -70,6 +70,7 @@ class AutoModeration {
 			SELECT SUM(points) as infractionTotalCount
 			FROM forum_infraction
 			WHERE userid = "' . $uid . '"
+			AND action = 0
 			AND points >= 1
 			AND dateline > ' .( CURRENT_TIME - $timeBeforeNowWithoutInfractions );
 		
