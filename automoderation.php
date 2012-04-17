@@ -77,12 +77,14 @@ class AutoModeration {
 		$this->SetDatabase();
 		$queryResult = $this->db->Query( $queryString );
 		
-		$userData = $queryResult->fetch_assoc();
-		$infractionTotalCount = $userData[ 'infractionTotalCount' ];
-			
-		if( $infractionTotalCount > 1 ) {
-			$this->memcache->Set( $isCitizenMemcachekey, false, CITIZEN_STATUS_TTL );
-			return false;
+		if( $queryResult->num_rows > 0 ) {
+			$userData = $queryResult->fetch_assoc();
+			$infractionTotalCount = $userData[ 'infractionTotalCount' ];
+				
+			if( $infractionTotalCount > 1 ) {
+				$this->memcache->Set( $isCitizenMemcachekey, false, CITIZEN_STATUS_TTL );
+				return false;
+			}
 		}
 		
 		/* / общее число сообщений на форуме и комментариев в новостях
