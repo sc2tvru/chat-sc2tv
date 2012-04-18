@@ -58,7 +58,7 @@ class AutoModeration {
 		// если с момента регистрации прошло недостаточно времени
 		if ( ( CURRENT_TIME - $userInfo[ 'created' ] < $timeOnSiteAfterReg ) ||
 			// или есть бан(ы) в чате, но он(и) недопустимы для получения статуса гражданина
-			IsUserBanAllowedForCitizen( $userInfo, $timeBeforeNowWithoutInfractions ) === false ) {
+			$this->IsUserBanAllowedForCitizen( $userInfo, $timeBeforeNowWithoutInfractions ) === false ) {
 			$this->memcache->Set( $isCitizenMemcachekey, false, CITIZEN_STATUS_TTL );
 			return false;
 		}
