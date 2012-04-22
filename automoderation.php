@@ -57,28 +57,34 @@ class AutoModeration {
 		
 		// если с момента регистрации прошло недостаточно времени
 		if ( ( CURRENT_TIME - $userInfo[ 'created' ] < $timeOnSiteAfterReg ) ||
-			// либо был бан и с его момента прошло недостаточно времени
-			isset( $userInfo[ 'wasBanned' ] ) && $userInfo[ 'wasBanned' ] == '1'
-			&& ( CURRENT_TIME - $userInfo[ 'banTime' ] < $timeBeforeNowWithoutInfractions ) ) {
+			// или есть бан(ы) в чате, но он(и) недопустимы для получения статуса гражданина
+			$this->IsUserBanAllowedForCitizen( $userInfo, $timeBeforeNowWithoutInfractions ) === false ) {
 			$this->memcache->Set( $isCitizenMemcachekey, false, CITIZEN_STATUS_TTL );
 			return false;
 		}
 		
 		// на форуме
 		$queryString = '
-			SELECT dateline
+			SELECT SUM(points) as infractionTotalCount
 			FROM forum_infraction
 			WHERE userid = "' . $uid . '"
-			ORDER BY dateline DESC LIMIT 1';
+			AND action = 0
+			AND points >= 1
+			AND dateline > ' .( CURRENT_TIME - $timeBeforeNowWithoutInfractions );
 		
 		$this->SetDatabase();
 		$queryResult = $this->db->Query( $queryString );
 		
-		if( $queryResult->num_rows == 1 ) {
+		if ( $queryResult == false ) {
+			SaveForDebug( $queryString );
+			exit;
+		}
+		
+		if( $queryResult->num_rows > 0 ) {
 			$userData = $queryResult->fetch_assoc();
-			$lastInfractionTime = $userData[ 'dateline' ];
-
-			if ( CURRENT_TIME - $lastInfractionTime < $timeBeforeNowWithoutInfractions ) {
+			$infractionTotalCount = $userData[ 'infractionTotalCount' ];
+				
+			if( $infractionTotalCount > 1 ) {
 				$this->memcache->Set( $isCitizenMemcachekey, false, CITIZEN_STATUS_TTL );
 				return false;
 			}
@@ -125,6 +131,12 @@ class AutoModeration {
 				WHERE uid = "' . $uid . '"';
 			
 			$queryResult = $this->db->Query( $queryString );
+			
+			if ( $queryResult == false ) {
+				SaveForDebug( $queryString );
+				exit;
+			}
+			
 			$userData = $queryResult->fetch_assoc();
 			
 			$chatMessagesCount = $userData[ 'chatMessagesCount' ];
@@ -140,6 +152,57 @@ class AutoModeration {
 		
 		$this->memcache->Set( $isCitizenMemcachekey, true, CITIZEN_STATUS_TTL );
 		return true;
+	}
+	
+	
+	/**
+	 * проверка, являются ли баны пользователя в чате допустимыми для статуса гражданина
+	 * @param array $userInfo - информация по пользователю
+	 * @param int $timeBeforeNowWithoutInfractions - величина просматриваемого на баны периода времени в секундах
+	 * @return bool
+	 */
+	private function IsUserBanAllowedForCitizen( $userInfo, $timeBeforeNowWithoutInfractions ) {
+		// был бан
+		if ( isset( $userInfo[ 'wasBanned' ] ) && $userInfo[ 'wasBanned' ] == '1' ) {
+			// с момента последнего бана прошло достаточно времени
+			if ( CURRENT_TIME - $userInfo[ 'banTime' ] >= $timeBeforeNowWithoutInfractions ) {
+				return true;
+			}
+			// длительность последнего бана больше допустимой для граждан
+			elseif( $userInfo[ 'banExpirationTime' ] - $userInfo[ 'banTime' ] > CITIZEN_ALLOWED_BAN_TIME ) {
+				return false;
+			}
+			else {
+				// проверка на кол-во банов, для граждан допустим только 1
+				$queryString = '
+					SELECT COUNT(id) as bansCount
+					FROM chat_ban
+					WHERE uid = "' . $userInfo[ 'uid' ] . '"
+					AND status = 1
+					AND banTime > ' .( CURRENT_TIME - $timeBeforeNowWithoutInfractions );
+				
+				$this->SetDatabase();
+				$queryResult = $this->db->Query( $queryString );
+				
+				if ( $queryResult == false ) {
+					SaveForDebug( $queryString );
+					exit;
+				}
+				
+				$userData = $queryResult->fetch_assoc();
+				$bansCount = $userData[ 'bansCount' ];
+				
+				if( $bansCount > 1 ) {
+					return false;
+				}
+				else {
+					return true;
+				}
+			}
+		}
+		else {
+			return true;
+		}
 	}
 	
 	
@@ -520,7 +583,7 @@ class AutoModeration {
 			
 			$queryResult = $this->db->Query( $queryString );
 			
-			if( $queryResult->num_rows == 0 ) {
+			if( $queryResult == false || $queryResult->num_rows == 0 ) {
 				SaveForDebug( $queryString );
 				$result = array(
 					'code' => 0,
@@ -878,6 +941,11 @@ class AutoModeration {
 			GROUP BY banExpirationTime';
 		
 		$queryResult = $this->db->Query( $queryString );
+		
+		if ( $queryResult == false ) {
+			SaveForDebug( $queryString );
+			exit;
+		}
 		
 		$banSerialNumber += $queryResult->num_rows;
 		

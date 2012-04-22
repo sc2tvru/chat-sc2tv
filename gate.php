@@ -97,7 +97,8 @@ switch ( $task ) {
 			$_POST[ 'channelId' ],
 			$_POST[ 'startDate' ],
 			$_POST[ 'endDate' ],
-			$_POST[ 'nick' ]
+			$_POST[ 'nick' ],
+			IsModeratorRequest( $userInfo )
 		);
 		
 		echo json_encode( $result );
@@ -126,20 +127,13 @@ switch ( $task ) {
 		
 		$history = new ChatAutomoderationHistory( $memcache );
 		
-		if ( $userInfo[ 'rid' ] == 3 || $userInfo[ 'rid' ] == 4 || $userInfo[ 'rid' ] == 5 ) {
-			$isModeratorRequest = true;
-		}
-		else {
-			$isModeratorRequest = false;
-		}
-		
 		$result = $history->Get(
 			$_POST[ 'channelId' ],
 			$_POST[ 'startDate' ],
 			$_POST[ 'endDate' ],
 			$_POST[ 'nick' ],
 			$_POST[ 'bannedNick' ],
-			$isModeratorRequest
+			IsModeratorRequest( $userInfo )
 		);
 		
 		echo json_encode( $result );
@@ -214,5 +208,16 @@ function SendDefaultResponse( $userInfo, $error ) {
 	$userInfo[ 'error' ] = $error;
 	echo json_encode( $userInfo );
 	exit;
+}
+
+function IsModeratorRequest( $userInfo ) {
+	if ( $userInfo[ 'rid' ] == 3 || $userInfo[ 'rid' ] == 4 || $userInfo[ 'rid' ] == 5 ) {
+		$isModeratorRequest = true;
+	}
+	else {
+		$isModeratorRequest = false;
+	}
+	
+	return $isModeratorRequest;
 }
 ?>

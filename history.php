@@ -10,15 +10,23 @@ class ChatHistory {
 	 *	@param startDate дата начала
 	 *	@param endDate дата конца
 	 *	@param userNames имена пользователей, разделенные ;
+	 *	@param boolean isModeratorRequest флаг true, если запрос от модератора, иначе false
 	 *	@param historyCache имя файла для сохранения кэша, если не задано, будет
 	 *	использоваться 
 	 */
-	public function Get( $channelId, $startDate, $endDate, $userNames = '', $historyCache = '' ) {
+	public function Get( $channelId, $startDate, $endDate, $userNames = '', $isModeratorRequest = false, $historyCache = '' ) {
 		$startDate = $this->PrepareDate( $startDate );
 		$endDate = $this->PrepareDate( $endDate );
 		
+		if ( $isModeratorRequest == true ) {
+			$timeDifference = CHAT_HISTORY_MAX_TIME_DIFFERENCE_MODERATOR;
+		}
+		else {
+			$timeDifference = CHAT_HISTORY_MAX_TIME_DIFFERENCE;
+		}
+		
 		if( $startDate == 0 || $endDate == 0 ||
-			( strtotime( $endDate ) - strtotime( $startDate ) > CHAT_HISTORY_MAX_TIME_DIFFERENCE ) ) {
+			( strtotime( $endDate ) - strtotime( $startDate ) > $timeDifference ) ) {
 			$result = array(
 				'messages' => '',
 				'error' => CHAT_HISTORY_CHECK_PARAMS

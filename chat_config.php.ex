@@ -71,6 +71,8 @@ define( 'CITIZEN_REPEATED_BAN_TTL', 14 );
 define( 'COMPLAINS_NEEDED', 2 );
 // время жизни жалоб в секундах
 define( 'COMPLAINS_TTL', 43200 );
+// время жизни жалоб в секундах
+define( 'CITIZEN_ALLOWED_BAN_TIME', 600 );
 // время жизни количества сообщений пользователя в чате в секундах, сейчас сутки, предполагалась неделя 604800
 define( 'CITIZEN_CHAT_MSG_COUNT', 86400 );
 // время, в течение которого кэш канала считается актуальным
