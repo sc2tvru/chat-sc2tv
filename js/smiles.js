@@ -37,9 +37,10 @@ var smiles = [
 	{code: ':joyful:', img: 'ewbte.png?3', width: '28', height: '30'},
   {code: ':wtf:', img: 'wtf.png?1', width: '30', height: '30'},
   {code: ':danu:', img: 'daladno.png?1', width: '30', height: '30'},
-	{code: ':ban:', img: 'banan.png?1', width: '21', height: '30'},
+  {code: ':gusta:', img: 'megusta.png?1', width: '30', height: '30'},
 	{code: ':bm:', img: 'bm.png?2', width: '52', height: '29'},
     //page 2
+  {code: ':ban:', img: 'banan.png?1', width: '21', height: '30'},
   {code: ':cap:', img: 'cap.png?1', width: '35', height: '25'},
 	{code: ':br:', img: 'br.png?1', width: '27', height: '30'},
 	{code: ':fpl:', img: 'leefacepalm.png?1', width: '26', height: '30'},
@@ -74,12 +75,13 @@ var smiles = [
 	{code: ':mc:', img: 'mine.png?1', width: '25', height: '25'},
 	{code: ':osu:', img: 'osu.png?1', width: '30', height: '30'},
 	{code: ':q3:', img: 'q3.png?1', width: '30', height: '30'},
-	{code: ':panda:', img: 'panda.png?1', width: '30', height: '30'},
 	{code: ':tigra:', img: 'tigrica.png?1', width: '30', height: '30'},
 	{code: ':volck:', img: 'voOlchik1.png?1', width: '31', height: '31'},
 	{code: ':hpeka:', img: 'harupeka.png?1', width: '30', height: '30'},
   {code: ':slow:', img: 'spok.png?1', width: '29', height: '32'},
     //page 3
+  {code: ':alex:', img: 'alfi.png?1', width: '30', height: '30'},
+  {code: ':panda:', img: 'panda.png?1', width: '30', height: '30'},
 	{code: ':sun:', img: 'sunl.png?1', width: '30', height: '30'},
 	{code: ':cou:', img: 'cougar.png?2', width: '30', height: '30'},
 	{code: ':wb:', img: 'wormban.png?1', width: '30', height: '30'},
@@ -98,5 +100,6 @@ var smiles = [
 	{code: ':winry:', img: 'winry.png?1', width: '20', height: '30'},
 	{code: ':asuka:', img: 'asuka.png?1', width: '25', height: '30'},
 	{code: ':konata:', img: 'konata.png?1', width: '30', height: '30'},
-  {code: ':reimu:', img: 'reimu.png?1', width: '30', height: '30'}
+  {code: ':reimu:', img: 'reimu.png?1', width: '30', height: '30'},
+  {code: ':sex:', img: 'sex.png?1', width: '30', height: '30'}
 ];
