@@ -216,10 +216,11 @@ class Chat {
 			return CHAT_UID_FOR_SESSION_NOT_FOUND;
 		}
 		
+		$this->user = $userInfo;
+		
+		/*
 		$newbieStatusTTL = $userInfo[ 'created' ] + CHAT_TIME_ON_SITE_AFTER_REG_NEEDED
 			- CURRENT_TIME;
-		
-		$this->user = $userInfo;
 		
 		if( $newbieStatusTTL > 0 ) {
 			$this->user[ 'ban' ] = 0;
@@ -229,7 +230,10 @@ class Chat {
 			$this->memcache->Set( $chatAuthMemcacheKey, $this->user, $newbieStatusTTL );
 			return CHAT_NEWBIE_USER;
 		}
-		elseif( $userInfo[ 'ban' ] == 1 && $userInfo[ 'banExpirationTime' ] > CURRENT_TIME ) {
+		else
+		*/
+		
+		if( $userInfo[ 'ban' ] == 1 && $userInfo[ 'banExpirationTime' ] > CURRENT_TIME ) {
 			$this->user[ 'ban' ] = 1;
 			$this->user[ 'rights' ] = -1;
 			$this->user[ 'type' ] = 'bannedInChat';

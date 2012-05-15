@@ -13,7 +13,8 @@ define( 'CHAT_MEMCACHE_PORT', 11211 );
 define( 'CHAT_TIMEZONE', 'Europe/Moscow' );
 
 // нужно 3 дня после регистрации, чтобы писать в чат
-define( 'CHAT_TIME_ON_SITE_AFTER_REG_NEEDED', 259200 );
+// на данный момент задержка выключена
+// define( 'CHAT_TIME_ON_SITE_AFTER_REG_NEEDED', 259200 );
 // время в секундах, через которое будет повторно проверяться авторизация
 define( 'CHAT_USER_AUTHORIZATION_TTL', 259200 );
 // количество сообщений на канале
