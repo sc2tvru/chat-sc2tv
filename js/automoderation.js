@@ -323,7 +323,7 @@ RegExp.escape = function(text) {
 
 function PrepareNick( nick ) {
 	nick = nick.replace( /[\/]+/g, '' );
-	nick = encodeURIComponent( nick.replace( /[\s]+/g, '_' ) );
+	nick = encodeURIComponent( nick.replace( /[\s]+/g, ' ' ) );
 	return nick;
 }
 
