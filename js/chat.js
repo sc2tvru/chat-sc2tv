@@ -428,7 +428,7 @@ function BuildChat( dataForBuild ) {
 		
 		if ( chatWindowHeight !== undefined && chatWindowHeight !== '' ) {
 			$('#dialog2').css( 'height', chatWindowHeight );
-			$('#chat').css( 'height', '94%' );
+			$('#chat').css( 'height', chatWindowHeight * 0.93 + 'px' );
 		}
 	}
 	else {
