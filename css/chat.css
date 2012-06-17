@@ -138,6 +138,7 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 	list-style-type:none;
 	cursor:pointer;
 	border:1px solid #ACD3D5;
+	padding:2px;
 }
 .menushka li a{
 	text-decoration:none;

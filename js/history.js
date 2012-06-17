@@ -329,7 +329,9 @@ function Login() {
 		switch( userInfo.type ){
 			case 'anon':
 			case 'newbie':
+			/*mod by rentgen
 			case 'bannedInChat':
+			*/
 			case 'bannedOnSite':
 				show_error( CHAT_HISTORY_FOR_USERS_ONLY );
 			break;

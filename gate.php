@@ -21,7 +21,7 @@ $error = $authInfo[ 'error' ];
 $userInfo = $authInfo[ 'userInfo' ];
 
 // если есть ошибка авторизации, лучше сразу отдать ее и прекратить выполнение
-if ( $error != '' ) {
+if ( $error != '' && $task != 'GetHistory' ) {
 	SendDefaultResponse( $userInfo, $error );
 }
 
@@ -89,6 +89,7 @@ switch ( $task ) {
 	break;
 	
 	case 'GetHistory':
+		if($error != '' && $error != CHAT_USER_BANNED_IN_CHAT) SendDefaultResponse( $userInfo, $error );
 		include 'history.php';
 		
 		$history = new ChatHistory();
