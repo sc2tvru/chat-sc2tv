@@ -101,5 +101,6 @@ var smiles = [
 	{code: ':asuka:', img: 'asuka.png?1', width: '25', height: '30'},
 	{code: ':konata:', img: 'konata.png?1', width: '30', height: '30'},
   {code: ':reimu:', img: 'reimu.png?1', width: '30', height: '30'},
-  {code: ':sex:', img: 'sex.png?1', width: '30', height: '30'}
+  {code: ':sex:', img: 'sex.png?1', width: '30', height: '30'},
+  {code: ':mimo:', img: 'mimo.png?1', width: '23', height: '33'}
 ];
