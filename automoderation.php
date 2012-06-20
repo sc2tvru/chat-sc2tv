@@ -979,6 +979,8 @@ class AutoModeration {
 			case 6:
 			// Вредные ссылки
 			case 12:
+			// Спойлер
+			case 14:
 				$banDuration = 1440;
 			break;
 			

@@ -137,6 +137,10 @@ function GetReasonById( reasonId ) {
 		case 13:
 			reason = 'Вредные флэшмобы';
 		break;
+
+		case 14:
+			reason = 'Сполйер';
+		break;
 		
 		case 99:
 			reason = 'Бан модератором за неверно выданный гражданский бан.';
