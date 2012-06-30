@@ -112,6 +112,7 @@ class Chat {
 		$drupalSession = $_COOKIE[ DRUPAL_SESSION ];
 		
 		$chatAuthMemcacheKey = 'ChatUserInfo_' . $drupalSession;
+		/* test for Aulust
 		$memcacheAuthInfo = $this->GetAuthInfoFromMemcache( $chatAuthMemcacheKey );
 
 		if ( $memcacheAuthInfo[ 'code' ] == 1 ) {
@@ -121,7 +122,7 @@ class Chat {
 			);
 			return $result;
 		}
-		
+		//*/
 		$this->SetDatabase();
 		// TODO: регулярки выше должно хватить, но на всякий случай лучше подготовить
 		// убрать?
@@ -195,7 +196,13 @@ class Chat {
 		}
 		
 		// генерируем токен на основе сессии и запоминаем
-		$this->user[ 'token' ] = GenerateSecurityToken( $drupalSession );
+		if ( empty( $_COOKIE[ CHAT_COOKIE_TOKEN ] ) ) {
+			$this->user[ 'token' ] = GenerateSecurityToken( $drupalSession );
+			setcookie( CHAT_COOKIE_TOKEN, $this->user[ 'token' ] );
+		}
+		elseif(	!preg_match( '/[^a-z\d]+/i', $_COOKIE[ CHAT_COOKIE_TOKEN ] ) ) {
+			$this->user[ 'token' ] = $_COOKIE[ CHAT_COOKIE_TOKEN ];
+		}
 		
 		$this->memcache->Set( $chatAuthMemcacheKey, $this->user, CHAT_USER_AUTHORIZATION_TTL );
 		
