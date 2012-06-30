@@ -82,7 +82,7 @@ define( 'CHANNEL_CACHE_ACTUAL_TTL', 1 );
 // количество нарушений, доступных гражданам
 // максимальный id нарушения
 // обязательно надо обновлять при изменении списка нарушений
-define( 'CITIZEN_REASONS_COUNT', 13 );
+define( 'CITIZEN_REASONS_COUNT', 14 );
 
 // критерии для получения гражданства
 
@@ -115,6 +115,7 @@ define( 'MODERATORS_DETAILS_MEMCACHE_KEY', 'ChatModeratorsDetails' );
 define( 'COMPLAINS_LIST_MEMCACHE_KEY', 'ChatAutoModerationComplains' );
 
 define( 'CHAT_COOKIE_DOMAIN', '.sc2tv.ru' );
+define( 'CHAT_COOKIE_TOKEN', 'chat_token' );
 define( 'DEBUG_FILE', CHAT_MEMFS_DIR . '/debug_____gh34aw5u5ja9.txt' );
 define( 'ERROR_FILE', CHAT_MEMFS_DIR . '/error_____sgsrhh53y55l.txt' );
 ?>
