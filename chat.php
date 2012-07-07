@@ -770,7 +770,10 @@ class Chat {
 					}
 				}
 				else {
-					$modetatorsDetails[ $moderatorId ][ 'bansCount' ] = 1;
+					$modetatorsDetails[ $moderatorId ] = array(
+						'name' => $moderatorName,
+						'bansCount' => 1
+					);
 				}
 				
 				$this->memcache->Set( MODERATORS_DETAILS_MEMCACHE_KEY, $modetatorsDetails,
