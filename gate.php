@@ -94,11 +94,13 @@ switch ( $task ) {
 		
 		$history = new ChatHistory();
 		
+		list( $channelId, $startDate, $endDate, $nick ) = GetHistoryParamsFromPost();
+		
 		$result = $history->Get(
-			$_POST[ 'channelId' ],
-			$_POST[ 'startDate' ],
-			$_POST[ 'endDate' ],
-			$_POST[ 'nick' ],
+			$channelId,
+			$startDate,
+			$endDate,
+			$nick,
 			IsModeratorRequest( $userInfo )
 		);
 		
@@ -128,12 +130,21 @@ switch ( $task ) {
 		
 		$history = new ChatAutomoderationHistory( $memcache );
 		
+		list( $channelId, $startDate, $endDate, $nick ) = GetHistoryParamsFromPost();
+		
+		if ( isset( $_POST[ 'bannedNick' ] ) ) {
+			$bannedNick = $_POST[ 'bannedNick' ];
+		}
+		else {
+			$bannedNick = '';
+		}
+		
 		$result = $history->Get(
-			$_POST[ 'channelId' ],
-			$_POST[ 'startDate' ],
-			$_POST[ 'endDate' ],
-			$_POST[ 'nick' ],
-			$_POST[ 'bannedNick' ],
+			$channelId,
+			$startDate,
+			$endDate,
+			$nick,
+			$bannedNick,
 			IsModeratorRequest( $userInfo )
 		);
 		
@@ -211,6 +222,11 @@ function SendDefaultResponse( $userInfo, $error ) {
 	exit;
 }
 
+/**
+ *	проверка, модератор ли делает этот запрос
+ *  @param array $userInfo
+ *	return bool true | false
+ */
 function IsModeratorRequest( $userInfo ) {
 	if ( $userInfo[ 'rid' ] == 3 || $userInfo[ 'rid' ] == 4 || $userInfo[ 'rid' ] == 5 ) {
 		$isModeratorRequest = true;
@@ -220,5 +236,41 @@ function IsModeratorRequest( $userInfo ) {
 	}
 	
 	return $isModeratorRequest;
+}
+
+/**
+ *	Получение переменных для выборки истории из POST
+ *	return array список $channelId, $startDate, $endDate, $nick
+ */
+function GetHistoryParamsFromPost() {
+	if ( isset( $_POST[ 'channelId' ] ) ) {
+		$channelId = $_POST[ 'channelId' ];
+	}
+	else {
+		$channelId = '';
+	}
+	
+	if ( isset( $_POST[ 'startDate' ] ) ) {
+		$startDate = $_POST[ 'startDate' ];
+	}
+	else {
+		$startDate = 0;
+	}
+	
+	if ( isset( $_POST[ 'endDate' ] ) ) {
+		$endDate = $_POST[ 'endDate' ];
+	}
+	else {
+		$endDate = 0;
+	}
+	
+	if ( isset( $_POST[ 'nick' ] ) ) {
+		$nick = $_POST[ 'nick' ];
+	}
+	else {
+		$nick = '';
+	}
+	
+	return array( $channelId, $startDate, $endDate, $nick );
 }
 ?>
