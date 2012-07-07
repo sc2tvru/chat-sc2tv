@@ -37,11 +37,13 @@ if ( !isset( $_REQUEST[ 'token' ] ) || $userInfo[ 'token' ] != $_REQUEST[ 'token
 // выполняем действия для задачи
 switch ( $task ) {
 	case 'WriteMessage':
-		$message = $_POST[ 'message' ];
-		
-		if ( !isset( $message ) ) {
+		if ( isset( $_POST[ 'message' ] ) && $_POST[ 'message' ] != '' ) {
+			$message = $_POST[ 'message' ];
+		}
+		else {
 			SendDefaultResponse( $userInfo, CHAT_USER_MESSAGE_EMPTY );
 		}
+		
 		$chat->SetDatabase();
 		$res = $chat->WriteMessage( $message );
 		
@@ -77,12 +79,20 @@ switch ( $task ) {
 
 	case 'BanUser':
 		$chat->SetDatabase();
+		
+		if ( isset( $_POST[ 'channelId' ] ) ) {
+			$channelId = $_POST[ 'channelId' ];
+		}
+		else {
+			$channelId = 0;
+		}
+		
 		$result = $chat->BanUser(
 			$_POST[ 'banUserId' ],
 			$_POST[ 'userName' ],
 			$_POST[ 'duration' ],
 			$_POST[ 'messageId' ],
-			$_POST[ 'channelId' ]
+			$channelId
 		);
 		$result = array_merge( $userInfo, $result );
 		echo json_encode( $result );

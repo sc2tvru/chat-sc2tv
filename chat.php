@@ -543,7 +543,7 @@ class Chat {
 		$message = preg_replace( '#[\s]+#uis', ' ',  $message );
 		
 		if( $message == '' ) {
-			return $message;
+			return false;
 		}
 		// TODO php 5.4.0 добавить ENT_SUBSTITUTE ?
 		$message = htmlspecialchars( $message, ENT_QUOTES, 'UTF-8' );
