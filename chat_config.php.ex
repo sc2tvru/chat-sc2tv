@@ -24,7 +24,7 @@ define( 'CHAT_MODERATORS_MSG_LIMIT', 200 );
 // максимальный временной интервал для запроса истории для пользователей
 define( 'CHAT_HISTORY_MAX_TIME_DIFFERENCE', 86400 );
 // максимальный временной интервал для запроса истории для модераторов
-define( 'CHAT_HISTORY_MAX_TIME_DIFFERENCE_MODERATOR', 2592000 );
+define( 'CHAT_HISTORY_MAX_TIME_DIFFERENCE_MODERATOR', 5184000 );
 // время в секундах, через которое данные по модераторам будут повторно извлекаться из базы 
 define( 'CHAT_MODERATORS_DETAILS_TTL', 86400 );
 // максимальная длина логина
