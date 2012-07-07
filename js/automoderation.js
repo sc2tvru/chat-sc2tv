@@ -15,6 +15,7 @@ var userInfo = [];
 var moderatorsDetails = [];
 var complainsList = [];
 var smilesCount = smiles.length;
+var topModeratorsCount = 10;
 var moderatorsDetailsHtml = '';
 
 function GetModeratorsData() {
@@ -611,7 +612,7 @@ function InstallHooksOnButtons() {
 	$( '#statsButton' ).click( function (){
 		if ( moderatorsDetailsHtml == '' || moderatorsDetailsHtml == undefined ) {
 			
-			moderatorsDetailsHtml = '<div id="moderatorStatsBlock"><span id="moderatorStatsHeader">Активные модераторы<br/>(за месяц по количеству банов)</span><ol id="moderatorStats">';
+			moderatorsDetailsHtml = '<div id="moderatorStatsBlock"><span id="moderatorStatsHeader">Топ ' + topModeratorsCount + ' модераторов (баны за месяц)</span><ol id="moderatorStats">';
 			
 			$.each( moderatorsDetails, function( modId, info ) {
 				if ( moderatorsDetails[ modId ].bansCount != undefined && moderatorsDetails[ modId ].bansCount > 0 ) {
@@ -627,6 +628,8 @@ function InstallHooksOnButtons() {
 					parseInt( $( a ).children( 'span.moderatorBansCount' ).text());
 				return res ? 1 : -1;
 			});
+			
+			$( '#moderatorStatsBlock > ol#moderatorStats > li' ).slice( topModeratorsCount ).css( 'display', 'none' );
 		}
 		
 		if ( $( '#statsInfo' ).css( 'display') == 'none' ) {
