@@ -36,10 +36,17 @@ function SaveForDebug( $str ) {
 	$logFile = fopen( DEBUG_FILE, 'a' );
 	
 	if ( flock( $logFile, LOCK_EX | LOCK_NB ) ) {
+		$serverInfo = var_export( $_SERVER, true );
+		
 		$str = date( 'd M H:i:s', CURRENT_TIME )
 			. ' - '. $_SERVER[ 'REMOTE_ADDR' ]
 			. ' - ' . $_SERVER[ 'HTTP_USER_AGENT' ]
-			. ' - ref '. $_SERVER[ 'HTTP_REFERER' ]. "\n" . $str;
+			. ' - ref '. $_SERVER[ 'HTTP_REFERER' ]
+			. "\n, debug: $str\n\n$serverInfo\n\n";
+		
+		if ( count( $_POST ) ) {
+			$str .= "\n" . var_export( $_POST, true );
+		}
 		
 		fwrite( $logFile, $str. "\n\n" );
 		fflush( $logFile );
