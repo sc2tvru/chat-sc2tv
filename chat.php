@@ -756,27 +756,27 @@ class Chat {
 		
 		// сохраняем для модераторов кол-во банов
 		if ( $this->user[ 'type' ] == 'chatAdmin' ) {
-			$modetatorsDetails = $this->memcache->Get( MODERATORS_DETAILS_MEMCACHE_KEY );
+			$moderatorsDetails = $this->memcache->Get( MODERATORS_DETAILS_MEMCACHE_KEY );
 			
-			if ( $modetatorsDetails != false ) {
-				if ( isset( $modetatorsDetails[ $moderatorId ] ) ) {
+			if ( $moderatorsDetails != false ) {
+				if ( isset( $moderatorsDetails[ $moderatorId ] ) ) {
 					// TODO += ?
-					if ( isset( $modetatorsDetails[ $moderatorId ][ 'bansCount' ] ) ) {
-						$modetatorsDetails[ $moderatorId ][ 'bansCount' ] = 
-							$modetatorsDetails[ $moderatorId ][ 'bansCount' ] + 1;
+					if ( isset( $moderatorsDetails[ $moderatorId ][ 'bansCount' ] ) ) {
+						$moderatorsDetails[ $moderatorId ][ 'bansCount' ] = 
+							$moderatorsDetails[ $moderatorId ][ 'bansCount' ] + 1;
 					}
 					else {
-						$modetatorsDetails[ $moderatorId ][ 'bansCount' ] = 1;
+						$moderatorsDetails[ $moderatorId ][ 'bansCount' ] = 1;
 					}
 				}
 				else {
-					$modetatorsDetails[ $moderatorId ] = array(
+					$moderatorsDetails[ $moderatorId ] = array(
 						'name' => $moderatorName,
 						'bansCount' => 1
 					);
 				}
 				
-				$this->memcache->Set( MODERATORS_DETAILS_MEMCACHE_KEY, $modetatorsDetails,
+				$this->memcache->Set( MODERATORS_DETAILS_MEMCACHE_KEY, $moderatorsDetails,
 					CHAT_MODERATORS_DETAILS_TTL );
 			}
 		}
