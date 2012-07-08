@@ -48,7 +48,7 @@ form_chat = '<div id="chat-form"><form id="chat-form-id" method="post" action=""
 
 form_anon = '<div id="chat-form">' + divForFullScreen + chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + chat_history_link + ' <span>В чате могут писать только зарегистрированные пользователи.</span></div>';
  
-form_banned = '<div id="chat-form">' + divForFullScreen + chat_vkl_btn + ' ' + img_btn + ' ' + chat_history_link + chat_rules_link +  ' <span>Вы были забанены. </span> <a href="/automoderation_history.htm" target="_blank">Причина</a></div>';
+form_banned = '<div id="chat-form">' + divForFullScreen + chat_vkl_btn + ' ' + img_btn + ' ' + chat_history_link + ' ' + chat_rules_link +  ' <span>Вы были забанены. </span> <a href="/automoderation_history.htm" target="_blank">Причина</a></div>';
 
 form_newbie = '<div id="chat-form">' + divForFullScreen + chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + chat_history_link + ' <span>Вы зарегистрированы менее трех дней назад.</span></div>';
 

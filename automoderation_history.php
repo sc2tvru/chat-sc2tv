@@ -197,7 +197,7 @@ class ChatAutomoderationHistory {
 				if ( $moderatorsData != '' ) {
 					$moderatorsData = substr( $moderatorsData, 21, mb_strlen( $moderatorsData ) - 22 );
 					$moderatorsDetails = json_decode( $moderatorsData, TRUE );
-					SaveForDebug( $moderatorsDetails );
+					SaveForDebug( var_export( $moderatorsDetails, true ) );
 				}
 			}
 			else {
