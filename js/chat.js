@@ -124,6 +124,7 @@ function StartChat(){
 	
 	$( '#chat-form-id' ).show();
 	ReadChat( true );
+	AddStreamerNameBtn();
 }
 
 function StopChat( setStopCookie, message ){
@@ -164,13 +165,13 @@ function toogleImgBtn() {
 	$( '#img-on' ).toggle( $.cookie( 'chat-img' ) == '0' );
 	$( '#img-off' ).toggle( $.cookie( 'chat-img' ) == '1' );
 	
-	$( '#img-on' ).live( 'click', function() {
+	$( '#img-on' ).on( 'click', function() {
 		$.cookie( 'chat-img', '1', { expires: 365, path: '/'} );
 		$(this).hide();
 		$( '#img-off').show();
 	});
 	
-	$( '#img-off' ).live( 'click', function() {
+	$( '#img-off' ).on( 'click', function() {
 		$.cookie( 'chat-img', '0', { expires: 365, path: '/'} );
 		$(this).hide();
 		$( '#img-on' ).show();
@@ -226,7 +227,7 @@ function ReadChat( firstRead ){
 	else {
 		$.ajaxSetup({ ifModified: true, cache: true });
 	}
-		
+	
 	// модеры читают все каналы
 	if( $.cookie( 'is_moderator' ) ) {
 		channelCount = channelList.length;
@@ -252,6 +253,43 @@ function ReadChat( firstRead ){
 			}
 		});
 	}
+}
+
+// add streamer nickname to the top
+function AddStreamerNameBtn(){
+	channelId = GetChannelId( chat_channel_id );
+	
+	$.getJSON( CHAT_URL + 'memfs/channels.json', function( jsonData ){
+		if ( !( jsonData == undefined || jsonData == '' ) ) {
+			channelList = jsonData.channel;
+			var channelMaxNum = channelList.length - 1;
+		
+			for( var i=0; i <= channelMaxNum; i++ ) {
+				if ( channelList[ i ].channelId == channelId ) {
+					streamerName = channelList[ i ].streamerName;
+					if ( streamerName != '' ) {
+						AddStreamerNameBtnHtml( streamerName );
+					}
+				}
+			}
+		}
+	});
+}
+
+function AddStreamerNameBtnHtml( streamerName ) {
+	$( '#stream-room' ).after( '<div title="написать стримеру" id="chat-streamer-msg">streamer</div>' );
+	
+	$( '#chat-streamer-msg' ).attr({
+		title: 'написать стримеру ' + streamerName,
+		style: 'color: #BBB !important'
+	});
+	
+	$( '#chat-streamer-msg' ).off();
+	
+	$( '#chat-streamer-msg' ).on('click', function() {
+		$( '.chat-text' ).val( '[b]' + streamerName + '[/b], ' );
+		$( '.chat-text' ).focus();
+	});
 }
 
 function FilterMessages(messages) {
@@ -423,7 +461,7 @@ function BuildChat( dataForBuild ) {
 	
 	var needFullScreen = getParameterByName( 'fullScreen' );
 	
-	$('#dialog2').html('<div id="add_styles"></div><div class="chat-channel-name"><div title="перейти на главный канал" class="0">main</div><div id="stream-room" title="перейти на другой канал" class="other">other</div><br style="clear:both"/></div><div id="chat"></div>'+myform);
+	$('#dialog2').html('<div id="add_styles"></div><div class="chat-channel-name"><div title="перейти на главный канал" class="channel 0">main</div><div id="stream-room" title="перейти на другой канал" class="channel other">other</div><br style="clear:both"/></div><div id="chat"></div>'+myform);
   
   if ( needFullScreen === '1' ){
 		var chatWindowHeight = getParameterByName( 'height' );
@@ -508,7 +546,7 @@ function BuildChat( dataForBuild ) {
 //change stream room when userstream channel is loading
 function toogleStreamChatRoom() {
 	$("#stream-room").attr({
-		'class': chat_channel_id,
+		'class': 'channel ' + chat_channel_id,
 		title: 'канал ' + chat_channel_id,
 		style: 'color: #BBB !important'
 	}).text( 'stream' );
@@ -516,14 +554,15 @@ function toogleStreamChatRoom() {
 
 function toogleChatRooms() {
 	$( 'div.' + chat_channel_id ).attr( 'style', 'color: #BBB !important' );
-	$( 'div.chat-channel-name > div' ).live('click', function() {
+	$( 'div.chat-channel-name > div.channel' ).on('click', function() {
 		if($(this).attr( 'id' ) == 'stream-room' ) {
 			chat_channel_id = getParameterByName( 'channelId' );
 			toogleStreamChatRoom();
 		}
-		channel_name = $(this).attr( 'class' );
 		
-		chat_channel_id = channel_name;
+		channel_name = $(this).attr( 'class' );
+		chat_channel_id = channel_name.replace( 'channel ', '' );
+		
 		$( 'div.chat-channel-name > div' ).attr( 'style', '' );
 		$( this ).attr( 'style', 'color: #BBB !important' );
 		ReadChat();
@@ -651,9 +690,10 @@ function getmenu( nick, mid, uid, channelId ) {
 		case 3:
 		// админ
 		case 4:
+			$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick=otvet(user_name)>Ответить</li><li onclick="DeleteMessage( ' + mid + ', ' + channelId + ')">Удалить сообщение</li><li onclick="JumpToUserChannel(' + mid + ')">В канал к юзеру</li><li><a href="' + SC2TV_URL + '/messages/new/' + uid + '" target="_blank" onclick="$(\'.menushka\').remove();">Послать ЛС</a></li><li onclick="BanUser( ' + uid + ', user_name, 10, ' + mid + ', ' + channelId + ')">Молчать 10 мин.</li><li onclick="BanUser(' + uid + ', user_name, 1440, ' + mid + ', ' + channelId + ')">Молчать сутки</li><li onclick="BanUser( ' + uid + ', user_name, 4320, ' + mid + ', ' + channelId + ')">Молчать 3 дня</li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><li onclick="IgnoreUnignore(user_name, ' + uid + ' );">Ignore\Unignore</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
 		// модер
 		case 5:
-			$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick=otvet(user_name)>Ответить</li><li onclick="DeleteMessage( ' + mid + ', ' + channelId + ')">Удалить сообщение</li><li onclick="JumpToUserChannel(' + mid + ')">В канал к юзеру</li><li><a href="' + SC2TV_URL + '/messages/new/' + uid + '" target="_blank" onclick="$(\'.menushka\').remove();">Послать ЛС</a></li><li onclick="BanUser( ' + uid + ', user_name, 10, ' + mid + ', ' + channelId + ')">Молчать 10 мин.</li><li onclick="BanUser(' + uid + ', user_name, 1440, ' + mid + ', ' + channelId + ')">Молчать сутки</li><li onclick="BanUser( ' + uid + ', user_name, 4320, ' + mid + ', ' + channelId + ')">Молчать 3 дня</li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><li onclick="IgnoreUnignore(user_name, ' + uid + ' );">Ignore\Unignore</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
+			$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick=otvet(user_name)>Ответить</li><li onclick="DeleteMessage( ' + mid + ', ' + channelId + ')">Удалить сообщение</li><li onclick="JumpToUserChannel(' + mid + ')">В канал к юзеру</li><li><a href="' + SC2TV_URL + '/messages/new/' + uid + '" target="_blank" onclick="$(\'.menushka\').remove();">Послать ЛС</a></li><li onclick="BanUser( ' + uid + ', user_name, 10, ' + mid + ', ' + channelId + ')">Молчать 10 мин.</li><li onclick="BanUser(' + uid + ', user_name, 1440, ' + mid + ', ' + channelId + ')">Молчать сутки</li><li onclick="BanUser( ' + uid + ', user_name, 4320, ' + mid + ', ' + channelId + ')">Молчать 3 дня</li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
 		break;
 		
 		default:

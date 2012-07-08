@@ -7,7 +7,7 @@ require_once 'db.php';
 
 $db = new MySqlDb( CHAT_DB_HOST, CHAT_DB_NAME, CHAT_DB_USER, CHAT_DB_PASSWORD );
 
-$queryStream = 'SELECT `node`.`nid` AS `stream_id`, `node`.`title` AS `stream_title`, `node`.`created` AS `timeCreated`
+$queryStream = 'SELECT `node`.`nid` AS `stream_id`, `node`.`title` AS `stream_title`, `node`.`created` AS `timeCreated`, `users`.`name` as `streamer_name`
 FROM `content_type_stream`, `node`, `users`
 WHERE `content_type_stream`.`field_stream_is_over_value`=0
 AND `users`.`uid` = `node`.`uid`
@@ -16,11 +16,18 @@ AND NOW() >`content_type_stream`.`field_stream_time_value`
 AND `node`.`status` = 1
 ORDER BY `timeCreated` DESC';
 
-$queryUserStream = 'SELECT `node`.`nid` AS `stream_id`, `node`.`title` AS `stream_title`, `node`.`created` AS `timeCreated`
+$queryUserStream = 'SELECT `node`.`nid` AS `stream_id`, `node`.`title` AS `stream_title`, `node`.`created` AS `timeCreated`, `users`.`name` as `streamer_name`
 FROM `content_type_userstream`, `node`, `users`
 WHERE `content_type_userstream`.`field_channel_status_value`=1
 AND `users`.`uid` = `node`.`uid`
 AND `content_type_userstream`.`nid`=`node`.`nid`
+ORDER BY `timeCreated` DESC';
+
+$queryLifeStream = 'SELECT `node`.`nid` AS `stream_id`, `node`.`title` AS `stream_title`, `node`.`created` AS `timeCreated`, `users`.`name` as `streamer_name`
+FROM `content_type_life_stream`, `node`, `users`
+WHERE `content_type_life_stream`.`field_lifest_channel_status_value`=1
+AND `users`.`uid` = `node`.`uid`
+AND `content_type_life_stream`.`nid`=`node`.`nid`
 ORDER BY `timeCreated` DESC';
 
 $data[] = array(
@@ -31,7 +38,8 @@ $data[] = array(
 $data = array_merge(
 	$data,
 	GetDataByQuery( $queryStream ),
-	GetDataByQuery( $queryUserStream )
+	GetDataByQuery( $queryUserStream ),
+	GetDataByQuery( $queryLifeStream )
 );
 
 $dataJson = json_encode( array( 'channel' => $data ) );
@@ -56,7 +64,8 @@ function GetDataByQuery( $queryString ) {
 		}
 		$data[] = array(
 			'channelId' => $channel[ 'stream_id' ],
-			'channelTitle' => $channel[ 'stream_title' ]
+			'channelTitle' => $channel[ 'stream_title' ],
+			'streamerName' => $channel[ 'streamer_name' ]
 		);
 	}
 	return $data;
