@@ -754,7 +754,25 @@ function BuildHtml( messageList ) {
 			userMenu = 'onClick="getmenu(this,' + messageList[ i ].id + ',' + messageList[ i ].uid + ', ' + channelId + ')" ';
 		}
 		
-		data = '<div class="channel-' + channelId + ' mess message_' + messageList[ i ].id + '"><span' + customColorStyle + ' class="' + nicknameClass + '"' + userMenu + 'title="' + messageList[ i ].date + '">' + messageList[ i ].name + '</span><p class="' + textClass + '">' + messageList[ i ].message + '</p></div>' + data;
+		// img on/off
+		smileOnly = false;
+		
+		if( $.cookie( 'chat-img' ) == '0' ) {
+			msg = messageList[ i ].message;
+			currentMessage = msg.replace( /[\s]+/g, '' );
+		
+			for( j = 0; j < smilesCount; j++ ) {
+				smileText = ':s' + smiles[ j ].code;
+				if ( currentMessage == smileText ) {
+					smileOnly = true;
+					break;
+				}
+			}
+		}
+		
+		if ( smileOnly == false ) {
+			data = '<div class="channel-' + channelId + ' mess message_' + messageList[ i ].id + '"><span' + customColorStyle + ' class="' + nicknameClass + '"' + userMenu + 'title="' + messageList[ i ].date + '">' + messageList[ i ].name + '</span><p class="' + textClass + '">' + messageList[ i ].message + '</p></div>' + data;
+		}
 	}
 	
 	data = ProcessReplaces( data );
