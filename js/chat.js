@@ -868,7 +868,7 @@ function IsStringCaps( str ) {
 	// коды смайлов
 	tempStr = tempStr.replace( /:s:[^:]+:/gi, '' );
 	
-	regexp = /[\u0400-\u045F\u0490\u0491\u0207\u0239]/gi;
+	regexp = /[a-z\u0400-\u045F\u0490\u0491\u0207\u0239]/gi;
 	letters = tempStr.match( regexp );
 	
 	if ( letters == null ) {
