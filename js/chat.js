@@ -759,15 +759,9 @@ function BuildHtml( messageList ) {
 		
 		if( $.cookie( 'chat-img' ) == '0' ) {
 			msg = messageList[ i ].message;
-			currentMessage = msg.replace( /[\s]+/g, '' );
-		
-			for( j = 0; j < smilesCount; j++ ) {
-				smileText = ':s' + smiles[ j ].code;
-				if ( currentMessage == smileText ) {
-					smileOnly = true;
-					break;
-				}
-			}
+			msg = msg.replace( /[\s]+/g, '' );
+			regexp = /^(:s:[^:]+:[\s]*){1,}$/gi;
+			smileOnly = regexp.test( msg );
 		}
 		
 		if ( smileOnly == false ) {
@@ -874,7 +868,14 @@ function IsStringCaps( str ) {
 	// коды смайлов
 	tempStr = tempStr.replace( /:s:[^:]+:/gi, '' );
 	
-	len = tempStr.length;
+	regexp = /[\u0400-\u045F\u0490\u0491\u0207\u0239]/gi;
+	letters = tempStr.match( regexp );
+	
+	if ( letters == null ) {
+		return false;
+	}
+	
+	len = letters.length;
 	
 	regexp = /[A-ZА-Я]/g;
 	caps = tempStr.match( regexp );

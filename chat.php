@@ -361,7 +361,14 @@ class Chat {
 		// коды смайлов
 		$tempStr = preg_replace( '/:s:[^:]+:/uis', '',  $tempStr );
 		
-		$len = mb_strlen( $tempStr );
+		preg_match_all( '/[\x{400}-\x{45F}\x{490}\x{491}\x{207}\x{239}]/u', $tempStr, $matches );
+		$len = count( $matches[ 0 ] );
+		
+		if ( $len === 0 ) {
+			return false;
+		}
+		
+		//$len = mb_strlen( $tempStr );
 		
 		preg_match_all( '/[A-ZА-Я]/u', $tempStr, $matches );
 		$capsCount = count( $matches[ 0 ] );
