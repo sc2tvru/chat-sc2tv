@@ -41,6 +41,9 @@ a {
 a:hover {
 	text-decoration:underline;
 }
+a.link {
+	color:#c57c08;
+}
 
 #chat .mess img { display:inline !important; margin:0 2px }
 #history-form {
