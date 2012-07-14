@@ -346,30 +346,35 @@ class Chat {
 	
 	
 	/**
-	 *  проверка строки на капс
+	 *  проверка строки на CAPS / abuse
 	 *  @param string str строка для проверки
 	 *  @return bool true | false
 	 */
-	private function IsStringCaps( $str ) {
-		// удаляем обращения вроде [b]MEGAKILLER[/b], bb-код [b][/b], пробелы
-		$tempStr = preg_replace( '/^\[b\][-\._\w\d\x{400}-\x{45F}\x{490}\x{491}\x{207}\x{239}\[\]]+\[\/b\]|\[b\]|\[\/b\]|[\s]+/uis', '',  $str );
+	private function IsStringCapsOrAbuse( $str ) {
+		// удаляем обращения вроде [b]MEGAKILLER[/b], bb-код [b][/b]
+		$tempStr = preg_replace( '/^\[b\][-\.\w\x{400}-\x{45F}\x{490}\x{491}\x{207}\x{239}\[\]]+\[\/b\]|\[b\]|\[\/b\]/uis', '',  $str );
 		
-		if ( $tempStr == '' ) {
+		// если остались только пробельные символы, это абуз
+		if ( !preg_match( '/[^\s]+/uis', $tempStr ) ) {
 			return true;
 		}
+		
+		// URL
+		$tempStr = preg_replace( '/(?:ht|f)tp[s]{0,1}:\/\/[^\s]+/uis', '',  $tempStr );
 		
 		// коды смайлов
 		$tempStr = preg_replace( '/:s:[^:]+:/uis', '',  $tempStr );
 		
+		// общее кол-во букв независимо от регистра
 		preg_match_all( '/[a-z\x{400}-\x{45F}\x{490}\x{491}\x{207}\x{239}]/ui', $tempStr, $matches );
+		
 		$len = count( $matches[ 0 ] );
 		
 		if ( $len === 0 ) {
 			return false;
 		}
 		
-		//$len = mb_strlen( $tempStr );
-		
+		// кол-во букв в верхнем регистре
 		preg_match_all( '/[A-ZА-Я]/u', $tempStr, $matches );
 		$capsCount = count( $matches[ 0 ] );
 		
@@ -557,10 +562,12 @@ class Chat {
 		
 		$channelId = $this->GetChannelId();
 		
-		if( $this->IsStringCaps( $message ) ) {
+		if( $this->IsStringCapsOrAbuse( $message ) ) {
 			// предотвращаем перевод кодов смайлов в картинки, чтобы не бился html
 			$message = preg_replace( '/(?::s)+(:[^:]+:)/uis', '\\1', $message );
-			$message = '<span class="red" title="' . $message . '">Предупреждение за КАПС!</span>';
+			// URL тоже
+			$message = preg_replace( '/(?:ht|f)tp[s]{0,1}:\/\/([^\s]+)/uis', '\\1',  $message );
+			$message = '<span class="red" title="' . $message . '">Предупреждение за CAPS / Abuse!</span>';
 		}
 		else {
 			$message = preg_replace( '#\[b\](.+?)\[/b\]#uis', '<b>\\1</b>',  $message );

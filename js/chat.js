@@ -56,6 +56,18 @@ tpl_chat_stopped = "<div id='chat_closed'><div>Чатик остановлен!<
 var chat_channel_id = 0;
 autoScroll = 1;
 
+var urlPattern = new RegExp(
+	'((?:(?:ftp)|(?:https?))(?:://))' + // протокол (1)
+	// URL без протокола (2)
+	'(((?:(?:[a-z\u0430-\u0451\\d](?:[a-z\u0430-\u0451\\d-]*[a-z\u0430-\u0451\\d])*)\\.)+(?:[a-z]{2,}|\u0440\u0444)' + // хост (3)
+	'|(?:(?:\\d{1,3}\\.){3}\\d{1,3}))' + // хост в формате IPv4 (3)
+	'(:\\d+)?' + // порт (4)
+	'(/[-a-z\u0430-\u0451\\d%_~\\+\\(\\):]*(?:[\\.,][-a-z\u0430-\u0451\\d%_~\\+\\(\\):]+)*)*' + // путь (5)
+	'(\\?(?:&amp;|[:;a-z\u0430-\u0451\\d%_~\\+=-])*)?' + // параметры (6)
+	'(#(?:&amp;|[:;a-z\u0430-\u0451\\d%_~\\+=-])*)?)' // якорь (7)
+	, 'gi'
+);
+	
 $(document).ready(function(){
 	chat_channel_id = getParameterByName( 'channelId' );
 	
@@ -343,19 +355,7 @@ function ProcessReplaces( str ) {
 		var smilePattern = new RegExp( RegExp.escape( ':s' + smiles[ i ].code ), 'gi' );
 		str = str.replace( smilePattern, smileHtml );
 	}
-	
 	// URL
-	var urlPattern = new RegExp(
-		'((?:(?:ftp)|(?:https?))(?:://))' + // протокол (1)
-		// URL без протокола (2)
-		'(((?:(?:[a-z\u0430-\u0451\\d](?:[a-z\u0430-\u0451\\d-]*[a-z\u0430-\u0451\\d])*)\\.)+(?:[a-z]{2,}|\u0440\u0444)' + // хост (3)
-		'|(?:(?:\\d{1,3}\\.){3}\\d{1,3}))' + // хост в формате IPv4 (3)
-		'(:\\d+)?' + // порт (4)
-		'(/[-a-z\u0430-\u0451\\d%_~\\+\\(\\):]*(?:[\\.,][-a-z\u0430-\u0451\\d%_~\\+\\(\\):]+)*)*' + // путь (5)
-		'(\\?(?:&amp;|[:;a-z\u0430-\u0451\\d%_~\\+=-])*)?' + // параметры (6)
-		'(#(?:&amp;|[:;a-z\u0430-\u0451\\d%_~\\+=-])*)?)' // якорь (7)
-		, 'gi'
-	);
 	str = str.replace( urlPattern, MakeShrinkUrl );
 
 	return str;
@@ -816,7 +816,7 @@ function WriteMessage(){
 		return false;
 	}
 	
-	if( IsStringCaps( msg ) == true ) {
+	if( IsStringCapsOrAbuse( msg ) == true ) {
 		show_error( CHAT_USER_NO_CAPS );
 		return false;
 	}
@@ -857,17 +857,25 @@ function CheckUserState( currentUserData ) {
 	}
 }
 
-function IsStringCaps( str ) {
-	// удаляем обращения вроде [b]MEGAKILLER[/b], bb-код [b][/b], пробелы
-	tempStr = str.replace( /\[b\][-\._\w\d\u0400-\u045F\u0490\u0491\u0207\u0239\[\]]+\[\/b\]|\[b\]|\[\/b\]|\s+/gi, '' );
+function IsStringCapsOrAbuse( str ) {
+	// удаляем обращения вроде [b]MEGAKILLER[/b], bb-код [b][/b]
+	tempStr = str.replace( /\[b\][-\.\w\u0400-\u045F\u0490\u0491\u0207\u0239\[\]]+\[\/b\]|\[b\]|\[\/b\]/gi, '' );
 	
-	if ( tempStr == '' ) {
+	regexp = /[^\s]+/gi;
+	lettersInStr = regexp.test( tempStr );
+	
+	// если остались только пробельные символы, это абуз
+	if ( lettersInStr == false ) {
 		return true;
 	}
+	
+	// url
+	tempStr = tempStr.replace( urlPattern, '' );
 	
 	// коды смайлов
 	tempStr = tempStr.replace( /:s:[^:]+:/gi, '' );
 	
+	// общее кол-во букв независимо от регистра
 	regexp = /[a-z\u0400-\u045F\u0490\u0491\u0207\u0239]/gi;
 	letters = tempStr.match( regexp );
 	
@@ -877,6 +885,7 @@ function IsStringCaps( str ) {
 	
 	len = letters.length;
 	
+	// кол-во букв в верхнем регистре
 	regexp = /[A-ZА-Я]/g;
 	caps = tempStr.match( regexp );
 	
