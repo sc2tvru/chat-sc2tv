@@ -67,6 +67,7 @@ var smiles = [
 	{code: ':top1sng:', img: 'happy.png?1', width: '23', height: '30'},
 	{code: ':slavik:', img: 'slavik.png?1', width: '25', height: '33'},
 	{code: ':olsilove:', img: 'olsilove.png?1', width: '26', height: '30'},
+    {code: ':kas:', img: 'kas.png?1', width: '24', height: '30'},
 	// other
 	{code: ':pool:', img: 'pool.png?1', width: '30', height: '30'},
 	{code: ':ej:', img: 'ejik.png?1', width: '30', height: '30'},
@@ -78,8 +79,8 @@ var smiles = [
 	{code: ':mc:', img: 'mine.png?1', width: '25', height: '25'},
 	{code: ':osu:', img: 'osu.png?1', width: '30', height: '30'},
 	{code: ':q3:', img: 'q3.png?1', width: '30', height: '30'},
-	{code: ':tigra:', img: 'tigrica.png?1', width: '30', height: '30'},
     //page 3
+    {code: ':tigra:', img: 'tigrica.png?1', width: '30', height: '30'},
     {code: ':volck:', img: 'voOlchik1.png?1', width: '31', height: '31'},
     {code: ':hpeka:', img: 'harupeka.png?1', width: '30', height: '30'},
     {code: ':slow:', img: 'spok.png?1', width: '29', height: '32'},
