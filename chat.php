@@ -127,7 +127,7 @@ class Chat {
 		// TODO: регулярки выше должно хватить, но на всякий случай лучше подготовить
 		// убрать?
 		list( $drupalSession ) = $this->db->PrepareParams( $drupalSession );
-
+		
     // roles priority Admin > Moderator > Streamer > others
     $queryString = 'SELECT users.uid as uid, name, created, rid, banExpirationTime, banTime,
       chat_ban.status as ban, rid in (5) as isModerator, rid in (4) as isAdmin
@@ -138,11 +138,21 @@ class Chat {
       ORDER BY isModerator DESC, isAdmin DESC, ban DESC, banExpirationTime DESC, rid ASC LIMIT 1';
 		
 		$queryResult = $this->db->Query( $queryString );
+		
+		if ( $queryResult === FALSE ) {
+			SaveForDebug( 'Login fail ' . $queryString );
+			$result = array(
+				'userInfo' => $this->user,
+				'error' => 'Ошибка авторизации'
+			);
+			return $result;
+		}
+		
 		$userInfo = $queryResult->fetch_assoc();
 		
 		$reasonWhyUserCantChat = $this->GetReasonWhyUserCantChat( $userInfo, $chatAuthMemcacheKey );
 		
-		if ( $reasonWhyUserCantChat != '' ) {
+		if ( $reasonWhyUserCantChat != FALSE ) {
 			$result = array(
 				'userInfo' => $this->user,
 				'error' => $reasonWhyUserCantChat 
@@ -151,13 +161,6 @@ class Chat {
 		}
 		
 		$result[ 'error' ] = '';
-		
-		// если был бан, но он истек, это нужно запомнить для проверки на гражданство в будущем
-		if ( $this->user[ 'ban' ] == 1 ) {
-			$this->user[ 'wasBanned' ] = 1;
-		}
-		
-		$this->user[ 'ban' ] = 0;
 		
 		// 3 - root, 4 - admin, 5 - moder, 6 - journalist, 7 - editor, 8 - banned, 9 - streamer, 10 - userstreamer
 		if ( $userInfo[ 'rid' ] == NULL ) {
@@ -240,14 +243,22 @@ class Chat {
 		else
 		*/
 		
-		if( $userInfo[ 'ban' ] == 1 && $userInfo[ 'banExpirationTime' ] > CURRENT_TIME ) {
-			$this->user[ 'ban' ] = 1;
-			$this->user[ 'rights' ] = -1;
-			$this->user[ 'type' ] = 'bannedInChat';
+		if( $userInfo[ 'ban' ] == 1 ) {
+			// для проверки на гражданство в будущем
+			$this->user[ 'wasBanned' ] = 1;
 			
-			$this->memcache->Set( $chatAuthMemcacheKey, $this->user,
-				$userInfo[ 'banExpirationTime' ] - CURRENT_TIME );
-			return CHAT_USER_BANNED_IN_CHAT;
+			$banStatusTTL = $userInfo[ 'banExpirationTime' ] - CURRENT_TIME;
+			if ( $banStatusTTL > 0 ) {
+				$this->user[ 'ban' ] = 1;
+				$this->user[ 'rights' ] = -1;
+				$this->user[ 'type' ] = 'bannedInChat';
+				
+				$this->memcache->Set( $chatAuthMemcacheKey, $this->user, $banStatusTTL );
+				return CHAT_USER_BANNED_IN_CHAT;
+			}
+			else {
+				$this->user[ 'ban' ] = 0;
+			}
 		}
 		
 		return false;
