@@ -6,7 +6,7 @@
  */
 
 class ChatMemcache {
-	private $memcache;
+	public $memcache;
 	
 	public function __construct() {
 		$this->memcache = new Memcache;
@@ -15,6 +15,9 @@ class ChatMemcache {
 	
 	
 	public function Set( $key, $value, $expire ) {
+		if ( $this->GetServerStatus() === 0 ) {
+			return FALSE;
+		}
 		return $this->memcache->set( $key, $value, false, $expire );
 	}
 	
@@ -25,20 +28,36 @@ class ChatMemcache {
 	
 	
 	public function Inc( $key, $value ) {
+		if ( $this->GetServerStatus() === 0 ) {
+			return FALSE;
+		}
 		$this->memcache->increment( $key, $value );
 	}
 	
 	
 	public function Dec( $key, $value ) {
+		if ( $this->GetServerStatus() === 0 ) {
+			return FALSE;
+		}
 		$this->memcache->decrement( $key, $value );
 	}
 	
 	public function Delete( $key ) {
+		if ( $this->GetServerStatus() === 0 ) {
+			return FALSE;
+		}
 		$this->memcache->delete( $key );
 	}
 	
 	public function Add( $key, $value, $expire ) {
+		if ( $this->GetServerStatus() === 0 ) {
+			return FALSE;
+		}
 		return $this->memcache->add( $key, $value, false, $expire );
+	}
+	
+	public function GetServerStatus() {
+		return $this->memcache->getServerStatus( CHAT_MEMCACHE_HOST, CHAT_MEMCACHE_PORT );
 	}
 }
 ?>

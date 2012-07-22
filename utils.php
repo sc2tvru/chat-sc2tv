@@ -21,6 +21,34 @@ function ChatErrorHandler( $errno = '', $errstr = '', $errfile = '', $errline = 
 			$out .= var_export( $_POST, true );
 		}
 		
+		$jsonError = json_last_error();
+		
+		if ( $jsonError ) {
+			switch ( $jsonError ) {
+				case JSON_ERROR_NONE:
+					$out .= 'json error: - Ошибок нет';
+				break;
+				case JSON_ERROR_DEPTH:
+					$out .= 'json error: - Достигнута максимальная глубина стека';
+				break;
+				case JSON_ERROR_STATE_MISMATCH:
+					$out .= 'json error: - Некорректные разряды или не совпадение режимов';
+				break;
+				case JSON_ERROR_CTRL_CHAR:
+					$out .= 'json error: - Некорректный управляющий символ';
+				break;
+				case JSON_ERROR_SYNTAX:
+					$out .= 'json error: - Синтаксическая ошибка, не корректный JSON';
+				break;
+				case JSON_ERROR_UTF8:
+					$out .= 'json error: - Некорректные символы UTF-8, возможно неверная кодировка';
+				break;
+				default:
+					$out .= 'json error: - Неизвестная ошибка';
+				break;
+			}
+		}
+		
 		fwrite( $logFile, $out );
 		fflush( $logFile );
 		flock( $logFile, LOCK_UN );

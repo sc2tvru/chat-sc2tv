@@ -302,7 +302,14 @@ class AutoModeration {
 		}
 		
 		if ( $isMoreVotesNeeded ) {
-			$this->memcache->Set( $banInfoMemcacheKey, $banInfo, CITIZEN_VOTE_TTL );
+			$setResult = $this->memcache->Set( $banInfoMemcacheKey, $banInfo, CITIZEN_VOTE_TTL );
+			if ( $setResult === FALSE ) {
+				$result = array(
+					'code' => 0,
+					'result' => 'Ошибка, повторите попытку.'
+				);
+				return $result;
+			}
 		}
 		else {
 			return $this->BanUserByCitizens( $uid, $userName, $realReasonId,
