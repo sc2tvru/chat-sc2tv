@@ -271,6 +271,10 @@ function ReadChat( firstRead ){
 function AddStreamerNameBtn(){
 	channelId = GetChannelId( chat_channel_id );
 	
+	if ( channelId == 0 ) {
+		return;
+	}
+	
 	$.getJSON( CHAT_URL + 'memfs/channels.json', function( jsonData ){
 		if ( !( jsonData == undefined || jsonData == '' ) ) {
 			channelList = jsonData.channel;
@@ -463,6 +467,10 @@ function BuildChat( dataForBuild ) {
 	
 	$('#dialog2').html('<div id="add_styles"></div><div class="chat-channel-name"><div title="перейти на главный канал" class="channel 0">main</div><div id="stream-room" title="перейти на другой канал" class="channel other">other</div><br style="clear:both"/></div><div id="chat"></div>'+myform);
   
+	if ( top === self ) {
+		$( '#dialog2' ).css( 'background-color', '#000000' );
+	}
+
   if ( needFullScreen === '1' ){
 		var chatWindowHeight = getParameterByName( 'height' );
 		

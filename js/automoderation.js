@@ -139,7 +139,7 @@ function GetReasonById( reasonId ) {
 		break;
 
 		case 14:
-			reason = 'Сполйер';
+			reason = 'Спойлер';
 		break;
 		
 		case 99:
