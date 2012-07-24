@@ -17,6 +17,7 @@ var complainsList = [];
 var smilesCount = smiles.length;
 var topModeratorsCount = 10;
 var moderatorsDetailsHtml = '';
+var SC2TV_TIME_DIFF = 14400;
 
 function GetModeratorsData() {
 	Login();
@@ -231,12 +232,12 @@ function BuildHtml( messageList ) {
 	
 	var previousBanKey = '';
 	for( i=0; i < messageCount; i++ ) {
-		var dateJsObj = new Date( messageList[ i ].banExpirationTime * 1000 );
+		var dateJsObj = new Date( ( parseInt( messageList[ i ].banExpirationTime ) + SC2TV_TIME_DIFF )* 1000 );
 		unBanDate = dateJsObj.toUTCString();
 		
 		moderatorName = messageList[ i ].moderatorName;
 		
-		var dateJsObj = new Date( messageList[ i ].banTime * 1000 );
+		var dateJsObj = new Date( ( parseInt( messageList[ i ].banTime ) + SC2TV_TIME_DIFF )* 1000 );
 		banDate = dateJsObj.toUTCString();
 		var banDuration = messageList[ i ].banDuration / 60;
 		var banReasonId = messageList[ i ].banReasonId;
