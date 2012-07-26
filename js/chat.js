@@ -275,6 +275,8 @@ function AddStreamerNameBtn(){
 		return;
 	}
 	
+	$( '#chat-streamer-msg' ).remove();
+	
 	$.getJSON( CHAT_URL + 'memfs/channels.json', function( jsonData ){
 		if ( !( jsonData == undefined || jsonData == '' ) ) {
 			channelList = jsonData.channel;
