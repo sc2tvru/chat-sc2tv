@@ -770,7 +770,7 @@ function BuildHtml( messageList ) {
 		if( $.cookie( 'chat-img' ) == '0' ) {
 			msg = messageList[ i ].message;
 			msg = msg.replace( /[\s]+/g, '' );
-			regexp = /^(<b>[^>]*<\/b>[,\s]*){0,}[\s]*(:s:[^:]+:[\s]*){1,}[\s]*$/gi;
+			regexp = /^(<b>[^<]*<\/b>[,\s]*){0,}[\s]*(:s:[^:]+:[\s]*){1,}[\s]*$/gi;
 			smileOnly = regexp.test( msg );
 		}
 		
