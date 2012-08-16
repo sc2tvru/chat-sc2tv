@@ -112,7 +112,7 @@ class Chat {
 		$drupalSession = $_COOKIE[ DRUPAL_SESSION ];
 		
 		$chatAuthMemcacheKey = 'ChatUserInfo_' . $drupalSession;
-		/* test for Aulust
+		//* test for Aulust
 		$memcacheAuthInfo = $this->GetAuthInfoFromMemcache( $chatAuthMemcacheKey );
 
 		if ( $memcacheAuthInfo[ 'code' ] == 1 ) {
