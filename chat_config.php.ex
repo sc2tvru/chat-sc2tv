@@ -1,13 +1,13 @@
 <?php
 define( 'DRUPAL_SESSION', 'SESS4a29996287c6a61196a9cfc443f0fdb3' );
 
-define( 'CHAT_DB_HOST', '176.9.19.112' );
+define( 'CHAT_DB_HOST', '' );
 define( 'CHAT_DB_USER', '' );
 define( 'CHAT_DB_PASSWORD', '' );
 define( 'CHAT_DB_NAME', '' );
 define( 'CHAT_DB_CONNECT_TIMEOUT', 5 );
 
-define( 'CHAT_MEMCACHE_HOST', 'localhost' );
+define( 'CHAT_MEMCACHE_HOST', '127.0.0.1' );
 define( 'CHAT_MEMCACHE_PORT', 11211 );
 
 define( 'CHAT_TIMEZONE', 'Europe/Moscow' );
@@ -72,7 +72,7 @@ define( 'CITIZEN_REPEATED_BAN_TTL', 14 );
 define( 'COMPLAINS_NEEDED', 2 );
 // время жизни жалоб в секундах
 define( 'COMPLAINS_TTL', 43200 );
-// время жизни жалоб в секундах
+// длительность банов, которые не влияют на гражданство
 define( 'CITIZEN_ALLOWED_BAN_TIME', 600 );
 // время жизни количества сообщений пользователя в чате в секундах, сейчас сутки, предполагалась неделя 604800
 define( 'CITIZEN_CHAT_MSG_COUNT', 86400 );
