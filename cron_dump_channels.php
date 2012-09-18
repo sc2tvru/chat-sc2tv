@@ -43,9 +43,8 @@ $data = array_merge(
 );
 
 $dataJson = json_encode( array( 'channel' => $data ) );
-$channelsFile = 'memfs/channels.json';
+$channelsFile = CHAT_MEMFS_DIR . '/channels.json';
 file_put_contents( $channelsFile, $dataJson );
-touch( $channelsFile );
 
 function GetDataByQuery( $queryString ) {
 	global $db;

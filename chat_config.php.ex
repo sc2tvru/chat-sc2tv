@@ -12,6 +12,9 @@ define( 'CHAT_MEMCACHE_PORT', 11211 );
 
 define( 'CHAT_TIMEZONE', 'Europe/Moscow' );
 
+// полный путь к директории чата
+define( 'CHAT_BASE_DIR', '' );
+
 // нужно 3 дня после регистрации, чтобы писать в чат
 // на данный момент задержка выключена
 // define( 'CHAT_TIME_ON_SITE_AFTER_REG_NEEDED', 259200 );
@@ -100,11 +103,11 @@ define( 'CITIZEN_POSTS_COUNT', 70 );
 define( 'CITIZEN_CHAT_POSTS_COUNT', 50 );
 
 // путь к memfs относительно этого конфига
-define( 'CHAT_MEMFS_DIR', 'memfs' );
+define( 'CHAT_MEMFS_DIR', CHAT_BASE_DIR . '/memfs' );
 // путь к memfs истории относительно этого конфига
-define( 'CHAT_HISTORY_MEMFS_DIR', CHAT_MEMFS_DIR . '/history/' );
+define( 'CHAT_HISTORY_MEMFS_DIR', CHAT_MEMFS_DIR . '/history' );
 // путь к memfs истории автомодерации относительно этого конфига
-define( 'CHAT_AUTOMODERATION_HISTORY_MEMFS_DIR', CHAT_MEMFS_DIR . '/automoderation_history/' );
+define( 'CHAT_AUTOMODERATION_HISTORY_MEMFS_DIR', CHAT_MEMFS_DIR . '/automoderation_history' );
 // путь к деталям модераторов в memfs относительно этого конфига
 define( 'CHAT_MODERATORS_DETAILS', CHAT_MEMFS_DIR . '/moderatorsDetails.json' );
 // путь к жалобам на баны в memfs относительно этого конфига

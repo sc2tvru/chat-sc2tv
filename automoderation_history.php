@@ -162,7 +162,7 @@ class ChatAutomoderationHistory {
 			$historyCache = preg_replace( '#[\s]+#uis', '_',  $historyCache );
 		}
 		
-		$historyCache = CHAT_AUTOMODERATION_HISTORY_MEMFS_DIR . $historyCache;
+		$historyCache = CHAT_AUTOMODERATION_HISTORY_MEMFS_DIR . '/' . $historyCache;
 		file_put_contents( $historyCache, $dataJson );
 		
 		$historyCacheGz = $historyCache . '.gz';
