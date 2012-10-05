@@ -18,7 +18,7 @@ function ChatErrorHandler( $errno = '', $errstr = '', $errfile = '', $errline = 
 			.' - ref '.$_SERVER[ 'HTTP_REFERER' ]."\n $errfile, line $errline, code $errno, $errstr\n\n$serverInfo\n\n";
 		
 		if ( count( $_POST ) ) {
-			$out .= var_export( $_POST, true );
+			$out .= var_export( $_POST, true ) . "\n";
 		}
 		
 		$jsonError = json_last_error();
@@ -73,7 +73,7 @@ function SaveForDebug( $str ) {
 			. "\n, debug: $str\n\n$serverInfo\n\n";
 		
 		if ( count( $_POST ) ) {
-			$str .= "\n" . var_export( $_POST, true );
+			$str .= "\n" . var_export( $_POST, true ). "\n";
 		}
 		
 		fwrite( $logFile, $str. "\n\n" );
