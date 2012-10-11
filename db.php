@@ -32,7 +32,10 @@ class MySqlDb {
 			die( 'mysqli Connect Error' );
 		}
 		
-		$this->mysqli->query( 'SET NAMES utf8' );
+		if ( $this->mysqli->set_charset( 'utf8' ) === FALSE ) {
+			die( 'mysqli set charset error' );
+		}
+		
 		return $this->mysqli;
 	}
 
