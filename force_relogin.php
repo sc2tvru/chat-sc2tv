@@ -1,4 +1,5 @@
 <?php
+//
 exit;
 require_once 'core.php';
 require_once 'utils.php';

@@ -4,10 +4,6 @@ var CHAT_HISTORY_URL = CHAT_URL + 'memfs/history/';
 var CHAT_AUTH_INFO_FOR_USERS_ONLY = 'Информация доступна только для авторизованных в чате пользователей.';
 var userInfo = [];
 
-function ShowHistory( historyData ) {
-	$( '#history').html( historyData );
-}
-
 function GetGroupNameByRid( rid ){
 	switch( rid ){
     // authenticated user
@@ -91,5 +87,26 @@ $( document ).ready( function(){
 		}
 		
 		$( '#history' ).html( userInfoHtml );
+		
+		if ( $.cookie( 'is_moderator') ) {
+			checkboxHtml = '';
+			if ( $.cookie( 'moderatorReadAllChannels' ) === '1' || $.cookie( 'moderatorReadAllChannels' ) == undefined ) {
+				$.cookie( 'moderatorReadAllChannels', '1', { expires: 365, path: '/'} );
+				checkboxHtml = ' checked="checked"';
+			}
+			
+			userOptionsHtml = 'Видеть все каналы <input type="checkbox" id="moderatorReadAllChannels"' + checkboxHtml + '/></div>';
+			
+			$( '#userOptions' ).append( userOptionsHtml );
+			
+			$( '#moderatorReadAllChannels' ).bind('change', function(){
+				if ( $.cookie( 'moderatorReadAllChannels' ) === '1' ) {
+					$.cookie( 'moderatorReadAllChannels', '0', { expires: 365, path: '/'} );
+				}
+				else {
+					$.cookie( 'moderatorReadAllChannels', '1', { expires: 365, path: '/'} );
+				}
+			});
+		}
 	}
 });

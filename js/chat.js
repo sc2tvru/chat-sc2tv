@@ -241,7 +241,7 @@ function ReadChat( firstRead ){
 	}
 	
 	// модеры читают все каналы
-	if( $.cookie( 'is_moderator' ) ) {
+	if( $.cookie( 'is_moderator' ) && ( $.cookie( 'moderatorReadAllChannels' ) === '1' || $.cookie( 'moderatorReadAllChannels' ) == undefined ) ) {
 		channelCount = channelList.length;
 		
 		$.getJSON( CHAT_URL + 'memfs/channel-moderator.json', function( jsonData ){
