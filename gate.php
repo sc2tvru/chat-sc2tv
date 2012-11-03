@@ -21,8 +21,11 @@ $error = $authInfo[ 'error' ];
 $userInfo = $authInfo[ 'userInfo' ];
 
 // если есть ошибка авторизации, лучше сразу отдать ее и прекратить выполнение
-if ( $error != '' && $task != 'GetHistory' ) {
-	SendDefaultResponse( $userInfo, $error );
+if ( $error != '' ) {
+	// если только это не запрос забаненного к истории, который решили разрешить
+	if ( !( $task == 'GetHistory' && $error == CHAT_USER_BANNED_IN_CHAT ) ) {
+		SendDefaultResponse( $userInfo, $error );
+	}
 }
 
 if ( $task == 'GetUserInfo' ) {
@@ -72,7 +75,7 @@ switch ( $task ) {
 	
 	case 'DeleteMessage':
 		$chat->SetDatabase();
-		$result = $chat->DeleteMessage( $_GET[ 'messageId' ], $_GET[ 'channelId' ] );
+		$result = $chat->DeleteMessage( $_POST[ 'messageId' ], $_POST[ 'channelId' ] );
 		$result = array_merge( $userInfo, $result );
 		echo json_encode( $result );
 	break;
@@ -99,7 +102,6 @@ switch ( $task ) {
 	break;
 	
 	case 'GetHistory':
-		if($error != '' && $error != CHAT_USER_BANNED_IN_CHAT) SendDefaultResponse( $userInfo, $error );
 		include 'history.php';
 		
 		$history = new ChatHistory();

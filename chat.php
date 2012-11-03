@@ -241,7 +241,7 @@ class Chat {
 			return CHAT_NEWBIE_USER;
 		}
 		else
-		*/
+		//*/
 		
 		if( $userInfo[ 'ban' ] == 1 ) {
 			// для проверки на гражданство в будущем

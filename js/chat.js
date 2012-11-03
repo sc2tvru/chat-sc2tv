@@ -427,12 +427,10 @@ function IsUserIgnored( uid ) {
 }
 
 function BuildChat( dataForBuild ) {
-	/*
 	if ( IsAnon() == true ) {
 		userInfo.type = 'anon';
 	}
-	else if ( dataForBuild == null ) {*/
-	if ( dataForBuild == null ) {
+	else if ( dataForBuild == null ) {
 		// данных для сборки нет, запрашиваем сервер
 		$.ajaxSetup( { async: false, cache: false } );
 		
@@ -595,7 +593,8 @@ function BanUser( uid, user_name, duration, mid, channelId ){
 }
 
 function DeleteMessage( mid, channelId ) {
-	$.getJSON( CHAT_URL + 'gate.php?task=DeleteMessage&messageId=' + mid + '&channelId=' + channelId + '&token=' + userInfo.token, function(data){
+	$.post( CHAT_URL + 'gate.php', { task: 'DeleteMessage', messageId: mid, channelId: channelId, token: userInfo.token }, function(data) {
+		data = $.parseJSON( data );
 		CheckUserState( data );
 		if( data.code == 0 ) {
 			show_error( data.error );
