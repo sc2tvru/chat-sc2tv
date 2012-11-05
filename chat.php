@@ -228,7 +228,7 @@ class Chat {
 		
 		$this->user = $userInfo;
 		
-		/*
+		//*
 		$newbieStatusTTL = $userInfo[ 'created' ] + CHAT_TIME_ON_SITE_AFTER_REG_NEEDED
 			- CURRENT_TIME;
 		
