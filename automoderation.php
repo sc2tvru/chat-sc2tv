@@ -232,7 +232,7 @@ class AutoModeration {
 		
 		// да, я не доверяю чатику
 		// в запросах оно не используется, поэтому фильтровать можно, как угодно
-		$userName = preg_replace( '/[^_a-zа-я0-9]*/ui', '', $userName );
+		$userName = preg_replace( '/[^_a-zа-я0-9 ]+/ui', '', $userName );
 		
 		$messageId = (int)$messageId;
 		$reasonId = (int)$reasonId;

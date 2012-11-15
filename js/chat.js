@@ -4,8 +4,6 @@ var CHAT_USER_BANNED = 'Вы были забанены.';
 var CHAT_USER_NO_CAPS = 'КАПСИТЬ нельзя. Проверьте caps lock.';
 var CHAT_USER_NO_SPAM_SMILES = 'В одном сообщении нельзя использовать 3 и более смайла.';
 var user_name="";
-var width = 0;
-var height = -231;
 
 // chat reload interval in ms
 var CHAT_RELOAD_INTERVAL = 5000;
@@ -463,27 +461,35 @@ function BuildChat( dataForBuild ) {
 		$.cookie( 'is_moderator', '1', { expires: 365, path: '/'} );
 	}
 	
-	var needFullScreen = getParameterByName( 'fullScreen' );
-	
 	$('#dialog2').html('<div id="add_styles"></div><div class="chat-channel-name"><div title="перейти на главный канал" class="channel 0">main</div><div id="stream-room" title="перейти на другой канал" class="channel other">other</div><br style="clear:both"/></div><div id="chat"></div>'+myform);
   
 	if ( top === self ) {
 		$( '#dialog2' ).css( 'background-color', '#000000' );
 	}
-
-  if ( needFullScreen === '1' ){
-		var chatWindowHeight = getParameterByName( 'height' );
-		
-		if ( chatWindowHeight !== undefined && chatWindowHeight !== '' ) {
-			$('#dialog2').css( 'height', chatWindowHeight );
-			$('#chat').css( 'height', parseInt( chatWindowHeight ) - 65 + 'px' );
-		}
-	}
-	else {
+	
+	// chat window size
+	var chatWindowHeight = getParameterByName( 'height' );
+	
+	if ( chatWindowHeight == undefined || chatWindowHeight == '' ) {
 		$('#dialog2').css( 'height', '440px' );
 		$('#chat').css( 'height', '375px' );
 	}
-			
+	else {
+		$('#dialog2').css( 'height', chatWindowHeight );
+		$('#chat').css( 'height', parseInt( chatWindowHeight ) - 65 + 'px' );
+	}
+	
+	var chatWindowWidth = getParameterByName( 'width' );
+	
+	if ( chatWindowWidth == undefined || chatWindowWidth == '' ) {
+		$('#dialog2').css( 'width', '224px' );
+		$('#chat').css( 'width', '214px' );
+	}
+	else {
+		$('#dialog2').css( 'width', chatWindowWidth );
+		$('#chat').css( 'width', parseInt( chatWindowWidth ) - 10 + 'px' );
+	}
+	
 	toogleImgBtn();
 	
 	$( '#chat-form-id' ).submit(function() {
@@ -499,7 +505,7 @@ function BuildChat( dataForBuild ) {
 	});
 	
 	chatObj = document.getElementById( 'chat' );
-
+	
 	$( '#chat' ).scroll( function(){
 		autoScroll = (chatObj.scrollHeight-chatObj.scrollTop<chatObj.clientHeight+5) ? 1:0;
 	});
@@ -671,7 +677,8 @@ function otvet(nick){
 
 function getmenu( nick, mid, uid, channelId ) {
 	user_name = $( nick ).html();
-	if ( user_name == 'system' || userInfo.type == 'bannedInChat' || userInfo.type == 'bannedOnSite' ) {
+	
+	if ( uid == '-1' || userInfo.type == 'bannedInChat' || userInfo.type == 'bannedOnSite' ) {
 		return false;
 	}
 	
