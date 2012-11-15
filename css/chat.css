@@ -33,7 +33,7 @@ background: #FFFFFF;
 }
 
 #chat-form{
-	width:90%;
+	font-size: 10px !important;
 	height:30px;
 	margin-left:3px;
 	padding:7px 0px 0px 3px;
