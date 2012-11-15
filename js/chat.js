@@ -42,7 +42,7 @@ smiles_btn = '<span id="smile-btn">smile</span>';
 smile_panel = '<div id="chat-smile-panel">' + smileHtml + '<div id="chat-smile-panel-close">X</div></div>';
 divForFullScreen = '<div id="full-screen-place">.</div>';
 
-form_chat = '<div id="chat-form"><form id="chat-form-id" method="post" action=""><input maxlength="300" type="text" name="chat-text" class="chat-text"/></form>' + chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + smiles_btn + ' ' + chat_rules_link + ' ' + chat_history_link + ' ' + chat_ban_history_link + smile_panel + '</div>';
+form_chat = '<div id="chat-form"><form id="chat-form-id" method="post" action=""><input maxlength="1024" type="text" name="chat-text" class="chat-text"/></form>' + chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + smiles_btn + ' ' + chat_rules_link + ' ' + chat_history_link + ' ' + chat_ban_history_link + smile_panel + '</div>';
 
 form_anon = '<div id="chat-form">' + divForFullScreen + chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + chat_history_link + ' <span>В чате могут писать только зарегистрированные пользователи.</span></div>';
  
@@ -484,10 +484,12 @@ function BuildChat( dataForBuild ) {
 	if ( chatWindowWidth == undefined || chatWindowWidth == '' ) {
 		$('#dialog2').css( 'width', '224px' );
 		$('#chat').css( 'width', '214px' );
+		$('.chat-text').css( 'width', '191px' );
 	}
 	else {
 		$('#dialog2').css( 'width', chatWindowWidth );
 		$('#chat').css( 'width', parseInt( chatWindowWidth ) - 10 + 'px' );
+		$('.chat-text').css( 'width', parseInt( chatWindowWidth ) - 33 + 'px' );
 	}
 	
 	toogleImgBtn();
