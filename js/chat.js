@@ -376,7 +376,7 @@ function GetSpecColor( uid ) {
 		// Mary_zerg
 		case '65377':
 		// Siena
-		case '45780':
+		case '8324':
         //milkSHake
         case '22600':
 			color = '#FFC0CB';
