@@ -184,6 +184,10 @@ cursor:pointer;
 	text-decoration:line-through
 }
 
+#img-text {
+    text-decoration:underline
+}
+
 .chat-channel-name {
 /*	color: red !important; 
 	font-weight:bold;

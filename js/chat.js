@@ -36,7 +36,7 @@ chat_rules_link = '<a title="Правила чата" href="' + SC2TV_URL + '/ch
 chat_history_link = '<a title="История чата" href="/history.htm" target="_blank">history</a>';
 chat_ban_history_link = '<a title="История банов чата" href="/automoderation_history.htm" target="_blank">bans</a>';
 chat_vkl_btn = '<span id="chat-on" title="включить чат" style="display:none;">chat</span><span title="отключить чат" id="chat-off">chat</span>';
-img_btn = '<span id="img-on" title="включить смайлы" style="display:none;">img</span><span id="img-off" title="отключить смайлы">img</span>';
+img_btn = '<span id="img-on" title="текстовые смайлы" style="display:none;">img</span><span id="img-text" title="включить смайлы" style="display:none;">img</span><span id="img-off" title="выключить смайлы">img</span>';
 color_btn = '<span id="clr_nick_on" title="включить цветные ники">col</span><span id="clr_nick_off" title="выключить цветные ники">col</span>';
 smiles_btn = '<span id="smile-btn">smile</span>';
 smile_panel = '<div id="chat-smile-panel">' + smileHtml + '<div id="chat-smile-panel-close">X</div></div>';
@@ -174,16 +174,26 @@ function toogleImgBtn() {
 	
 	$( '#img-on' ).toggle( $.cookie( 'chat-img' ) == '0' );
 	$( '#img-off' ).toggle( $.cookie( 'chat-img' ) == '1' );
+  $( '#img-text' ).toggle( $.cookie( 'chat-img' ) == '2' );
 	
 	$( '#img-on' ).on( 'click', function() {
-		$.cookie( 'chat-img', '1', { expires: 365, path: '/'} );
+		$.cookie( 'chat-img', '2', { expires: 365, path: '/'} );
 		$(this).hide();
-		$( '#img-off').show();
+    $('#img-off').hide();
+		$( '#img-text').show();
 	});
-	
+
+  $( '#img-text' ).on( 'click', function() {
+    $.cookie( 'chat-img', '1', { expires: 365, path: '/'} );
+    $(this).hide();
+    $('#img-on').hide();
+    $( '#img-off' ).show();
+  });
+
 	$( '#img-off' ).on( 'click', function() {
 		$.cookie( 'chat-img', '0', { expires: 365, path: '/'} );
 		$(this).hide();
+    $('#img-text').hide();
 		$( '#img-on' ).show();
 	});
 }
@@ -357,7 +367,9 @@ function ProcessReplaces( str ) {
 	for( i = 0; i < smilesCount; i++ ) {
 		smileHtml = '<img src="' + CHAT_IMG_DIR + smiles[ i ].img +'" width="' + smiles[ i ].width + '" height="' + smiles[ i ].height+ '" class="chat-smile"/>';
 		var smilePattern = new RegExp( RegExp.escape( ':s' + smiles[ i ].code ), 'gi' );
-		str = str.replace( smilePattern, smileHtml );
+    if ($.cookie( 'chat-img' ) != '2') {
+		  str = str.replace( smilePattern, smileHtml );
+    }
 	}
 	// URL
 	str = str.replace( urlPattern, MakeShrinkUrl );
