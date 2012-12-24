@@ -401,7 +401,7 @@ function GetSpecColor( uid ) {
         case '15064':
         case '73147':
         case '58028':
-        	color = '#77BBBE';
+        	color = '#7a77be';
         break;
 		default:
 			color = '';
