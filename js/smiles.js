@@ -38,7 +38,7 @@ var smiles = [
     {code: ':wtf:', img: 'wtf.png?1', width: '30', height: '30'},
     {code: ':danu:', img: 'daladno.png?1', width: '30', height: '30'},
     {code: ':gusta:', img: 'megusta.png?1', width: '30', height: '30'},
-    {code: ':bm:', img: 'bm.png?2', width: '56', height: '36'},
+    {code: ':bm:', img: 'bm.png?3', width: '56', height: '36'},
     //page 2
     {code: ':lol:', img: 'loool.png?1', width: '25', height: '30'},
     {code: ':notbad:', img: 'notbad.png?1', width: '30', height: '30'},
