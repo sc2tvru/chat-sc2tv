@@ -172,10 +172,10 @@ function toogleImgBtn() {
 		$.cookie( 'chat-img', '1', { expires: 365, path: '/'} );
 	}
 	
-	// smile: off,0 > img,1 > text,2
-	$( '#smile-img' ).toggle( $.cookie( 'chat-img' ) == '0' );
-	$( '#smile-text' ).toggle( $.cookie( 'chat-img' ) == '1' );
-	$( '#smile-off' ).toggle( $.cookie( 'chat-img' ) == '2' );
+	// smile: text,2 > img,1 > off,0
+	$( '#smile-img' ).toggle( $.cookie( 'chat-img' ) == '2' );
+	$( '#smile-off' ).toggle( $.cookie( 'chat-img' ) == '1' );
+	$( '#smile-text' ).toggle( $.cookie( 'chat-img' ) == '0' );
 	
 	$( '#smile-text' ).on( 'click', function() {
 		$.cookie( 'chat-img', '2', { expires: 365, path: '/'} );
@@ -365,11 +365,14 @@ function MakeShrinkUrl( str, proto, url ) {
 // всевозможные замены
 function ProcessReplaces( str ) {
 	// смайлы
-	if( $.cookie( 'chat-img' ) == '1' ) {
-		for( i = 0; i < smilesCount; i++ ) {
-			smileHtml = '<img src="' + CHAT_IMG_DIR + smiles[ i ].img +'" width="' + smiles[ i ].width + '" height="' + smiles[ i ].height+ '" class="chat-smile"/>';
-			var smilePattern = new RegExp( RegExp.escape( ':s' + smiles[ i ].code ), 'gi' );
-				str = str.replace( smilePattern, smileHtml );
+	for( i = 0; i < smilesCount; i++ ) {
+		smileHtml = '<img src="' + CHAT_IMG_DIR + smiles[ i ].img +'" width="' + smiles[ i ].width + '" height="' + smiles[ i ].height+ '" class="chat-smile"/>';
+		var smilePattern = new RegExp( RegExp.escape( ':s' + smiles[ i ].code ), 'gi' );
+		if ( $.cookie( 'chat-img' ) == '1' ) {
+			str = str.replace( smilePattern, smileHtml );
+		}
+		else if ( $.cookie( 'chat-img' ) == '0' ) {
+			str = str.replace( smilePattern, '' );
 		}
 	}
 	
