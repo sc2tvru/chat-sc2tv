@@ -176,16 +176,16 @@ cursor:pointer;
 	color:orange;
 	font-size:150%;
 }
-#img-on, #img-off {
+#smile-text, #smile-img, #smile-off  {
 	cursor:pointer !important;
 }
 
-#img-off{
-	text-decoration:line-through
+#smile-off{
+	text-decoration:line-through;
 }
 
-#img-text {
-    text-decoration:underline
+#smile-text {
+	text-decoration:underline;
 }
 
 .chat-channel-name {
