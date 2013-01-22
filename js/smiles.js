@@ -25,7 +25,7 @@ var smiles = [
   {code: ':ra:', img: 'ra.png?1', width: '31', height: '34'},
   {code: ':fp:', img: 'facepalm.png?1', width: '30', height: '30'},
   {code: ':neo:', img: 'smith.png?1', width: '30', height: '30'},
-  {code: ':peka:', img: 'mini-happy.png?2', width: '30', height: '30'},
+  {code: ':peka:', img: 'mini-happy.png?3', width: '30', height: '30'},
   {code: ':trf:', img: 'trollface.png?2', width: '31', height: '25'},
   {code: ':fu:', img: 'fuuuu.png?3', width: '28', height: '30'},
   {code: ':why:', img: 'why.png?1', width: '34', height: '30'},
@@ -38,7 +38,7 @@ var smiles = [
   {code: ':wtf:', img: 'wtf.png?1', width: '30', height: '30'},
   {code: ':danu:', img: 'daladno.png?1', width: '30', height: '30'},
   {code: ':gusta:', img: 'megusta.png?1', width: '30', height: '30'},
-  {code: ':bm:', img: 'bm.png?3', width: '52', height: '29'},
+  {code: ':bm:', img: 'bm.png?4', width: '52', height: '29'},
   //page 2
   {code: ':lol:', img: 'loool.png?1', width: '25', height: '30'},
   {code: ':notbad:', img: 'notbad.png?1', width: '30', height: '30'},
