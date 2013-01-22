@@ -407,19 +407,6 @@ function GetSpecColor( uid ) {
         case '41386':
             color = '#7797BE';
         break;
-        // Fan streamers new year promotion.
-        // TODO: remove after new year
-        case '41617':
-        case '50595':
-        case '62432':
-        case '86720':
-        case '34875':
-        case '15055':
-        case '15064':
-        case '73147':
-        case '58028':
-        	color = '#7a77be';
-        break;
 		default:
 			color = '';
 	}
