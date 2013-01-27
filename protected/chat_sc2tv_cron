@@ -1,0 +1,22 @@
+
+# chat
+*/30 * * * * chatuser find '/path/to/chat.sc2tv.ru/public_html/memfs/' -name 'channel*json' -mmin +30 -exec rm {} \; 
+*/30 * * * * chatuser find '/path/to/chat.sc2tv.ru/public_html/memfs/' -name 'channel*gz' -mmin +30 -exec rm {} \;  
+
+*/30 * * * * chatuser find '/path/to/chat.sc2tv.ru/public_html/memfs/history' -name '*.json' -mmin +30 -exec rm {} \;  
+*/30 * * * * chatuser find '/path/to/chat.sc2tv.ru/public_html/memfs/history' -name '*.gz' -mmin +30 -exec rm {} \;  
+*/30 * * * * chatuser find '/path/to/chat.sc2tv.ru/public_html/memfs/automoderation_history' -name '*.json' -mmin +30 -exec rm {} \;  
+*/30 * * * * chatuser find '/path/to/chat.sc2tv.ru/public_html/memfs/automoderation_history' -name '*.gz' -mmin +30 -exec rm {} \;  
+
+# generate history cache
+*/10 * * * * chatuser cd public_html && /usr/bin/php -f /path/to/chat.sc2tv.ru/public_html/cron_dump_last_automoderation_history.php  
+#*/30 * * * * chatuser cd public_html && /usr/bin/php -f /path/to/chat.sc2tv.ru/public_html/cron_dump_last_history.php  
+
+# dump channels
+*/5 * * * * chatuser cd public_html && /usr/bin/php -f /path/to/chat.sc2tv.ru/public_html/cron_dump_channels.php  
+*/15 * * * * chatuser cd public_html && /usr/bin/php -f /path/to/chat.sc2tv.ru/public_html/cron_dump_channels_history.php  
+
+
+# clear list of moderators
+* * 1 * * chatuser rm -rf /path/to/chat.sc2tv.ru/public_html/memfs/moderatorsDetails*  
+
