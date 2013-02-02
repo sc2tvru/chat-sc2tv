@@ -5,7 +5,7 @@ if ( isset(  $_REQUEST[ 'task' ] ) ) {
 	$task = $_REQUEST[ 'task' ];
 }
 
-if ( $task == '' ) {
+if ( $task === '' ) {
 	exit;
 }
 
@@ -21,26 +21,26 @@ $error = $authInfo[ 'error' ];
 $userInfo = $authInfo[ 'userInfo' ];
 
 // если есть ошибка авторизации, лучше сразу отдать ее и прекратить выполнение
-if ( $error != '' ) {
+if ( $error !== '' ) {
 	// если только это не запрос забаненного к истории, который решили разрешить
-	if ( !( $task == 'GetHistory' && $error == CHAT_USER_BANNED_IN_CHAT ) ) {
+	if ( !( $task === 'GetHistory' && $error === CHAT_USER_BANNED_IN_CHAT ) ) {
 		SendDefaultResponse( $userInfo, $error );
 	}
 }
 
-if ( $task == 'GetUserInfo' ) {
+if ( $task === 'GetUserInfo' ) {
 	SendDefaultResponse( $userInfo, $error );
 }
 
 // для всех действий, кроме авторизации, проверяем установленный токен
-if ( !isset( $_REQUEST[ 'token' ] ) || $userInfo[ 'token' ] != $_REQUEST[ 'token' ] ) {
+if ( empty( $_REQUEST[ 'token' ] ) || $userInfo[ 'token' ] !== $_REQUEST[ 'token' ] ) {
 	SendDefaultResponse( $userInfo, CHAT_TOKEN_VERIFICATION_FAILED );
 }
 
 // выполняем действия для задачи
 switch ( $task ) {
 	case 'WriteMessage':
-		if ( isset( $_POST[ 'message' ] ) && $_POST[ 'message' ] != '' ) {
+		if ( isset( $_POST[ 'message' ] ) && $_POST[ 'message' ] !== '' ) {
 			$message = $_POST[ 'message' ];
 		}
 		else {
@@ -207,7 +207,7 @@ switch ( $task ) {
 	break;
 	
 	case 'ComplainBan':
-		if ( $userInfo[ 'type' ] == 'user' || $userInfo[ 'type' ] == 'chatAdmin' ) {
+		if ( $userInfo[ 'type' ] === 'user' || $userInfo[ 'type' ] === 'chatAdmin' ) {
 			include 'automoderation.php';
 			$citizenModerator = new AutoModeration( $memcache, $userInfo );
 			$citizenModerator->SetDatabase();
@@ -240,7 +240,7 @@ function SendDefaultResponse( $userInfo, $error ) {
  *	return bool true | false
  */
 function IsModeratorRequest( $userInfo ) {
-	if ( $userInfo[ 'rid' ] == 3 || $userInfo[ 'rid' ] == 4 || $userInfo[ 'rid' ] == 5 ) {
+	if ( $userInfo[ 'rid' ] === 3 || $userInfo[ 'rid' ] === 4 || $userInfo[ 'rid' ] === 5 ) {
 		$isModeratorRequest = true;
 	}
 	else {
