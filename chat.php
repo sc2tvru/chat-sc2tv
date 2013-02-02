@@ -55,7 +55,7 @@ class Chat {
         )
 	 */
 	public function GetAuthInfo() {
-		if( !isset( $_COOKIE[ DRUPAL_SESSION ] ) || 
+		if( empty( $_COOKIE[ DRUPAL_SESSION ] ) || 
 			preg_match( '/[^a-z\d]+/i', $_COOKIE[ DRUPAL_SESSION ] ) ) {
 			/*/ запись для отладки кэширования по просьбе Данила
 			$this->SetDatabase();
