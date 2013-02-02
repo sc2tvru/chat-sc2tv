@@ -102,6 +102,8 @@ class Chat {
 			
 			//*/
 			
+			SaveForDebug( 'Login fail, hack? ' . CHAT_COOKIE_NOT_FOUND );
+			
 			$result = array(
 				'userInfo' => $this->user,
 				'error' => CHAT_COOKIE_NOT_FOUND
