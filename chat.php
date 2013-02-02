@@ -165,8 +165,8 @@ class Chat {
 		$result[ 'error' ] = '';
 		
 		// 3 - root, 4 - admin, 5 - moder, 6 - journalist, 7 - editor, 8 - banned, 9 - streamer, 10 - userstreamer
-		if ( $userInfo[ 'rid' ] == NULL ) {
-			$this->user[ 'rid' ] = "2";
+		if ( $userInfo[ 'rid' ] === NULL ) {
+			$this->user[ 'rid' ] = 2;
 		}
 		else {
 			$this->user[ 'rid' ] = $userInfo[ 'rid' ];
@@ -224,7 +224,7 @@ class Chat {
 	 */
 	private function GetReasonWhyUserCantChat( $userInfo, $chatAuthMemcacheKey ) {
 		// Drupal обнуляет uid в сессии, если пользователю в профиле поставить статус blocked
-		if ( $userInfo == NULL || $userInfo[ 'uid' ] == 0 ) {
+		if ( $userInfo === NULL || $userInfo[ 'uid' ] === 0 ) {
 			return CHAT_UID_FOR_SESSION_NOT_FOUND;
 		}
 		
@@ -245,7 +245,7 @@ class Chat {
 		else
 		//*/
 		
-		if( $userInfo[ 'ban' ] == 1 ) {
+		if( $userInfo[ 'ban' ] === 1 ) {
 			// для проверки на гражданство в будущем
 			$this->user[ 'wasBanned' ] = 1;
 			
@@ -477,7 +477,7 @@ class Chat {
 	 */
 	private function GetMessagesByChannelId( $channelId = -1 ) {
 		// если канал не указан, выбираются сообщения для модераторов по всем каналам
-		if (  $channelId == -1 ) {
+		if (  $channelId === -1 ) {
 			$channelCondition = '';
       $index_condition = '';
 			$messagesCount = CHAT_MODERATORS_MSG_LIMIT;
@@ -568,7 +568,7 @@ class Chat {
 		// whitespaces
 		$message = preg_replace( '#[\s]+#uis', ' ',  $message );
 		
-		if( $message == '' ) {
+		if( $message === '' ) {
 			return false;
 		}
 		// TODO php 5.4.0 добавить ENT_SUBSTITUTE ?
@@ -693,11 +693,11 @@ class Chat {
 		$channelId = (int)$channelId;
 		
 		// выдаем ошибку, если есть права, но неправильный id сообщения
-		if( ( $this->user[ 'rights' ] == 1 && $banMessageId < 0 ) ||
+		if( ( $this->user[ 'rights' ] === 1 && $banMessageId < 0 ) ||
 			// либо нет прав, но это не автобан
 			( $this->user[ 'rights' ] != 1 && $isAutoBan === false ) ||
 			// либо непонятно, кого баним и насколько
-			$banUid == 0 ||	$banUserName == '' || $banDurationInMin == 0 ||
+			$banUid === 0 ||	$banUserName === '' || $banDurationInMin === 0 ||
 			// или неправильная причина бана
 			$banReasonId < 0 ) {
 			SaveForDebug( var_export( $_REQUEST, true ) );
@@ -783,7 +783,7 @@ class Chat {
 		}
 		
 		// сохраняем для модераторов кол-во банов
-		if ( $this->user[ 'type' ] == 'chatAdmin' ) {
+		if ( $this->user[ 'type' ] === 'chatAdmin' ) {
 			$moderatorsDetails = $this->memcache->Get( MODERATORS_DETAILS_MEMCACHE_KEY );
 			
 			if ( $moderatorsDetails != false ) {
@@ -836,7 +836,7 @@ class Chat {
 	public function WriteSystemMessage( $message ) {
 		list( $message ) = $this->db->PrepareParams( $message );
 		
-		if ( $message == '' ) {
+		if ( $message === '' ) {
 			return false;
 		}
 		
