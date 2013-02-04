@@ -240,11 +240,12 @@ function SendDefaultResponse( $userInfo, $error ) {
  *	return bool true | false
  */
 function IsModeratorRequest( $userInfo ) {
+	SaveForDebug( var_dump( $userInfo ), TRUE );
 	if ( $userInfo[ 'rid' ] === 3 || $userInfo[ 'rid' ] === 4 || $userInfo[ 'rid' ] === 5 ) {
-		$isModeratorRequest = true;
+		$isModeratorRequest = TRUE;
 	}
 	else {
-		$isModeratorRequest = false;
+		$isModeratorRequest = FALSE;
 	}
 	
 	return $isModeratorRequest;

@@ -240,7 +240,6 @@ class Chat {
 			$this->memcache->Set( $chatAuthMemcacheKey, $this->user, $newbieStatusTTL );
 			return CHAT_NEWBIE_USER;
 		}
-		else
 		//*/
 		
 		if( $userInfo[ 'ban' ] === 1 ) {
