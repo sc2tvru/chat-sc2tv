@@ -18,6 +18,6 @@
 
 
 # clear list of moderators
-59 0 1 * * chatuser cd public_html && /usr/bin/php -f /path/to/chat.sc2tv.ru/public_html/cron_clear_moderator_details.php
+59 0 1 * * chatuser cd public_html && /usr/bin/php -f /path/to/chat.sc2tv.ru/public_html/cron_clear_moderators_details.php
 0 1 1 * * chatuser rm -rf /path/to/chat.sc2tv.ru/public_html/memfs/moderatorsDetails*  
 
