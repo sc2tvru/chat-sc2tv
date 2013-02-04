@@ -240,8 +240,7 @@ function SendDefaultResponse( $userInfo, $error ) {
  *	return bool true | false
  */
 function IsModeratorRequest( $userInfo ) {
-	SaveForDebug( var_export( $userInfo, TRUE ) );
-	if ( $userInfo[ 'rid' ] === 3 || $userInfo[ 'rid' ] === 4 || $userInfo[ 'rid' ] === 5 ) {
+	if ( $userInfo[ 'rid' ] == 3 || $userInfo[ 'rid' ] == 4 || $userInfo[ 'rid' ] == 5 ) {
 		$isModeratorRequest = TRUE;
 	}
 	else {

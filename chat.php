@@ -222,7 +222,7 @@ class Chat {
 	 */
 	private function GetReasonWhyUserCantChat( $userInfo, $chatAuthMemcacheKey ) {
 		// Drupal обнуляет uid в сессии, если пользователю в профиле поставить статус blocked
-		if ( $userInfo === NULL || $userInfo[ 'uid' ] === 0 ) {
+		if ( $userInfo === NULL || $userInfo[ 'uid' ] == 0 ) {
 			return CHAT_UID_FOR_SESSION_NOT_FOUND;
 		}
 		
@@ -242,7 +242,7 @@ class Chat {
 		}
 		//*/
 		
-		if( $userInfo[ 'ban' ] === 1 ) {
+		if( $userInfo[ 'ban' ] == 1 ) {
 			// для проверки на гражданство в будущем
 			$this->user[ 'wasBanned' ] = 1;
 			
