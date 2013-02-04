@@ -18,5 +18,5 @@
 
 
 # clear list of moderators
-* * 1 * * chatuser rm -rf /path/to/chat.sc2tv.ru/public_html/memfs/moderatorsDetails*  
+0 1 1 * * chatuser rm -rf /path/to/chat.sc2tv.ru/public_html/memfs/moderatorsDetails*  
 
