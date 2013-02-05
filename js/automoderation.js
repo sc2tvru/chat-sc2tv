@@ -35,7 +35,7 @@ function GetModeratorsData() {
 function GetModeratorsDetails() {
 	if ( moderatorsDetails.length == 0 ) {
 		$.ajaxSetup( {
-			ifModified: true,
+			ifModified: false,
 			statusCode: {
 				404: function() {
 					GetModeratorsData();
@@ -70,7 +70,7 @@ function GetComplainsData() {
 function GetComplainsList() {
 	if ( complainsList.length == 0 ) {
 		$.ajaxSetup( {
-			ifModified: true,
+			ifModified: false,
 			statusCode: {
 				404: function() {
 					GetComplainsData();
@@ -390,7 +390,6 @@ function RequestHistory() {
 		historyCache = historyCache.replace( /[\s]+/g, '_' );
 		
 		$.ajaxSetup( {
-			ifModified: true,
 			statusCode: {
 				404: function() {
 					GetHistoryData( channelId, startDate, endDate, nick, bannedNick );
@@ -480,7 +479,6 @@ $( document ).ready( function() {
 		// чтобы после запроса данных по модераторам GetModeratorsData не вызывалась после 404 ошибки
 		// TODO надо это по феншую пофиксить, а не пустым колбэком
 		$.ajaxSetup( {
-			ifModified: true,
 			statusCode: {
 				404: function() {}
 			}
@@ -491,7 +489,6 @@ $( document ).ready( function() {
 		// чтобы после запроса данных по модераторам GetComplainsData не вызывалась после 404 ошибки
 		// TODO надо это по феншую пофиксить, а не пустым колбэком
 		$.ajaxSetup( {
-			ifModified: true,
 			statusCode: {
 				404: function() {}
 			}
