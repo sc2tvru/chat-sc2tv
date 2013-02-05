@@ -12,6 +12,7 @@ var CHAT_HISTORY_FOR_USERS_ONLY = 'История доступна только 
 var CHAT_MODERATORS_DETAILS_ERROR = 'Ошибка при получении данных по модераторам. Сообщите разработчикам.';
 var CHAT_COMPLAINS_FOR_BANS_ERROR = 'Ошибка при получении данных по жалобам на баны. Сообщите разработчикам.';
 var userInfo = [];
+var uid = 0;
 var moderatorsDetails = [];
 var complainsList = [];
 var smilesCount = smiles.length;
@@ -44,7 +45,7 @@ function GetModeratorsDetails() {
 		});
 		
 		$.getJSON( CHAT_MODERATORS_DETAILS_URL, function( jsonData ){
-			if ( jsonData != undefined || jsonData == '' ) {
+			if ( jsonData != undefined ) {
 				moderatorsDetails = jsonData.moderatorsDetails;
 				if ( moderatorsDetails.length == 0 ) {
 					show_error( CHAT_MODERATORS_DETAILS_ERROR );
@@ -181,10 +182,7 @@ function ShowHistory( historyData ) {
 }
 
 function IsModerator(){
-	uid = $.cookie( 'drupal_uid' );
-	var moderatorsCount = moderatorsDetails.length;
-	
-	if ( uid == undefined || moderatorsCount == 0 || moderatorsDetails[ uid ] == undefined ) {
+	if ( uid == undefined || moderatorsDetails[ uid ] == undefined ) {
 		return false;
 	}
 	
@@ -473,7 +471,7 @@ $( document ).ready( function() {
 		});
 		
 		AddChannels();
-		
+		uid = $.cookie( 'drupal_uid' );
 		GetModeratorsDetails();
 		
 		// чтобы после запроса данных по модераторам GetModeratorsData не вызывалась после 404 ошибки
