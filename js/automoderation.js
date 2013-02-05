@@ -504,7 +504,7 @@ $( document ).ready( function() {
 });
 
 function CancelBan(){
-	unBanReason =  $( '#reason' ).attr( 'value' );
+	unBanReason =  $( '#reason' ).val();
 	banModerator = $( '#banModerator' ).attr('checked');
 	
 	if ( banModerator == 'checked' ) {
@@ -514,7 +514,7 @@ function CancelBan(){
 		banModerator = 0;
 	}
 	
-	moderatorBanTime = $( '#moderatorBanTime').attr( 'value' );
+	moderatorBanTime = $( '#moderatorBanTime').val();
 	banKey = banKey.replace( 'cancel-ban-', '' );
 	
 	Login();
@@ -528,7 +528,7 @@ function CancelBan(){
 			cancelBanButton.remove();
 		}
 		else {
-			alert( data.result );
+			console.log( data.result );
 		}
 	});
 	
@@ -537,8 +537,8 @@ function CancelBan(){
 }
 
 function EditBan(){
-	editBanReason =  $( '#reason' ).attr( 'value' );
-	newBanTime = $( '#newBanTime').attr( 'value' );
+	editBanReason =  $( '#reason' ).val();
+	newBanTime = $( '#newBanTime').val();
 	banKey = banKey.replace( 'edit-ban-', '' );
 	Login();
 	
@@ -557,7 +557,7 @@ function EditBan(){
 }
 
 function ComplainBan(){
-	complainBanReason =  $( '#reason' ).attr( 'value' );
+	complainBanReason =  $( '#reason' ).val();
 	banKey = banKey.replace( 'complain-ban-', '' );
 	Login();
 	
