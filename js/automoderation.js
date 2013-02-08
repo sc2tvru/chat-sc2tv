@@ -37,6 +37,7 @@ function GetModeratorsDetails() {
 	if ( moderatorsDetails.length == 0 ) {
 		$.ajaxSetup( {
 			ifModified: false,
+			cache: false,
 			statusCode: {
 				404: function() {
 					GetModeratorsData();
@@ -72,6 +73,7 @@ function GetComplainsList() {
 	if ( complainsList.length == 0 ) {
 		$.ajaxSetup( {
 			ifModified: false,
+			cache: false,
 			statusCode: {
 				404: function() {
 					GetComplainsData();
@@ -362,7 +364,10 @@ function RequestHistory() {
 	nick = PrepareNick( nick );
 	bannedNick = PrepareNick( bannedNick );
 	
-	$.ajaxSetup( {ifModified: true} );
+	$.ajaxSetup({
+		ifModified: true,
+		cache: true
+	});
 	
 	historyCache = CHAT_HISTORY_URL;
 	
@@ -503,9 +508,9 @@ $( document ).ready( function() {
 
 function CancelBan(){
 	unBanReason =  $( '#reason' ).val();
-	banModerator = $( '#banModerator' ).attr('checked');
+	banModerator = $( '#banModerator' ).is(':checked');
 	
-	if ( banModerator == 'checked' ) {
+	if ( banModerator === true ) {
 		banModerator = 1;
 	}
 	else {
