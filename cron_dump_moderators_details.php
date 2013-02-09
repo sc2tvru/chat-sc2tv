@@ -6,7 +6,6 @@ DumpComplainsList();
 
 /**
  *	получение данных по модераторам и запись их в memfs и memcache
- *	@return array массив с ключами moderatorsDetails и error
  *	moderatorsDetails[ uid ] = array( name => '', bansCount => '' )
  *	содержит uid, имя модератора и, возможно, кол-во банов bansCount,
  *	которое устанавливается в chat.php при бане
@@ -31,12 +30,7 @@ function DumpModeratorsDetails() {
 		$queryResult = $db->Query( $queryString );
 		
 		if ( $queryResult === FALSE ) {
-			SaveForDebug( $queryResult );
-			$result = array(
-				'moderatorsDetails' => '',
-				'error' => CHAT_RUNTIME_ERROR . ' cron dump moderrators details 1'
-			);
-			return $result;
+			SaveForDebug( CHAT_RUNTIME_ERROR . ' cron dump moderrators details 1' );
 		}
 		
 		while( $moderatorDetail = $queryResult->fetch_assoc() ) {
