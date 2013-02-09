@@ -882,9 +882,9 @@ class AutoModeration {
 			$this->memcache->Set( COMPLAINS_LIST_MEMCACHE_KEY, $complainsList, COMPLAINS_TTL );
 			
 			// и перезаписать файл в memfs
-			$dataJson = json_encode( array( 'complainsList' => $complainsListPublic ) );
+			$dataJs = 'var complainsList = ' . json_encode( $complainsListPublic );
 		
-			fwrite( $complainsCacheFile, $dataJson );
+			fwrite( $complainsCacheFile, $dataJs );
 			fflush( $complainsCacheFile );
 			
 			flock( $complainsCacheFile, LOCK_UN );

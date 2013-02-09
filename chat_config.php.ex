@@ -109,9 +109,9 @@ define( 'CHAT_HISTORY_MEMFS_DIR', CHAT_MEMFS_DIR . '/history' );
 // путь к memfs истории автомодерации относительно этого конфига
 define( 'CHAT_AUTOMODERATION_HISTORY_MEMFS_DIR', CHAT_MEMFS_DIR . '/automoderation_history' );
 // путь к деталям модераторов в memfs относительно этого конфига
-define( 'CHAT_MODERATORS_DETAILS', CHAT_MEMFS_DIR . '/moderatorsDetails.json' );
+define( 'CHAT_MODERATORS_DETAILS', CHAT_MEMFS_DIR . '/moderatorsDetails.js' );
 // путь к жалобам на баны в memfs относительно этого конфига
-define( 'CHAT_COMPLAINS_FOR_BANS', CHAT_MEMFS_DIR . '/complainsForBans.json' );
+define( 'CHAT_COMPLAINS_FOR_BANS', CHAT_MEMFS_DIR . '/complainsForBans.js' );
 
 // ключи в memcache
 define( 'MODERATORS_DETAILS_MEMCACHE_KEY', 'ChatModeratorsDetails' );

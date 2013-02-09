@@ -13,79 +13,10 @@ var CHAT_MODERATORS_DETAILS_ERROR = 'Ошибка при получении да
 var CHAT_COMPLAINS_FOR_BANS_ERROR = 'Ошибка при получении данных по жалобам на баны. Сообщите разработчикам.';
 var userInfo = [];
 var uid = 0;
-var moderatorsDetails = [];
-var complainsList = [];
 var smilesCount = smiles.length;
 var topModeratorsCount = 10;
 var moderatorsDetailsHtml = '';
 var SC2TV_TIME_DIFF = 14400;
-
-function GetModeratorsData() {
-	Login();
-	$.post( CHAT_URL + 'gate.php', { task: 'GetModeratorsDetails', token: userInfo.token }, function( data ) {
-		data = $.parseJSON( data );
-		if( data.error == '' ) {
-			moderatorsDetails = data.moderatorsDetails;
-		}
-		else {
-			show_error( data.error );
-		}
-	});
-}
-
-function GetModeratorsDetails() {
-	if ( moderatorsDetails.length == 0 ) {
-		$.ajaxSetup( {
-			ifModified: false,
-			cache: false,
-			statusCode: {
-				404: function() {
-					GetModeratorsData();
-				}
-			}
-		});
-		
-		$.getJSON( CHAT_MODERATORS_DETAILS_URL, function( jsonData ){
-			if ( jsonData != undefined ) {
-				moderatorsDetails = jsonData.moderatorsDetails;
-				if ( moderatorsDetails.length == 0 ) {
-					show_error( CHAT_MODERATORS_DETAILS_ERROR );
-				}
-			}
-		});
-	}
-}
-
-function GetComplainsData() {
-	Login();
-	$.post( CHAT_URL + 'gate.php', { task: 'GetComplainsList', token: userInfo.token }, function( data ) {
-		data = $.parseJSON( data );
-		if( data.error == '' ) {
-			complainsList = data.complainsList;
-		}
-		else {
-			show_error( data.error );
-		}
-	});
-}
-
-function GetComplainsList() {
-	if ( complainsList.length == 0 ) {
-		$.ajaxSetup( {
-			ifModified: false,
-			cache: false,
-			statusCode: {
-				404: function() {
-					GetComplainsData();
-				}
-			}
-		});
-		
-		$.getJSON( CHAT_COMPLAINS_FOR_BANS_URL, function( jsonData ){
-			complainsList = jsonData.complainsList;
-		});
-	}
-}
 
 function GetReasonById( reasonId ) {
 	reasonId = parseInt( reasonId );
@@ -477,25 +408,6 @@ $( document ).ready( function() {
 		
 		AddChannels();
 		uid = $.cookie( 'drupal_uid' );
-		GetModeratorsDetails();
-		
-		// чтобы после запроса данных по модераторам GetModeratorsData не вызывалась после 404 ошибки
-		// TODO надо это по феншую пофиксить, а не пустым колбэком
-		$.ajaxSetup( {
-			statusCode: {
-				404: function() {}
-			}
-		});
-		
-		GetComplainsList();
-		
-		// чтобы после запроса данных по модераторам GetComplainsData не вызывалась после 404 ошибки
-		// TODO надо это по феншую пофиксить, а не пустым колбэком
-		$.ajaxSetup( {
-			statusCode: {
-				404: function() {}
-			}
-		});
 		
 		RequestHistory();
 		

@@ -10,42 +10,6 @@ var CHAT_HISTORY_CHECK_PARAMS = 'Пожалуйста, проверьте пра
 var CHAT_HISTORY_FOR_USERS_ONLY = 'История доступна только для авторизованных в чате пользователей.';
 var smilesCount = smiles.length;
 var userInfo = [];
-var moderatorsDetails = [];
-
-function GetModeratorsData() {
-	Login();
-	$.post( CHAT_URL + 'gate.php', { task: 'GetModeratorsDetails', token: userInfo.token }, function( data ) {
-		data = $.parseJSON( data );
-		if( data.error == '' ) {
-			moderatorsDetails = data.moderatorsDetails;
-		}
-		else {
-			show_error( data.error );
-		}
-	});
-}
-
-function GetModeratorsDetails() {
-	if ( moderatorsDetails.length == 0 ) {
-		$.ajaxSetup( {
-			ifModified: true,
-			statusCode: {
-				404: function() {
-					GetModeratorsData();
-				}
-			}
-		});
-		
-		$.getJSON( CHAT_MODERATORS_DETAILS_URL, function( jsonData ){
-			if ( jsonData != undefined || jsonData == '' ) {
-				moderatorsDetails = jsonData.moderatorsDetails;
-				if ( moderatorsDetails.length == 0 ) {
-					show_error( CHAT_MODERATORS_DETAILS_ERROR );
-				}
-			}
-		});
-	}
-}
 
 function GetHistoryData( channelId, startDate, endDate, nick ) {
 	nick = nick.replace( /[^\u0020-\u007E\u0400-\u045F\u0490\u0491\u0207\u0239]+/g, '' );
@@ -87,7 +51,7 @@ function BanUser( uid, user_name, duration, mid, channelId ){
 }
 
 function PrepareToBanUser( uid, user_name, mid, channelId ){
-	duration = $( '#newBanTime').attr( 'value' );
+	duration = $( '#newBanTime').val();
 	var r = confirm( 'Вы уверены, что хотите забанить ' + user_name + ' на ' + duration + ' минут?' );
 	if ( r == true ) {
 		BanUser( uid, user_name, duration, mid, channelId );
@@ -375,7 +339,6 @@ $( document ).ready( function(){
 		});
 		
 		AddChannels();
-		GetModeratorsDetails();
 		
 		//RequestHistory();
 		

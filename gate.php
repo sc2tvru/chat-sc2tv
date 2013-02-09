@@ -119,24 +119,6 @@ switch ( $task ) {
 		echo json_encode( $result );
 	break;
 	
-	case 'GetModeratorsDetails':
-		include 'automoderation_history.php';
-		
-		$history = new ChatAutomoderationHistory( $memcache );
-		$result = $history->GetModeratorsDetails();
-		
-		echo json_encode( $result );
-	break;
-	
-	case 'GetComplainsList':
-		include 'automoderation_history.php';
-		
-		$history = new ChatAutomoderationHistory( $memcache );
-		$result = $history->GetComplainsList();
-		
-		echo json_encode( $result );
-	break;
-	
 	case 'GetAutoModerationHistory':
 		include 'automoderation_history.php';
 		
