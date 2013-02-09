@@ -5,18 +5,18 @@ DumpModeratorsDetails();
 DumpComplainsList();
 
 /**
- *	получение данных по модераторам и запись их в memfs и memcache
- *	@return array массив с ключами moderatorsDetails и error
+ *	РїРѕР»СѓС‡РµРЅРёРµ РґР°РЅРЅС‹С… РїРѕ РјРѕРґРµСЂР°С‚РѕСЂР°Рј Рё Р·Р°РїРёСЃСЊ РёС… РІ memfs Рё memcache
+ *	@return array РјР°СЃСЃРёРІ СЃ РєР»СЋС‡Р°РјРё moderatorsDetails Рё error
  *	moderatorsDetails[ uid ] = array( name => '', bansCount => '' )
- *	содержит uid, имя модератора и, возможно, кол-во банов bansCount,
- *	которое устанавливается в chat.php при бане
+ *	СЃРѕРґРµСЂР¶РёС‚ uid, РёРјСЏ РјРѕРґРµСЂР°С‚РѕСЂР° Рё, РІРѕР·РјРѕР¶РЅРѕ, РєРѕР»-РІРѕ Р±Р°РЅРѕРІ bansCount,
+ *	РєРѕС‚РѕСЂРѕРµ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ РІ chat.php РїСЂРё Р±Р°РЅРµ
  */
 function DumpModeratorsDetails() {
 	global $memcache;
 	//$memcache->Delete( MODERATORS_DETAILS_MEMCACHE_KEY );
 	$moderatorsDetails = $memcache->Get( MODERATORS_DETAILS_MEMCACHE_KEY );
 	
-	// данных в memcache нет, проверяем файл
+	// РґР°РЅРЅС‹С… РІ memcache РЅРµС‚, РїСЂРѕРІРµСЂСЏРµРј С„Р°Р№Р»
 	if ( $moderatorsDetails === false ) {
 		if ( file_exists( CHAT_MODERATORS_DETAILS ) ) {
 			$moderatorsData = file_get_contents( CHAT_MODERATORS_DETAILS );
@@ -26,7 +26,7 @@ function DumpModeratorsDetails() {
 			}
 		}
 		else {
-			//получаем из базы
+			//РїРѕР»СѓС‡Р°РµРј РёР· Р±Р°Р·С‹
 			$queryString = '
 				SELECT users.uid, name
 				FROM users
@@ -65,7 +65,7 @@ function DumpModeratorsDetails() {
 
 	
 /**
- *	получение списка жалоб на баны из memcache
+ *	РїРѕР»СѓС‡РµРЅРёРµ СЃРїРёСЃРєР° Р¶Р°Р»РѕР± РЅР° Р±Р°РЅС‹ РёР· memcache
  */
 function DumpComplainsList() {
 	global $memcache;
