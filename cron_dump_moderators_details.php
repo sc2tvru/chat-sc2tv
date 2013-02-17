@@ -16,8 +16,12 @@ function DumpModeratorsDetails() {
 	//$memcache->Delete( MODERATORS_DETAILS_MEMCACHE_KEY );
 	$moderatorsDetails = $memcache->Get( MODERATORS_DETAILS_MEMCACHE_KEY );
 	
-	// данных в memcache нет, берем из базы
+	// данных в memcache нет
 	if ( $moderatorsDetails === FALSE ) {
+		if ( CURRENT_TIME - filemtime( CHAT_MODERATORS_DETAILS ) < 86400 ) {
+			return;
+		}
+		
 		//получаем из базы
 		$queryString = '
 			SELECT users.uid, name
