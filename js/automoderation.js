@@ -12,77 +12,11 @@ var CHAT_HISTORY_FOR_USERS_ONLY = 'История доступна только 
 var CHAT_MODERATORS_DETAILS_ERROR = 'Ошибка при получении данных по модераторам. Сообщите разработчикам.';
 var CHAT_COMPLAINS_FOR_BANS_ERROR = 'Ошибка при получении данных по жалобам на баны. Сообщите разработчикам.';
 var userInfo = [];
-var moderatorsDetails = [];
-var complainsList = [];
+var uid = 0;
 var smilesCount = smiles.length;
 var topModeratorsCount = 10;
 var moderatorsDetailsHtml = '';
 var SC2TV_TIME_DIFF = 14400;
-
-function GetModeratorsData() {
-	Login();
-	$.post( CHAT_URL + 'gate.php', { task: 'GetModeratorsDetails', token: userInfo.token }, function( data ) {
-		data = $.parseJSON( data );
-		if( data.error == '' ) {
-			moderatorsDetails = data.moderatorsDetails;
-		}
-		else {
-			show_error( data.error );
-		}
-	});
-}
-
-function GetModeratorsDetails() {
-	if ( moderatorsDetails.length == 0 ) {
-		$.ajaxSetup( {
-			ifModified: true,
-			statusCode: {
-				404: function() {
-					GetModeratorsData();
-				}
-			}
-		});
-		
-		$.getJSON( CHAT_MODERATORS_DETAILS_URL, function( jsonData ){
-			if ( jsonData != undefined || jsonData == '' ) {
-				moderatorsDetails = jsonData.moderatorsDetails;
-				if ( moderatorsDetails.length == 0 ) {
-					show_error( CHAT_MODERATORS_DETAILS_ERROR );
-				}
-			}
-		});
-	}
-}
-
-function GetComplainsData() {
-	Login();
-	$.post( CHAT_URL + 'gate.php', { task: 'GetComplainsList', token: userInfo.token }, function( data ) {
-		data = $.parseJSON( data );
-		if( data.error == '' ) {
-			complainsList = data.complainsList;
-		}
-		else {
-			show_error( data.error );
-		}
-	});
-}
-
-function GetComplainsList() {
-	if ( complainsList.length == 0 ) {
-		$.ajaxSetup( {
-			ifModified: true,
-			statusCode: {
-				404: function() {
-					GetComplainsData();
-				}
-			}
-		});
-		
-		$.getJSON( CHAT_COMPLAINS_FOR_BANS_URL, function( jsonData ){
-			complainsList = jsonData.complainsList;
-		});
-	}
-}
 
 function GetReasonById( reasonId ) {
 	reasonId = parseInt( reasonId );
@@ -181,10 +115,7 @@ function ShowHistory( historyData ) {
 }
 
 function IsModerator(){
-	uid = $.cookie( 'drupal_uid' );
-	var moderatorsCount = moderatorsDetails.length;
-	
-	if ( uid == undefined || moderatorsCount == 0 || moderatorsDetails[ uid ] == undefined ) {
+	if ( uid == undefined || moderatorsDetails[ uid ] == undefined ) {
 		return false;
 	}
 	
@@ -364,7 +295,10 @@ function RequestHistory() {
 	nick = PrepareNick( nick );
 	bannedNick = PrepareNick( bannedNick );
 	
-	$.ajaxSetup( {ifModified: true} );
+	$.ajaxSetup({
+		ifModified: true,
+		cache: true
+	});
 	
 	historyCache = CHAT_HISTORY_URL;
 	
@@ -390,7 +324,6 @@ function RequestHistory() {
 		historyCache = historyCache.replace( /[\s]+/g, '_' );
 		
 		$.ajaxSetup( {
-			ifModified: true,
 			statusCode: {
 				404: function() {
 					GetHistoryData( channelId, startDate, endDate, nick, bannedNick );
@@ -474,28 +407,7 @@ $( document ).ready( function() {
 		});
 		
 		AddChannels();
-		
-		GetModeratorsDetails();
-		
-		// чтобы после запроса данных по модераторам GetModeratorsData не вызывалась после 404 ошибки
-		// TODO надо это по феншую пофиксить, а не пустым колбэком
-		$.ajaxSetup( {
-			ifModified: true,
-			statusCode: {
-				404: function() {}
-			}
-		});
-		
-		GetComplainsList();
-		
-		// чтобы после запроса данных по модераторам GetComplainsData не вызывалась после 404 ошибки
-		// TODO надо это по феншую пофиксить, а не пустым колбэком
-		$.ajaxSetup( {
-			ifModified: true,
-			statusCode: {
-				404: function() {}
-			}
-		});
+		uid = $.cookie( 'drupal_uid' );
 		
 		RequestHistory();
 		
@@ -507,17 +419,17 @@ $( document ).ready( function() {
 });
 
 function CancelBan(){
-	unBanReason =  $( '#reason' ).attr( 'value' );
-	banModerator = $( '#banModerator' ).attr('checked');
+	unBanReason =  $( '#reason' ).val();
+	banModerator = $( '#banModerator' ).is(':checked');
 	
-	if ( banModerator == 'checked' ) {
+	if ( banModerator === true ) {
 		banModerator = 1;
 	}
 	else {
 		banModerator = 0;
 	}
 	
-	moderatorBanTime = $( '#moderatorBanTime').attr( 'value' );
+	moderatorBanTime = $( '#moderatorBanTime').val();
 	banKey = banKey.replace( 'cancel-ban-', '' );
 	
 	Login();
@@ -531,7 +443,7 @@ function CancelBan(){
 			cancelBanButton.remove();
 		}
 		else {
-			alert( data.result );
+			console.log( data.result );
 		}
 	});
 	
@@ -540,8 +452,8 @@ function CancelBan(){
 }
 
 function EditBan(){
-	editBanReason =  $( '#reason' ).attr( 'value' );
-	newBanTime = $( '#newBanTime').attr( 'value' );
+	editBanReason =  $( '#reason' ).val();
+	newBanTime = $( '#newBanTime').val();
 	banKey = banKey.replace( 'edit-ban-', '' );
 	Login();
 	
@@ -560,7 +472,7 @@ function EditBan(){
 }
 
 function ComplainBan(){
-	complainBanReason =  $( '#reason' ).attr( 'value' );
+	complainBanReason =  $( '#reason' ).val();
 	banKey = banKey.replace( 'complain-ban-', '' );
 	Login();
 	

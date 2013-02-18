@@ -17,6 +17,7 @@
 */15 * * * * chatuser cd public_html && /usr/bin/php -f /path/to/chat.sc2tv.ru/public_html/cron_dump_channels_history.php  
 
 
-# clear list of moderators
-* * 1 * * chatuser rm -rf /path/to/chat.sc2tv.ru/public_html/memfs/moderatorsDetails*  
-
+# dump list of moderators
+0 * * * * chatuser cd public_html && /usr/bin/php -f /path/to/chat.sc2tv.ru/public_html/cron_dump_moderators_details.php
+# reset every month
+0 0 1 * * chatuser cd public_html && /usr/bin/php -f /path/to/chat.sc2tv.ru/public_html/cron_clear_moderators_details.php

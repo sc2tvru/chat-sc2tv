@@ -698,6 +698,7 @@ function getmenu( nick, mid, uid, channelId ) {
 	user_name = $( nick ).html();
 	
 	if ( uid == '-1' || userInfo.type == 'bannedInChat' || userInfo.type == 'bannedOnSite' ) {
+		$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick="IgnoreUnignore(user_name, ' + uid + ');">Ignore\Unignore</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
 		return false;
 	}
 	
@@ -907,7 +908,8 @@ function IsStringCapsOrAbuse( str ) {
 	tempStr = tempStr.replace( /:s:[^:]+:/gi, '' );
 	
 	// общее кол-во букв независимо от регистра
-	regexp = /[a-z\u0400-\u045F\u0490\u0491\u0207\u0239]/gi;
+	// fix for Opera, [a-z\u0400-\u045F\u0490\u0491\u0207\u0239] doensn't work
+	regexp = /[a-z]|[\u0400-\u045F\u0490\u0491\u0207\u0239]/gi;
 	letters = tempStr.match( regexp );
 	
 	if ( letters == null ) {
@@ -925,6 +927,14 @@ function IsStringCapsOrAbuse( str ) {
 	}
 	
 	if( caps != '' && caps.length >= 5 && caps.length > ( len / 2 ) ) {
+		if ( 'console' in window ) {
+			console.log( 'caps detect' );
+			console.log( 'tempStr: ' + tempStr );
+			console.log( 'letters: ' + letters );
+			console.log( 'caps=' + caps );
+			console.log( 'len = ' + len );
+			console.log( 'caps.length = ' + caps.length + ' > ' + len/2 );
+		}
 		return true;
 	}
 	else {
@@ -934,7 +944,7 @@ function IsStringCapsOrAbuse( str ) {
 
 function CheckForAutoBan( str ) {
 	// 3 смайла
-	regexp = /(:s.*:.*){3,}/g;
+	regexp = /(?::s:[^:]+:.*){3,}/gi;
 	stringWithThreeSmiles = str.match( regexp );
 	
 	if ( stringWithThreeSmiles == null ) {
