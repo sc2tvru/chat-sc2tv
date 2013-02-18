@@ -943,7 +943,7 @@ function IsStringCapsOrAbuse( str ) {
 
 function CheckForAutoBan( str ) {
 	// 3 смайла
-	regexp = /(:s.*:.*){3,}/g;
+	regexp = /(?::s:[^:]+:.*){3,}/gi;
 	stringWithThreeSmiles = str.match( regexp );
 	
 	if ( stringWithThreeSmiles == null ) {

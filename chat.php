@@ -537,7 +537,7 @@ class Chat {
 	private function CheckForAutoBan( $message ) {
 		// 3 смайла
 		if( preg_match( '/(?::s:[^:]+:.*){3,}/usi', $message ) ) {
-			$this->BanUser( $this->user[ 'uid' ], $this->user[ 'name' ], 259200, 0, 0,
+			$this->BanUser( $this->user[ 'uid' ], $this->user[ 'name' ], 4320, 0, 0,
 				CHAT_AUTOBAN_REASON_1, true );
 			return true;
 		}
