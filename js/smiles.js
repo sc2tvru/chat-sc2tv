@@ -108,5 +108,10 @@ var smiles = [
 	{code: ':sex:', img: 'sex.png?1', width: '30', height: '30'},
 	{code: ':mimo:', img: 'mimo.png?1', width: '23', height: '33'},
   {code: ':fire:', img: 'fire.png?1', width: '30', height: '30'},
-  {code: ':mandarin:', img: 'mandarin.png?1', width: '30', height: '30'}
+  {code: ':mandarin:', img: 'mandarin.png?1', width: '30', height: '30'},
+  {code: ':grafon:', img: 'grafon.png?1', width: '23', height: '30'},
+  {code: ':epeka:', img: 'epeka.png?1', width: '30', height: '30'},
+  {code: ':opeka:', img: 'opeka.png?1', width: '30', height: '30'},
+  {code: ':ocry:', img: 'ocry.png?1', width: '30', height: '30'},
+  {code: ':neponi:', img: 'neponi.png?1', width: '30', height: '30'}
 ];
