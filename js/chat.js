@@ -697,12 +697,19 @@ function otvet(nick){
 function getmenu( nick, mid, uid, channelId ) {
 	user_name = $( nick ).html();
 	
-	if ( uid == '-1' || userInfo.type == 'bannedInChat' || userInfo.type == 'bannedOnSite' ) {
+	// do not show menu for system messages
+	if ( uid == '-1' ) {
 		return false;
 	}
 	
 	$( '.menushka' ).remove();
 	
+	// for banned users show only ignore/unignore
+	if ( userInfo.type == 'bannedInChat' || userInfo.type == 'bannedOnSite' ) {
+		$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick="IgnoreUnignore(user_name, ' + uid + ');">Ignore\Unignore</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
+		return false;
+	}
+		
 	rid = parseInt( userInfo.rid );
 	
 	switch( rid ) {
