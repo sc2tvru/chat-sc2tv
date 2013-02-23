@@ -731,13 +731,10 @@ function getmenu( nick, mid, uid, channelId ) {
 			if (nick_position < menuHeight) {
 				//menuHtml = menuHtml.concat(itemReply, itemSendPm, itemShowBanMenu, itemIgnore, itemCloseButton);
 				$( 'body' ).append( '<ul class="menushka" style="display:block;"><li style="padding:5px 2px;" onclick=otvet(user_name)>Ответить</li><li><a href="' + SC2TV_URL + '/messages/new/' + uid + '" target="_blank" onclick="$(\'.menushka\').remove();">Послать ЛС</a></li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><li onclick="IgnoreUnignore(user_name, ' + uid + ' );">Ignore\Unignore</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
+				$('.menushka').css('top', nick_position + 6); // constant for better position
 			} else {
 				//menuHtml = menuHtml.concat(itemIgnore, itemShowBanMenu, itemSendPm, itemReply, itemCloseButton);
 				$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick="IgnoreUnignore(user_name, ' + uid + ' );">Ignore\Unignore</li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><li><a href="' + SC2TV_URL + '/messages/new/' + uid + '" target="_blank" onclick="$(\'.menushka\').remove();">Послать ЛС</a></li><li style="padding:5px 2px;" onclick=otvet(user_name)>Ответить</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
-			}
-			if (nick_position < menuHeight) {
-				$('.menushka').css('top', nick_position + 6); // constant for better position
-			} else {
 				$('.menushka').css('top', nick_position - menuHeight);
 			}
 		break;
