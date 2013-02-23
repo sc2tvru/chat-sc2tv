@@ -695,7 +695,9 @@ function otvet(nick){
 }
 
 function getmenu( nick, mid, uid, channelId ) {
-	user_name = $( nick ).html();
+	selectedNick = $( nick );
+	user_name = selectedNick.html();
+	nick_position = selectedNick.position().top;
 	
 	// do not show menu for system messages
 	if ( uid == '-1' ) {
@@ -725,7 +727,19 @@ function getmenu( nick, mid, uid, channelId ) {
 		case 10:
 		// real стример
 		case 14:
-			$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick=otvet(user_name)>Ответить</li><li><a href="' + SC2TV_URL + '/messages/new/' + uid + '" target="_blank" onclick="$(\'.menushka\').remove();">Послать ЛС</a></li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><li onclick="IgnoreUnignore(user_name, ' + uid + ');">Ignore\Unignore</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
+			menuHeight = 98;
+			if (nick_position < menuHeight) {
+				//menuHtml = menuHtml.concat(itemReply, itemSendPm, itemShowBanMenu, itemIgnore, itemCloseButton);
+				$( 'body' ).append( '<ul class="menushka" style="display:block;"><li style="padding:5px 2px;" onclick=otvet(user_name)>Ответить</li><li><a href="' + SC2TV_URL + '/messages/new/' + uid + '" target="_blank" onclick="$(\'.menushka\').remove();">Послать ЛС</a></li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><li onclick="IgnoreUnignore(user_name, ' + uid + ' );">Ignore\Unignore</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
+			} else {
+				//menuHtml = menuHtml.concat(itemIgnore, itemShowBanMenu, itemSendPm, itemReply, itemCloseButton);
+				$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick="IgnoreUnignore(user_name, ' + uid + ' );">Ignore\Unignore</li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><li><a href="' + SC2TV_URL + '/messages/new/' + uid + '" target="_blank" onclick="$(\'.menushka\').remove();">Послать ЛС</a></li><li style="padding:5px 2px;" onclick=otvet(user_name)>Ответить</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
+			}
+			if (nick_position < menuHeight) {
+				$('.menushka').css('top', nick_position + 6); // constant for better position
+			} else {
+				$('.menushka').css('top', nick_position - menuHeight);
+			}
 		break;
 		
 		// root
