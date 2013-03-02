@@ -15,7 +15,7 @@ function DumpModeratorsDetails() {
 	global $memcache;
 	//$memcache->Delete( MODERATORS_DETAILS_MEMCACHE_KEY );
 	$moderatorsDetails = $memcache->Get( MODERATORS_DETAILS_MEMCACHE_KEY );
-	
+	SaveForDebug( 'cron dump moder details debug, get from memcache: ' . var_export( $moderatorsDetails, true ) );
 	// данных в memcache нет
 	if ( $moderatorsDetails === FALSE ) {
 		if ( CURRENT_TIME - filemtime( CHAT_MODERATORS_DETAILS ) < 86400 ) {
@@ -47,7 +47,7 @@ function DumpModeratorsDetails() {
 	
 	$memcache->Set( MODERATORS_DETAILS_MEMCACHE_KEY, $moderatorsDetails,
 		CHAT_MODERATORS_DETAILS_TTL );
-	
+	SaveForDebug( 'send to memcache: ' . var_export( $moderatorsDetails, true ) );
 	$dataJS = 'var moderatorsDetails = ' . json_encode( $moderatorsDetails );
 	file_put_contents( CHAT_MODERATORS_DETAILS, $dataJS );
 }

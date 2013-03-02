@@ -14,8 +14,17 @@ function ChatErrorHandler( $errno = '', $errstr = '', $errfile = '', $errline = 
 	if ( flock( $logFile, LOCK_EX | LOCK_NB ) ) {
 		$serverInfo = var_export( $_SERVER, true );
 		
-		$out = date( 'd M H:i:s', CURRENT_TIME ).' - ip '.$_SERVER[ 'REMOTE_ADDR' ]
-			.' - ref '.$_SERVER[ 'HTTP_REFERER' ]."\n $errfile, line $errline, code $errno, $errstr\n\n$serverInfo\n\n";
+		$out = date( 'd M H:i:s', CURRENT_TIME );
+		
+		if ( isset( $_SERVER[ 'REMOTE_ADDR' ] ) ) {
+			$out .= ' - ip ' . $_SERVER[ 'REMOTE_ADDR' ];
+			
+			if ( isset( $_SERVER[ 'HTTP_REFERER' ] ) ) {
+				$out .= ' - ref '. $_SERVER[ 'HTTP_REFERER' ];
+			}
+		}
+		
+		$out .= "\n $errfile, line $errline, code $errno, $errstr\n\n$serverInfo\n\n";
 		
 		if ( count( $_POST ) ) {
 			$out .= var_export( $_POST, true ) . "\n";
@@ -60,17 +69,27 @@ function ChatErrorHandler( $errno = '', $errstr = '', $errfile = '', $errline = 
 }
 
 
-function SaveForDebug( $str ) {
+function SaveForDebug( $debugStr ) {
 	$logFile = fopen( DEBUG_FILE, 'a' );
 	
 	if ( flock( $logFile, LOCK_EX | LOCK_NB ) ) {
 		$serverInfo = var_export( $_SERVER, true );
 		
-		$str = date( 'd M H:i:s', CURRENT_TIME )
-			. ' - '. $_SERVER[ 'REMOTE_ADDR' ]
-			. ' - ' . $_SERVER[ 'HTTP_USER_AGENT' ]
-			. ' - ref '. $_SERVER[ 'HTTP_REFERER' ]
-			. "\n, debug: $str\n\n$serverInfo\n\n";
+		$str = date( 'd M H:i:s', CURRENT_TIME );
+		
+		if ( isset( $_SERVER[ 'REMOTE_ADDR' ] ) ) {
+			$str .= ' - ip ' . $_SERVER[ 'REMOTE_ADDR' ];
+			
+			if ( isset( $_SERVER[ 'HTTP_REFERER' ] ) ) {
+				$str .= ' - ref '. $_SERVER[ 'HTTP_REFERER' ];
+			}
+			
+			if ( isset( $_SERVER[ 'HTTP_USER_AGENT' ] ) ) {
+				$str .= ' - ua ' . $_SERVER[ 'HTTP_USER_AGENT' ];
+			}
+		}
+		
+		$str .= "\ndebug: $debugStr\n\n$serverInfo\n\n";
 		
 		if ( count( $_POST ) ) {
 			$str .= "\n" . var_export( $_POST, true ). "\n";
