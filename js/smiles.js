@@ -116,5 +116,5 @@ var smiles = [
   {code: ':neponi:', img: 'neponi.png?1', width: '30', height: '30'},
   {code: ':moon:', img: 'moon.png?1', width: '23', height: '30'},
   {code: ':gay:', img: 'gay.png?1', width: '30', height: '30'},
-  {code: ':omsk:', img: 'omsk.png?1', width: '30', height: '30'}
+  {code: ':omsk:', img: 'omsk.png?2', width: '30', height: '30'}
 ];
