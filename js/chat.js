@@ -407,6 +407,14 @@ function GetSpecColor( uid ) {
         case '41386':
             color = '#7797BE';
         break;
+        case '7787':// Unstable.
+        case '60490':// Twilight_Sparkle
+        case '108457':// abilisk
+        case '84873':// abilisk
+        case '14929':// [7x]Atlant
+        case '102924':// Hyperon
+            color = '#C9D5E5';
+        break;
 		default:
 			color = '';
 	}
