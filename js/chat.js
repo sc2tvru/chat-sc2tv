@@ -680,7 +680,7 @@ function VoteForUserBan( uid, user_name, mid, reasonId ) {
 	$('.menushka').fadeOut( 10000 );
 }
 
-function ShowBanMenuForCitizen( uid, user_name, mid ) {
+function BanMenuForCitizen( uid, user_name, mid ) {
 	currentMenushaTop = $('.menushka').css( 'top' );
 	$('.menushka').css( 'top', 95 );
 	$('.menushka').html( '<li class="citizen-li" id="citizenBanReasonId-1">Мат</li><li class="citizen-li" id="citizenBanReasonId-5">Серьезные оскорбления</li><li class="citizen-li" id="citizenBanReasonId-6">Национализм, нацизм</li><li class="citizen-li" id="citizenBanReasonId-12">Вредные ссылки</li><li class="citizen-li" id="citizenBanReasonId-2">Завуалированный мат</li><li class="citizen-li" id="citizenBanReasonId-3">Спам грубыми словами</li><li class="citizen-li" id="citizenBanReasonId-4">Легкие оскорбления</li><li class="citizen-li" id="citizenBanReasonId-7">Реклама</li><li class="citizen-li" id="citizenBanReasonId-8">Спам</li><li class="citizen-li" id="citizenBanReasonId-9">Клевета</li><li class="citizen-li" id="citizenBanReasonId-10">Негативный троллинг</li><li class="citizen-li" id="citizenBanReasonId-11">Транслит, удаффщина, капсы</li><li class="citizen-li" id="citizenBanReasonId-13">Вредные флэшмобы</li><li class="citizen-li" id="citizenBanReasonId-14">Спойлер</li><span class="menushka_close">X</span>');
@@ -714,7 +714,7 @@ function getmenu( nick, mid, uid, channelId ) {
 	
 	// for banned users show only ignore/unignore
 	if ( userInfo.type == 'bannedInChat' || userInfo.type == 'bannedOnSite' ) {
-		$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick="IgnoreUnignore(user_name, ' + uid + ');">Ignore\Unignore</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
+		$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick="IgnoreUnignore(user_name, ' + uid + ');">Игнорировать/Разблокировать</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
 		return false;
 	}
 		
