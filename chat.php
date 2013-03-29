@@ -783,7 +783,12 @@ class Chat {
 		if ( $this->user[ 'type' ] === 'chatAdmin' ) {
 			$moderatorsDetails = $this->memcache->Get( MODERATORS_DETAILS_MEMCACHE_KEY );
 			
-			if ( $moderatorsDetails != false ) {
+			// попытка считать статистику из файла, если ее нет в memcache
+			if ( $moderatorsDetails === FALSE ) {
+				$moderatorsDetails = GetModeratorDetailsFromFile();
+			}
+			
+			if ( $moderatorsDetails !== FALSE ) {
 				if ( isset( $moderatorsDetails[ $moderatorId ] ) ) {
 					// TODO += ?
 					if ( isset( $moderatorsDetails[ $moderatorId ][ 'bansCount' ] ) ) {

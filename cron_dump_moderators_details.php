@@ -16,12 +16,13 @@ function DumpModeratorsDetails() {
 	//$memcache->Delete( MODERATORS_DETAILS_MEMCACHE_KEY );
 	$moderatorsDetails = $memcache->Get( MODERATORS_DETAILS_MEMCACHE_KEY );
 	SaveForDebug( 'cron dump moder details debug, get from memcache: ' . var_export( $moderatorsDetails, true ) );
-	// данных в memcache нет
+	
+	// попытка считать статистику из файла, если ее нет в memcache
 	if ( $moderatorsDetails === FALSE ) {
-		if ( CURRENT_TIME - filemtime( CHAT_MODERATORS_DETAILS ) < 86400 ) {
-			return;
-		}
-		
+		$moderatorsDetails = GetModeratorDetailsFromFile();
+	}
+	
+	if ( $moderatorsDetails === FALSE ) {
 		//получаем из базы
 		$queryString = '
 			SELECT users.uid, name

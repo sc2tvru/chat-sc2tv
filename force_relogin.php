@@ -4,6 +4,20 @@ exit;
 require_once 'core.php';
 require_once 'utils.php';
 
+global $memcache;
+$moderatorsDetails = $memcache->Get( MODERATORS_DETAILS_MEMCACHE_KEY );
+var_dump( $moderatorsDetails );
+exit;
+$memcache->Delete( MODERATORS_DETAILS_MEMCACHE_KEY );
+
+$moderatorsDetails = $memcache->Get( MODERATORS_DETAILS_MEMCACHE_KEY );
+var_dump( $moderatorsDetails );
+
+$moderatorsDetails = $memcache->Get( MODERATORS_DETAILS_MEMCACHE_KEY );
+
+var_dump( GetModeratorDetailsFromFile() );
+
+exit;
 if( empty( $_COOKIE[ DRUPAL_SESSION ] ) || preg_match( '/[^a-z\d]+/i', $_COOKIE[ DRUPAL_SESSION ] ) ) {
 	exit;
 }

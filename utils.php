@@ -131,4 +131,28 @@ function GenerateSalt( $length = 3 ) {
 	
 	return $salt;
 }
+
+/**
+ * загрузка статистики по модераторам из файла
+ * нужна, когда значение в memcache больше недоступно
+ */
+function GetModeratorDetailsFromFile() {
+	SaveForDebug( 'read moderatorsDetails from file' );
+	
+	if ( !file_exists( CHAT_MODERATORS_DETAILS ) ) {
+		return FALSE;
+	}
+	
+	$fileData = file_get_contents( CHAT_MODERATORS_DETAILS );
+	// смещение 24 - js часть 'var moderatorsDetails = ' не нужна
+	$jsonData = json_decode( mb_substr( $fileData, 24 ), true );
+	
+	if ( json_last_error() !== JSON_ERROR_NONE ) {
+		return FALSE;
+	}
+	
+	SaveForDebug( 'read moderatorsDetails from file - success' );
+	
+	return $jsonData;
+}
 ?>

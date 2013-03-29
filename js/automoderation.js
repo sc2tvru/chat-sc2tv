@@ -42,7 +42,7 @@ function GetReasonById( reasonId ) {
 		break;
 		
 		case 3:
-			reason = 'Спам грубыми словами';
+			reason = 'Угрозы жизни и здоровью';
 		break;
 		
 		case 4:

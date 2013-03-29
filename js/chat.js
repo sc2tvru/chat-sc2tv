@@ -44,11 +44,11 @@ divForFullScreen = '<div id="full-screen-place">.</div>';
 
 form_chat = '<div id="chat-form"><form id="chat-form-id" method="post" action=""><input maxlength="1024" type="text" name="chat-text" class="chat-text"/></form>' + chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + smiles_btn + ' ' + chat_rules_link + ' ' + chat_history_link + ' ' + chat_ban_history_link + smile_panel + '</div>';
 
-form_anon = '<div id="chat-form">' + divForFullScreen + chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + chat_history_link + ' <span>В чате могут писать только зарегистрированные пользователи.</span></div>';
+form_anon = '<div id="chat-form">' + divForFullScreen + chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + chat_history_link + ' <span>В чате могут писать только <a href="//sc2tv.ru/user/register" target="_top">зарегистрированные</a> пользователи.</span></div>';
  
 form_banned = '<div id="chat-form">' + divForFullScreen + chat_vkl_btn + ' ' + img_btn + ' ' + chat_history_link + ' ' + chat_rules_link +  ' <span>Вы были забанены. </span> <a href="/automoderation_history.htm" target="_blank">Причина</a></div>';
 
-form_newbie = '<div id="chat-form">' + divForFullScreen + chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + chat_history_link + ' <span>Вы зарегистрированы менее трех дней назад.</span></div>';
+form_newbie = '<div id="chat-form">' + divForFullScreen + chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + chat_history_link + ' <span>Вы зарегистрированы менее суток назад.</span></div>';
 
 tpl_chat_stopped = "<div id='chat_closed'><div>Чатик остановлен!</div><div>Остановил: [stopper].</div><div>Остановлено до: [min]</div><div>Причина: [reason].</div></div>";
 var chat_channel_id = 0;
@@ -683,7 +683,7 @@ function VoteForUserBan( uid, user_name, mid, reasonId ) {
 function ShowBanMenuForCitizen( uid, user_name, mid ) {
 	currentMenushaTop = $('.menushka').css( 'top' );
 	$('.menushka').css( 'top', 95 );
-	$('.menushka').html( '<li class="citizen-li" id="citizenBanReasonId-1">Мат</li><li class="citizen-li" id="citizenBanReasonId-5">Серьезные оскорбления</li><li class="citizen-li" id="citizenBanReasonId-6">Национализм, нацизм</li><li class="citizen-li" id="citizenBanReasonId-12">Вредные ссылки</li><li class="citizen-li" id="citizenBanReasonId-2">Завуалированный мат</li><li class="citizen-li" id="citizenBanReasonId-3">Спам грубыми словами</li><li class="citizen-li" id="citizenBanReasonId-4">Легкие оскорбления</li><li class="citizen-li" id="citizenBanReasonId-7">Реклама</li><li class="citizen-li" id="citizenBanReasonId-8">Спам</li><li class="citizen-li" id="citizenBanReasonId-9">Клевета</li><li class="citizen-li" id="citizenBanReasonId-10">Негативный троллинг</li><li class="citizen-li" id="citizenBanReasonId-11">Транслит, удаффщина, капсы</li><li class="citizen-li" id="citizenBanReasonId-13">Вредные флэшмобы</li><li class="citizen-li" id="citizenBanReasonId-14">Спойлер</li><span class="menushka_close">X</span>');
+	$('.menushka').html( '<li class="citizen-li" id="citizenBanReasonId-1">Мат</li><li class="citizen-li" id="citizenBanReasonId-5">Серьезные оскорбления</li><li class="citizen-li" id="citizenBanReasonId-6">Национализм, нацизм</li><li class="citizen-li" id="citizenBanReasonId-12">Вредные ссылки</li><li class="citizen-li" id="citizenBanReasonId-2">Завуалированный мат</li><li class="citizen-li" id="citizenBanReasonId-3">Угрозы жизни и здоровью</li><li class="citizen-li" id="citizenBanReasonId-4">Легкие оскорбления</li><li class="citizen-li" id="citizenBanReasonId-7">Реклама</li><li class="citizen-li" id="citizenBanReasonId-8">Спам</li><li class="citizen-li" id="citizenBanReasonId-9">Клевета</li><li class="citizen-li" id="citizenBanReasonId-10">Негативный троллинг</li><li class="citizen-li" id="citizenBanReasonId-11">Транслит, удаффщина, капсы</li><li class="citizen-li" id="citizenBanReasonId-13">Вредные флэшмобы</li><li class="citizen-li" id="citizenBanReasonId-14">Спойлер</li><span class="menushka_close">X</span>');
 	
 	$( '.citizen-li' ).bind('click', function(){
 		reasonId = $(this).attr( 'id' );
