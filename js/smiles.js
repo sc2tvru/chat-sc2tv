@@ -25,7 +25,8 @@ var smiles = [
   {code: ':ra:', img: 'ra.png?1', width: '31', height: '34'},
   {code: ':fp:', img: 'facepalm.png?1', width: '30', height: '30'},
   {code: ':neo:', img: 'smith.png?1', width: '30', height: '30'},
-  {code: ':peka:', img: 'mini-happy.png?3', width: '30', height: '30'},
+  //{code: ':peka:', img: 'mini-happy.png?3', width: '30', height: '30'},
+	{code: ':peka:', img: 'grumpy.png?1', width: '35', height: '35'},
   {code: ':trf:', img: 'trollface.png?2', width: '31', height: '25'},
   {code: ':fu:', img: 'fuuuu.png?3', width: '28', height: '30'},
   {code: ':why:', img: 'why.png?1', width: '34', height: '30'},
@@ -105,6 +106,7 @@ var smiles = [
 	{code: ':asuka:', img: 'asuka.png?1', width: '25', height: '30'},
 	{code: ':konata:', img: 'konata.png?1', width: '30', height: '30'},
 	{code: ':reimu:', img: 'reimu.png?1', width: '30', height: '30'},
+	// other
 	{code: ':sex:', img: 'sex.png?1', width: '30', height: '30'},
 	{code: ':mimo:', img: 'mimo.png?1', width: '23', height: '33'},
   {code: ':fire:', img: 'fire.png?1', width: '30', height: '30'},
@@ -116,5 +118,6 @@ var smiles = [
   {code: ':neponi:', img: 'neponi.png?1', width: '30', height: '30'},
   {code: ':moon:', img: 'moon.png?1', width: '23', height: '30'},
   {code: ':ghost:', img: 'gay.png?1', width: '30', height: '30'},
-  {code: ':omsk:', img: 'omsk.png?2', width: '30', height: '30'}
+  {code: ':omsk:', img: 'omsk.png?2', width: '30', height: '30'},
+	//{code: ':grumpy:', img: 'grumpy.png?1', width: '35', height: '35'}
 ];
