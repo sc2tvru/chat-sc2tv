@@ -778,13 +778,7 @@ function BuildHtml( messageList ) {
 				color = GetSpecColor( messageList[ i ].uid );
 				// если не блат, то цвет по классу группы
 				if ( color == '' ) {
-					// 1 апреля
-					if ( userInfo.uid == messageList[ i ].uid ) {
-						nicknameClass += ' user-4';
-					}
-					else {
-						nicknameClass += ' user-' + messageList[ i ].rid;
-					}
+					nicknameClass += ' user-' + messageList[ i ].rid;
 				}
 				else {
 					customColorStyle = ' style="color:' + color + ';"';
