@@ -13,7 +13,6 @@ var CHAT_URL =  'http://chat.sc2tv.ru/';
 var CHAT_IMG_DIR = '/img/';
 var chatTimerId = 0;
 var channelList = [];
-var screen2 = 0;
 var userInfo = [];
 var moderatorData = '';
 var moderatorMessageList = [];
@@ -22,9 +21,9 @@ var prevModeratorMessageList = [];
 var smilesCount = smiles.length;
 smileHtml = '<div id="smile-panel-tab-1">';
 smilePanelTabsHtml = '<span id="smile-panel-pager-1">[ 1 ]</span>';
-for( i=0,t=2; i < smilesCount; i++) {
+for( i=0,t=2; i < smilesCount; i++ ) {
 	smileHtml += '<img src="' + CHAT_IMG_DIR + smiles[i].img +'" title="' + smiles[i].code +'" width="' + smiles[i].width + '" height="' + smiles[i].height+ '"class="chat-smile" alt="' + smiles[i].code + '"/>';
-	if ( i > 0 && i % 37 == 0 ) {
+	if ( i > 0 && i % 37 == 0 && i < ( smilesCount - 1 ) ) {
 		smileHtml += '</div><div id="smile-panel-tab-' + t + '">';
 		smilePanelTabsHtml += '<span id="smile-panel-pager-' + t + '">[ ' + t + ' ]</span>';
 		t++;
