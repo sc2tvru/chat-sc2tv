@@ -37,17 +37,11 @@ class AutoModeration {
 	 * @return boolean
 	 */
 	public function IsCitizen() {
-		$userInfo = $this->user;
-		$uid = $userInfo[ 'uid' ];
-		$isCitizenMemcachekey = 'AM_isCitizen_' . $uid;
-		$isCitizen = $this->memcache->Get( $isCitizenMemcachekey );
-		
-		if ( $isCitizen === '1' ) {
-			//echo 'гражданин по memcache ;)';
-			return true;
+		if ( isset( $this->user[ 'isCitizen' ] ) ) {
+			return $this->user[ 'isCitizen' ];
 		}
 		
-		//echo 'определение гражданин или нет';
+		$chatAuthMemcacheKey = 'ChatUserInfo_' . $_COOKIE[ DRUPAL_SESSION ];
 		
 		// время после регистрации
 		$timeOnSiteAfterReg = CITIZEN_DAYS_ON_SITE_AFTER_REG * 86400;
@@ -56,18 +50,22 @@ class AutoModeration {
 		$timeBeforeNowWithoutInfractions = CITIZEN_DAYS_BEFORE_WITHOUT_INFRACTIONS * 86400;
 		
 		// если с момента регистрации прошло недостаточно времени
-		if ( ( CURRENT_TIME - $userInfo[ 'created' ] < $timeOnSiteAfterReg ) ||
+		if ( ( CURRENT_TIME - $this->user[ 'created' ] < $timeOnSiteAfterReg ) ||
 			// или есть бан(ы) в чате, но он(и) недопустимы для получения статуса гражданина
-			$this->IsUserBanAllowedForCitizen( $userInfo, $timeBeforeNowWithoutInfractions ) === false ) {
-			$this->memcache->Set( $isCitizenMemcachekey, false, CITIZEN_STATUS_TTL );
-			return false;
+			$this->IsUserBanAllowedForCitizen( $this->user, $timeBeforeNowWithoutInfractions ) === false ) {
+			
+			$this->user[ 'isCitizen' ] = FALSE;
+			$this->user[ 'noCitizenReason' ] = 'с момента регистрации прошло недостаточно времени или есть бан(ы) в чате, но он(и) недопустимы для получения статуса гражданина';
+			$this->memcache->Set( $chatAuthMemcacheKey, $this->user, CHAT_USER_AUTHORIZATION_TTL );
+			
+			return FALSE;
 		}
 		
 		// на форуме
 		$queryString = '
 			SELECT SUM(points) as infractionTotalCount
 			FROM forum_infraction
-			WHERE userid = "' . $uid . '"
+			WHERE userid = "' . $this->user[ 'uid' ] . '"
 			AND action = 0
 			AND points >= 1
 			AND dateline > ' .( CURRENT_TIME - $timeBeforeNowWithoutInfractions );
@@ -85,8 +83,12 @@ class AutoModeration {
 			$infractionTotalCount = $userData[ 'infractionTotalCount' ];
 				
 			if( $infractionTotalCount > 1 ) {
-				$this->memcache->Set( $isCitizenMemcachekey, false, CITIZEN_STATUS_TTL );
-				return false;
+				$this->user[ 'isCitizen' ] = FALSE;
+				$this->user[ 'noCitizenReason' ] = 'количество нарушений на форуме за последние ' . CITIZEN_DAYS_BEFORE_WITHOUT_INFRACTIONS
+					.' дней с числом баллов больше одного (' . $infractionTotalCount .') превышает допустимое (1)';
+				$this->memcache->Set( $chatAuthMemcacheKey, $this->user, CHAT_USER_AUTHORIZATION_TTL );
+				
+				return FALSE;
 			}
 		}
 		
@@ -120,7 +122,7 @@ class AutoModeration {
 		// число сообщений в чате
 		
 		// делаем через memcache, чтобы лишний раз не делать COUNT из базы
-		$chatMessagesCountMemcacheKey = 'AM_uid_'. $uid .'_chatMsgCount';
+		$chatMessagesCountMemcacheKey = 'AM_uid_'. $this->user[ 'uid' ] .'_chatMsgCount';
 		$chatMessagesCount = $this->memcache->Get( $chatMessagesCountMemcacheKey );
 		
 		// кол-во сообщений неизвестно, делаем запрос в базу
@@ -128,7 +130,7 @@ class AutoModeration {
 			$queryString = '
 				SELECT COUNT(id) as chatMessagesCount
 				FROM chat_message
-				WHERE uid = "' . $uid . '"';
+				WHERE uid = "' . $this->user[ 'uid' ] . '"';
 			
 			$queryResult = $this->db->Query( $queryString );
 			
@@ -146,12 +148,16 @@ class AutoModeration {
 		}
 		
 		if( $chatMessagesCount < CITIZEN_CHAT_POSTS_COUNT ) {
-			$this->memcache->Set( $isCitizenMemcachekey, false, CITIZEN_STATUS_TTL );
-			return false;
+			$this->user[ 'isCitizen' ] = FALSE;
+			$this->user[ 'noCitizenReason' ] = 'количество сообщений в чате (' . $chatMessagesCount .') меньше необходимого (' . CITIZEN_CHAT_POSTS_COUNT . ')';
+			$this->memcache->Set( $chatAuthMemcacheKey, $this->user, CHAT_USER_AUTHORIZATION_TTL );
+			
+			return FALSE;
 		}
 		
-		$this->memcache->Set( $isCitizenMemcachekey, true, CITIZEN_STATUS_TTL );
-		return true;
+		$this->user[ 'isCitizen' ] = TRUE;
+		$this->memcache->Set( $chatAuthMemcacheKey, $this->user, CHAT_USER_AUTHORIZATION_TTL );
+		return TRUE;
 	}
 	
 	
@@ -223,7 +229,7 @@ class AutoModeration {
 		if ( $this->IsCitizen() == false ) {
 			$result = array(
 				'code' => 0,
-				'result' => 'Вы не гражданин, поэтому не можете голосовать.'
+				'result' => 'Вы не гражданин, поэтому не можете голосовать.<br/>Причина: '. $this->user[ 'noCitizenReason' ]
 			);
 			return $result;
 		}

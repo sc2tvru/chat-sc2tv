@@ -1,6 +1,7 @@
 <?
 class Chat {
-	private $user, $channelId, $memcache, $db;
+	public $user;
+	private $channelId, $memcache, $db;
     
 	function __construct( $memcacheObject ) {
 		
@@ -9,7 +10,7 @@ class Chat {
 			'uid' => 0,
 			'type' => 'anon',
 			'rid' => 1,
-			'rights' => -1
+			'rights' => -1,
 		);
 		
 		$this->channelId = '';
@@ -57,72 +58,20 @@ class Chat {
 	public function GetAuthInfo() {
 		if( empty( $_COOKIE[ DRUPAL_SESSION ] ) || 
 			preg_match( '/[^a-z\d]+/i', $_COOKIE[ DRUPAL_SESSION ] ) ) {
-			/*/ запись для отладки кэширования по просьбе Данила
-			$this->SetDatabase();
-			
-			$ipAddress = $_SERVER[ 'REMOTE_ADDR' ];
-			if ( $ipAddress == '' ) {
-				$ipAddress = '0';
-			}
-			
-			$ipAddress = sprintf( "%u", ip2long( $ipAddress ) );
-			
-			$uri = $_SERVER[ 'REQUEST_URI' ];
-			list( $uri ) = $this->db->PrepareParams( $uri );
-			
-			if ( isset( $_GET[ 'ref' ] ) ) {
-				$referer = $_GET[ 'ref' ];
-				list( $referer ) = $this->db->PrepareParams( $referer );
-			}
-			else {
-				$referer = '';
-			}
-			
-			if ( isset( $_SERVER[ 'HTTP_USER_AGENT' ] ) ) {
-				$userAgent = $_SERVER[ 'HTTP_USER_AGENT' ];
-				list( $userAgent ) = $this->db->PrepareParams( $userAgent );
-			}
-			else {
-				$userAgent = '';
-			}
-			
-			$cookie = var_export( $_COOKIE, true );
-			//list( $cookie ) = $this->db->PrepareParams( $cookie );
-			
-			$queryString = 'INSERT INTO chat_anon VALUES(
-				"'. $ipAddress . '",
-				"'. CURRENT_DATE .'",
-				"'. $uri .'",
-				"'. $referer .'",
-				"'. $userAgent .'",
-				"'. $cookie .'"
-			)';
-			
-			$queryResult = $this->db->Query( $queryString );
-			
-			//*/
-			
-			$result = array(
-				'userInfo' => $this->user,
-				'error' => CHAT_COOKIE_NOT_FOUND
-			);
-			return $result;
+			$this->user[ 'error' ] = CHAT_COOKIE_NOT_FOUND;
+			return;
 		}
 		
 		$drupalSession = $_COOKIE[ DRUPAL_SESSION ];
 		
 		$chatAuthMemcacheKey = 'ChatUserInfo_' . $drupalSession;
-		//* test for Aulust
-		$memcacheAuthInfo = $this->GetAuthInfoFromMemcache( $chatAuthMemcacheKey );
+		
+		$isAuthInfoInMemcache = $this->GetAuthInfoFromMemcache( $chatAuthMemcacheKey );
 
-		if ( $memcacheAuthInfo[ 'code' ] == 1 ) {
-			$result = array(
-				'userInfo' => $this->user,
-				'error' => $memcacheAuthInfo[ 'error' ]
-			);
-			return $result;
+		if ( $isAuthInfoInMemcache ) {
+			return;
 		}
-		//*/
+		
 		$this->SetDatabase();
 		// TODO: регулярки выше должно хватить, но на всякий случай лучше подготовить
 		// убрать?
@@ -141,57 +90,77 @@ class Chat {
 		
 		if ( $queryResult === FALSE ) {
 			SaveForDebug( 'Login fail ' . $queryString );
-			$result = array(
-				'userInfo' => $this->user,
-				'error' => 'Ошибка авторизации'
-			);
-			return $result;
+			$this->user[ 'error' ] = 'Ошибка авторизации';
+			return;
 		}
 		
 		$userInfo = $queryResult->fetch_assoc();
 		
-		$reasonWhyUserCantChat = $this->GetReasonWhyUserCantChat( $userInfo, $chatAuthMemcacheKey );
-		
-		if ( $reasonWhyUserCantChat != FALSE ) {
-			$result = array(
-				'userInfo' => $this->user,
-				'error' => $reasonWhyUserCantChat 
-			);
-			return $result;
+		// Drupal обнуляет uid в сессии, если пользователю в профиле поставить статус blocked
+		if ( $userInfo === NULL || $userInfo[ 'uid' ] == 0 ) {
+			$this->user[ 'error' ] = CHAT_UID_FOR_SESSION_NOT_FOUND;
+			return;
 		}
 		
-		$result[ 'error' ] = '';
+		$this->user = $userInfo;
+		
+		$newbieStatusTTL = $userInfo[ 'created' ] + CHAT_TIME_ON_SITE_AFTER_REG_NEEDED - CURRENT_TIME;
+		
+		if( $newbieStatusTTL > 0 ) {
+			$this->user[ 'ban' ] = 0;
+			$this->user[ 'rights' ] = -1;
+			$this->user[ 'type' ] = 'newbie';
+			$this->user[ 'error' ] = CHAT_NEWBIE_USER;
+			$this->memcache->Set( $chatAuthMemcacheKey, $this->user, $newbieStatusTTL );
+			return;
+		}
+		
+		if( $userInfo[ 'ban' ] == 1 ) {
+			// для проверки на гражданство в будущем
+			$this->user[ 'wasBanned' ] = 1;
+			
+			$banStatusTTL = $userInfo[ 'banExpirationTime' ] - CURRENT_TIME;
+			if ( $banStatusTTL > 0 ) {
+				$this->user[ 'ban' ] = 1;
+				$this->user[ 'rights' ] = -1;
+				$this->user[ 'type' ] = 'bannedInChat';
+				$this->user[ 'error' ] = CHAT_USER_BANNED_IN_CHAT;
+				$this->memcache->Set( $chatAuthMemcacheKey, $this->user, $banStatusTTL );
+				return;
+			}
+			else {
+				$this->user[ 'ban' ] = 0;
+			}
+		}
+		
+		$this->user[ 'error' ] = '';
 		
 		// 3 - root, 4 - admin, 5 - moder, 6 - journalist, 7 - editor, 8 - banned, 9 - streamer, 10 - userstreamer
-		if ( $userInfo[ 'rid' ] === NULL ) {
+		if ( $this->user[ 'rid' ] === NULL ) {
 			$this->user[ 'rid' ] = 2;
-		}
-		else {
-			$this->user[ 'rid' ] = $userInfo[ 'rid' ];
 		}
 		
 		switch ( $this->user[ 'rid' ] ) {
-			/*
 			case 2:
 			case 6:
 			case 7:
 				$this->user[ 'type' ] = 'user';
 				$this->user[ 'rights' ] = 0;
-			break;*/
+				break;
 			
 			case 3:
 			case 4:
 			case 5:
 				$this->user[ 'type' ] = 'chatAdmin';
 				$this->user[ 'rights' ] = 1;
-			break;
+				break;
 			
 			case 8:
 				$this->user[ 'ban' ] = 1;
 				$this->user[ 'rights' ] = -1;
 				$this->user[ 'type' ] = 'bannedOnSite';
-				$result[ 'error' ] = CHAT_USER_BANNED_ON_SITE;
-			break;
+				$this->user[ 'error' ] = CHAT_USER_BANNED_ON_SITE;
+				break;
 			
 			default:
 				$this->user[ 'type' ] = 'user';
@@ -208,115 +177,39 @@ class Chat {
 		}
 		
 		$this->memcache->Set( $chatAuthMemcacheKey, $this->user, CHAT_USER_AUTHORIZATION_TTL );
-		
-		$result[ 'userInfo' ] = $this->user;
-		return $result;
-	}
-	
-	
-	/**
-	 *	проверка на наличие причины, почему нельзя писать в чат
-	 *	@param array $userInfo - массив с данными пользователя
-	 *	@param string $chatAuthMemcacheKey ключ к данным пользователя в memcache
-	 *	@return string - текст ошибки 
-	 */
-	private function GetReasonWhyUserCantChat( $userInfo, $chatAuthMemcacheKey ) {
-		// Drupal обнуляет uid в сессии, если пользователю в профиле поставить статус blocked
-		if ( $userInfo === NULL || $userInfo[ 'uid' ] == 0 ) {
-			return CHAT_UID_FOR_SESSION_NOT_FOUND;
-		}
-		
-		$this->user = $userInfo;
-		
-		//*
-		$newbieStatusTTL = $userInfo[ 'created' ] + CHAT_TIME_ON_SITE_AFTER_REG_NEEDED
-			- CURRENT_TIME;
-		
-		if( $newbieStatusTTL > 0 ) {
-			$this->user[ 'ban' ] = 0;
-			$this->user[ 'rights' ] = -1;
-			$this->user[ 'type' ] = 'newbie';
-			
-			$this->memcache->Set( $chatAuthMemcacheKey, $this->user, $newbieStatusTTL );
-			return CHAT_NEWBIE_USER;
-		}
-		//*/
-		
-		if( $userInfo[ 'ban' ] == 1 ) {
-			// для проверки на гражданство в будущем
-			$this->user[ 'wasBanned' ] = 1;
-			
-			$banStatusTTL = $userInfo[ 'banExpirationTime' ] - CURRENT_TIME;
-			if ( $banStatusTTL > 0 ) {
-				$this->user[ 'ban' ] = 1;
-				$this->user[ 'rights' ] = -1;
-				$this->user[ 'type' ] = 'bannedInChat';
-				
-				$this->memcache->Set( $chatAuthMemcacheKey, $this->user, $banStatusTTL );
-				return CHAT_USER_BANNED_IN_CHAT;
-			}
-			else {
-				$this->user[ 'ban' ] = 0;
-			}
-		}
-		
-		return false;
 	}
 	
 	
 	/**
 	 *	Получение данных для авторизации из memcache
 	 *	@param string key ключ memcache
-	 *	return array массив с ключами code, error - текст ошибки
-	 *	code - 1 для успешной атворизации, 0 для ошибки
+	 *	return boolean TRUE - успех, FALSE - нет данных
 	 */
 	private function GetAuthInfoFromMemcache( $key ) {
-		$result = array (
-			'code' => 1,
-			'error' => ''
-		);
-		
 		$userInfo = $this->memcache->Get( $key );
 		
-		if ( $userInfo === false ) {
-			$result[ 'code' ] = 0;
-			return $result;
+		if ( $userInfo === FALSE ) {
+			return FALSE;
 		}
 		
 		$this->user = $userInfo;
-		// SaveForDebug( 'GetAuthInfoFromMemcache userInfo ' .var_export( $userInfo, true ) );
+		// SaveForDebug( 'GetAuthInfoFromMemcache userInfo ' .var_export( $userInfo, TRUE ) );
 		// проверяем флаг в memcache на случай бана от модератора или граждан,
 		// либо изменения длительности бана
 		$banInfoMemcacheKey = 'Chat_uid_' . $this->user[ 'uid' ] . '_BanInfo'; 
 		$banInfo = $this->memcache->Get( $banInfoMemcacheKey );
 		/*
 		SaveForDebug( 'GetAuthInfoFromMemcache banInfoMemcacheKey = '
-			. $banInfoMemcacheKey . ' banInfo ' .var_export( $banInfo, true ) );
+			. $banInfoMemcacheKey . ' banInfo ' .var_export( $banInfo, TRUE ) );
 		//*/
-		if ( $banInfo === false ) {
-			switch ( $userInfo[ 'type' ] ) {
-				case 'bannedInChat':
-					$result[ 'error' ] = CHAT_USER_BANNED_IN_CHAT;
-				break;
-				
-				case 'bannedOnSite':
-					$result[ 'error' ] = CHAT_USER_BANNED_ON_SITE;
-				break;
-				
-				case 'newbie':
-					$result[ 'error' ] = CHAT_NEWBIE_USER;
-				break;
-			}
-		}
-		else {
-			// при форсе релогина удаляем информацию о бане и возвращаем код 0 для авторизации чере базу
+		if ( $banInfo !== FALSE ) {
+			// при форсе релогина удаляем информацию о бане и возвращаем FALSE для авторизации через базу
 			if ( isset( $banInfo[ 'needRelogin' ] ) && ( $banInfo[ 'needRelogin' ] == 1 ) ) {
 				$this->memcache->Delete( $banInfoMemcacheKey );
-				$result[ 'code' ] = 0;
-				return $result;
+				return FALSE;
 			}
 			
-			$result[ 'error' ] = CHAT_USER_BANNED_IN_CHAT;
+			$this->user[ 'error' ] = CHAT_USER_BANNED_IN_CHAT;
 			
 			/** если есть информация о бане, нужно обновить данные по пользователю,
 			 *  но только если это еще не сделано (тип пользователя отличен от bannedInChat)
@@ -325,12 +218,11 @@ class Chat {
 			if ( $this->user[ 'type' ] != 'bannedInChat' || isset( $banInfo[ 'needUpdate' ] ) && ( $banInfo[ 'needUpdate' ] == 1 ) ) {
 				
 				$banInfoTTL = $banInfo[ 'banExpirationTime' ] - CURRENT_TIME;
-				//SaveForDebug( var_export( $banInfo, true ) . "banInfoTTL = $banInfoTTL" );
+				//SaveForDebug( var_export( $banInfo, TRUE ) . "banInfoTTL = $banInfoTTL" );
 				// бан уже прошел
 				if ( $banInfoTTL <= 0 ) {
 					$this->memcache->Delete( $banInfoMemcacheKey );
-					$result[ 'code' ] = 0;
-					return $result;
+					return FALSE;
 				}
 				else {
 					$this->user[ 'ban' ] = 1;
@@ -342,8 +234,8 @@ class Chat {
 					$banInfo[ 'needUpdate' ] = 0;
 					/*
 					SaveForDebug( 'GetAuthInfoFromMemcache new banInfo '
-						. var_export( $banInfo, true ) . "\n\nnew userInfo "
-						. var_export( $this->user, true ) );
+						. var_export( $banInfo, TRUE ) . "\n\nnew userInfo "
+						. var_export( $this->user, TRUE ) );
 					//*/
 					$this->memcache->Set( $banInfoMemcacheKey, $banInfo, $banInfoTTL );
 					$this->memcache->Set( $key, $this->user, $banInfoTTL );
@@ -351,14 +243,14 @@ class Chat {
 			}
 		}
 		
-		return $result;
+		return TRUE;
 	}
 	
 	
 	/**
 	 *  проверка строки на CAPS / abuse
 	 *  @param string str строка для проверки
-	 *  @return bool true | false
+	 *  @return bool TRUE | FALSE
 	 */
 	private function IsStringCapsOrAbuse( $str ) {
 		// удаляем обращения вроде [b]MEGAKILLER[/b], bb-код [b][/b]
@@ -366,7 +258,7 @@ class Chat {
 		
 		// если остались только пробельные символы, это абуз
 		if ( !preg_match( '/[^\s]+/uis', $tempStr ) ) {
-			return true;
+			return TRUE;
 		}
 		
 		// URL
@@ -381,7 +273,7 @@ class Chat {
 		$len = count( $matches[ 0 ] );
 		
 		if ( $len === 0 ) {
-			return false;
+			return FALSE;
 		}
 		
 		// кол-во букв в верхнем регистре
@@ -389,10 +281,10 @@ class Chat {
 		$capsCount = count( $matches[ 0 ] );
 		
 		if( $capsCount >= 5 && $capsCount >= ( $len / 2 ) ) {
-			return true;
+			return TRUE;
 		}
 		else {
-			return false;
+			return FALSE;
 		}
 	}
 	
@@ -458,7 +350,7 @@ class Chat {
 			gzclose( $channelCacheGzFile );
 			
 			// помечаем, что кэш актуален
-			$this->memcache->Set( $isCacheActualMemcacheKey, true, CHANNEL_CACHE_ACTUAL_TTL );
+			$this->memcache->Set( $isCacheActualMemcacheKey, TRUE, CHANNEL_CACHE_ACTUAL_TTL );
 			
 			flock( $channelCacheFile, LOCK_UN );
 		}
@@ -514,9 +406,9 @@ class Chat {
 		
 		$queryResult = $this->db->Query( $queryString );
 		
-		if ( $queryResult === false ) {
+		if ( $queryResult === FALSE ) {
 			SaveForDebug( 'GetMessagesByChannelId fail ' . $queryString );
-			return false;
+			return FALSE;
 		}
 		
 		$messages = array();
@@ -532,24 +424,24 @@ class Chat {
 	/**
 	 *  проверка сообщения на попадание под признаки автобана
 	 *  @param string message сообщение
-	 *  @return bool true | false
+	 *  @return bool TRUE | FALSE
 	 */
 	private function CheckForAutoBan( $message ) {
 		// 3 смайла
 		if( preg_match( '/(?::s:[^:]+:.*){3,}/usi', $message ) ) {
 			$this->BanUser( $this->user[ 'uid' ], $this->user[ 'name' ], 4320, 0, 0,
-				CHAT_AUTOBAN_REASON_1, true );
-			return true;
+				CHAT_AUTOBAN_REASON_1, TRUE );
+			return TRUE;
 		}
 		
-		return false;
+		return FALSE;
 	}
 	
 	
 	/**
 	 *  пост сообщения в чат
 	 *  @param string message текст сообщения
-	 *  @return bool true в случае успеха, false неудачи
+	 *  @return bool TRUE в случае успеха, FALSE неудачи
 	 */
 	public function WriteMessage( $message ) {
 		
@@ -566,7 +458,7 @@ class Chat {
 		$message = preg_replace( '#[\s]+#uis', ' ',  $message );
 		
 		if( $message === '' ) {
-			return false;
+			return FALSE;
 		}
 		// TODO php 5.4.0 добавить ENT_SUBSTITUTE ?
 		$message = htmlspecialchars( $message, ENT_QUOTES, 'UTF-8' );
@@ -585,7 +477,7 @@ class Chat {
 		}
 		
 		if( $this->CheckForAutoBan( $message ) ) {
-			return false;
+			return FALSE;
 		}
 		
 		$message = $this->db->mysqli->real_escape_string( $message );
@@ -605,10 +497,10 @@ class Chat {
 			$this->WriteChannelCache( $channelId );
 			// кэш модераторов
 			$this->WriteChannelCache( -1 );
-			return true;
+			return TRUE;
 		}
 		else {
-			return false;
+			return FALSE;
 		}
 	}
 	
@@ -628,7 +520,7 @@ class Chat {
 		$channelId = (int)$channelId;
 		
 		if( $this->user[ 'rights' ] != 1 || $messageId <= 0 || $channelId < 0 ) {
-			SaveForDebug( var_export( $_REQUEST, true ) );
+			SaveForDebug( var_export( $_REQUEST, TRUE ) );
 			$result = array(
 				'code' => 0,
 				'error' => CHAT_RUNTIME_ERROR
@@ -643,7 +535,7 @@ class Chat {
 		
 		$queryResult = $this->db->Query( $queryString );
 		
-		if( $queryResult === false ) {
+		if( $queryResult === FALSE ) {
 			$result = array(
 				'code' => 0,
 				'error' => CHAT_RUNTIME_ERROR . '1'
@@ -673,7 +565,7 @@ class Chat {
 	 *  @param int banMessageId id сообщения, за которое выдается бан
 	 *	@param int channelId id канала юзера
 	 *  @param int banReasonId id причины бана, для модеров 0
-	 *  @param bool isAutoBan если автобан, true, иначе false
+	 *  @param bool isAutoBan если автобан, TRUE, иначе FALSE
 	 *  @return array возвращает массив вида
 	 *  array(
 			'code' => 0,// код результата: 0 для ошибки | 1 для успеха
@@ -681,7 +573,7 @@ class Chat {
 		)
 	 */
 	public function BanUser( $banUid, $banUserName, $banDurationInMin, $banMessageId,
-		$channelId,	$banReasonId = 0, $isAutoBan = false ) {
+		$channelId,	$banReasonId = 0, $isAutoBan = FALSE ) {
 		
 		$banUid = (int)$banUid;
 		$banMessageId = (int)$banMessageId;
@@ -692,12 +584,12 @@ class Chat {
 		// выдаем ошибку, если есть права, но неправильный id сообщения
 		if( ( $this->user[ 'rights' ] === 1 && $banMessageId < 0 ) ||
 			// либо нет прав, но это не автобан
-			( $this->user[ 'rights' ] != 1 && $isAutoBan === false ) ||
+			( $this->user[ 'rights' ] != 1 && $isAutoBan === FALSE ) ||
 			// либо непонятно, кого баним и насколько
 			$banUid === 0 ||	$banUserName === '' || $banDurationInMin === 0 ||
 			// или неправильная причина бана
 			$banReasonId < 0 ) {
-			SaveForDebug( var_export( $_REQUEST, true ) );
+			SaveForDebug( var_export( $_REQUEST, TRUE ) );
 			
 			$result = array(
 				'code' => 0,
@@ -722,7 +614,7 @@ class Chat {
 			$banDuration
 		);
 		
-		if ( $isUserBanned === false ) {
+		if ( $isUserBanned === FALSE ) {
 			$result = array(
 				'code' => 0,
 				'error' => 'Уже забанен'
@@ -751,7 +643,7 @@ class Chat {
 		
 		$queryResult = $this->db->Query( $queryString );
 		
-		if( $queryResult === false ) {
+		if( $queryResult === FALSE ) {
 			// в случае ошибки с запросом удаляем флаг в мемкеше, чтобы юзера можно было забанить в следующий раз
 			$this->memcache->Delete( $banInfoMemcacheKey );
 			$result = array(
@@ -761,7 +653,7 @@ class Chat {
 			return $result;
 		}
 		
-		if( CHAT_DELETE_BANNED_USERS_MESSAGE && $isAutoBan === false) {
+		if( CHAT_DELETE_BANNED_USERS_MESSAGE && $isAutoBan === FALSE) {
 			$queryString = '
 				UPDATE chat_message
 				SET deletedBy = "' . $moderatorId . '"
@@ -769,7 +661,7 @@ class Chat {
 			
 			$queryResult = $this->db->Query( $queryString );
 			
-			if( $queryResult === false ) {
+			if( $queryResult === FALSE ) {
 				$this->memcache->Delete( $banInfoMemcacheKey );
 				$result = array(
 					'code' => 0,
@@ -833,13 +725,13 @@ class Chat {
 	/**
 	 *  пост системного сообщения
 	 *  @param string message сообщение
-	 *  @return bool true успех, false ошибка
+	 *  @return bool TRUE успех, FALSE ошибка
 	 */
 	public function WriteSystemMessage( $message ) {
 		list( $message ) = $this->db->PrepareParams( $message );
 		
 		if ( $message === '' ) {
-			return false;
+			return FALSE;
 		}
 		
 		$queryString = '
@@ -850,10 +742,10 @@ class Chat {
 		
 		if( $queryResult ) {
 			$this->WriteChannelCache( 0 );
-			return true;
+			return TRUE;
 		}
 		else {
-			return false;
+			return FALSE;
 		}
 	}
 }

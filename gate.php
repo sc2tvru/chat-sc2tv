@@ -15,26 +15,23 @@ require_once 'chat.php';
 
 global $memcache;
 $chat = new Chat( $memcache );
-
 $authInfo = $chat->GetAuthInfo();
-$error = $authInfo[ 'error' ];
-$userInfo = $authInfo[ 'userInfo' ];
 
 // если есть ошибка авторизации, лучше сразу отдать ее и прекратить выполнение
-if ( $error !== '' ) {
+if ( isset( $chat->user[ 'error' ] ) && $chat->user[ 'error' ] !== '' ) {
 	// если только это не запрос забаненного к истории, который решили разрешить
-	if ( !( $task === 'GetHistory' && $error === CHAT_USER_BANNED_IN_CHAT ) ) {
-		SendDefaultResponse( $userInfo, $error );
+	if ( !( $task === 'GetHistory' && $chat->user[ 'error' ] === CHAT_USER_BANNED_IN_CHAT ) ) {
+		SendDefaultResponse( $chat->user );
 	}
 }
 
 if ( $task === 'GetUserInfo' ) {
-	SendDefaultResponse( $userInfo, $error );
+	SendDefaultResponse( $chat->user );
 }
 
 // для всех действий, кроме авторизации, проверяем установленный токен
-if ( empty( $_REQUEST[ 'token' ] ) || $userInfo[ 'token' ] !== $_REQUEST[ 'token' ] ) {
-	SendDefaultResponse( $userInfo, CHAT_TOKEN_VERIFICATION_FAILED );
+if ( empty( $_REQUEST[ 'token' ] ) || $chat->user[ 'token' ] !== $_REQUEST[ 'token' ] ) {
+	SendDefaultResponse( $chat->user, CHAT_TOKEN_VERIFICATION_FAILED );
 }
 
 // выполняем действия для задачи
@@ -44,7 +41,7 @@ switch ( $task ) {
 			$message = $_POST[ 'message' ];
 		}
 		else {
-			SendDefaultResponse( $userInfo, CHAT_USER_MESSAGE_EMPTY );
+			SendDefaultResponse( $chat->user, CHAT_USER_MESSAGE_EMPTY );
 		}
 		
 		$chat->SetDatabase();
@@ -53,7 +50,7 @@ switch ( $task ) {
 		if ( $res === true ) {
 			// для автомодерации, чтобы держать в памяти актуальное значение кол-ва сообщений
 			// в чате и лишний раз не обращаться за ним в базу
-			$chatMessagesCountMemcacheKey = 'AM_uid_'. $userInfo[ 'uid' ] .
+			$chatMessagesCountMemcacheKey = 'AM_uid_'. $chat->user[ 'uid' ] .
 				'_chatMsgCount';
 			
 			$currentChatMessagesCount = $memcache->Get( $chatMessagesCountMemcacheKey );
@@ -67,18 +64,18 @@ switch ( $task ) {
 			}
 		}
 		else {
-			$error = CHAT_USER_MESSAGE_ERROR;
+			$chat->user[ 'error' ] = CHAT_USER_MESSAGE_ERROR;
 		}
 		
-		SendDefaultResponse( $userInfo, $error );
-	break;
+		SendDefaultResponse( $chat->user );
+		break;
 	
 	case 'DeleteMessage':
 		$chat->SetDatabase();
 		$result = $chat->DeleteMessage( $_POST[ 'messageId' ], $_POST[ 'channelId' ] );
-		$result = array_merge( $userInfo, $result );
+		$result = array_merge( $chat->user, $result );
 		echo json_encode( $result );
-	break;
+		break;
 
 	case 'BanUser':
 		$chat->SetDatabase();
@@ -97,9 +94,9 @@ switch ( $task ) {
 			$_POST[ 'messageId' ],
 			$channelId
 		);
-		$result = array_merge( $userInfo, $result );
+		$result = array_merge( $chat->user, $result );
 		echo json_encode( $result );
-	break;
+		break;
 	
 	case 'GetHistory':
 		include 'history.php';
@@ -113,11 +110,11 @@ switch ( $task ) {
 			$startDate,
 			$endDate,
 			$nick,
-			IsModeratorRequest( $userInfo )
+			IsModeratorRequest( $chat->user )
 		);
 		
 		echo json_encode( $result );
-	break;
+		break;
 	
 	case 'GetAutoModerationHistory':
 		include 'automoderation_history.php';
@@ -139,15 +136,15 @@ switch ( $task ) {
 			$endDate,
 			$nick,
 			$bannedNick,
-			IsModeratorRequest( $userInfo )
+			IsModeratorRequest( $chat->user )
 		);
 		
 		echo json_encode( $result );
-	break;
+		break;
 	
 	case 'CitizenVoteForUserBan':
 		include 'automoderation.php';
-		$citizenModerator = new AutoModeration( $memcache, $userInfo );
+		$citizenModerator = new AutoModeration( $memcache, $chat->user );
 		
 		$result = $citizenModerator->VoteForUserBan(
 			$_POST[ 'banUserId' ],
@@ -155,13 +152,13 @@ switch ( $task ) {
 			$_POST[ 'messageId'],
 			$_POST[ 'reasonId' ]
 		);
-		$result = array_merge( $userInfo, $result );
+		$result = array_merge( $chat->user, $result );
 		echo json_encode( $result );
-	break;
+		break;
 		
 	case 'CancelBan':
 		include 'automoderation.php';
-		$citizenModerator = new AutoModeration( $memcache, $userInfo );
+		$citizenModerator = new AutoModeration( $memcache, $chat->user );
 		$citizenModerator->SetDatabase();
 		
 		$result = $citizenModerator->CancelBan(
@@ -172,11 +169,11 @@ switch ( $task ) {
 		);
 		
 		echo json_encode( $result );
-	break;
+		break;
 		
 	case 'EditBan':
 		include 'automoderation.php';
-		$citizenModerator = new AutoModeration( $memcache, $userInfo );
+		$citizenModerator = new AutoModeration( $memcache, $chat->user );
 		$citizenModerator->SetDatabase();
 		
 		$result = $citizenModerator->EditBan(
@@ -186,13 +183,12 @@ switch ( $task ) {
 		);
 		
 		echo json_encode( $result );
-	break;
+		break;
 	
 	case 'ComplainBan':
-		if ( $userInfo[ 'type' ] === 'user' || $userInfo[ 'type' ] === 'chatAdmin' ) {
+		if ( $chat->user[ 'type' ] === 'user' || $chat->user[ 'type' ] === 'chatAdmin' ) {
 			include 'automoderation.php';
-			$citizenModerator = new AutoModeration( $memcache, $userInfo );
-			$citizenModerator->SetDatabase();
+			$citizenModerator = new AutoModeration( $memcache, $chat->user );
 			
 			$result = $citizenModerator->ComplainBan(
 				$_POST[ 'banKey' ],
@@ -204,14 +200,13 @@ switch ( $task ) {
 		else {
 			echo '{"code":"0","result": "Вы не можете жаловаться на баны."}';
 		}
-	break;
+		break;
 	
 	default:
 		exit;
 }
 
-function SendDefaultResponse( $userInfo, $error ) {
-	$userInfo[ 'error' ] = $error;
+function SendDefaultResponse( $userInfo ) {
 	echo json_encode( $userInfo );
 	exit;
 }

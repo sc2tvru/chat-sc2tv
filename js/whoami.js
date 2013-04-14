@@ -5,34 +5,34 @@ var CHAT_AUTH_INFO_FOR_USERS_ONLY = 'Информация доступна то�
 var userInfo = [];
 
 function GetGroupNameByRid( rid ){
-	switch( rid ){
+	switch( parseInt( rid ) ){
     // authenticated user
-		case '2':
+		case 2:
     //fun streamer
-    case '10':
+    case 10:
     // real streamer
-    case '14':
+    case 14:
 			name = 'пользователь';
 		break;
-		case '3':
+		case 3:
 			name = 'root';
 		break;
-		case '4':
+		case 4:
 			name = 'admin';
 		break;
-		case '5':
+		case 5:
 			name = 'модератор';
 		break;
-		case '6':
+		case 6:
 			name = 'журналист';
 		break;
-		case '7':
+		case 7:
 			name = 'редактор';
 		break;
-		case '8':
+		case 8:
 			name = 'забанен на сайте';
 		break;
-		case '9':
+		case 9:
 			name = 'стример';
 		break;
 		default:
@@ -54,7 +54,7 @@ function Login() {
 	if ( userInfo == '' || userInfo == undefined ) {
 		$.ajaxSetup( { async: false, cache: false } );
 			
-		$.getJSON( CHAT_URL + 'gate.php?task=GetUserInfo', function( data ) {
+		$.getJSON( CHAT_URL + 'gate.php?task=GetAuthInfo', function( data ) {
 			userInfo = data;
 		});
 		
@@ -80,6 +80,17 @@ $( document ).ready( function(){
 			userInfoHtml += '<br/>Дата бана: ' + ConvertDate( userInfo.banTime );
 			userInfoHtml += '<br/>Дата истечения бана: ' + ConvertDate( userInfo.banExpirationTime );
 			userInfoHtml += '<br/>Продолжительность бана: ' + ( userInfo.banExpirationTime - userInfo.banTime ) / 60 + ' мин';
+		}
+		else {
+			if ( userInfo.isCitizen != undefined ) {
+				if ( userInfo.isCitizen === true ) {
+					userInfo.isCitizen = 'да';
+				}
+				else if ( userInfo.isCitizen === false ) {
+					userInfo.isCitizen = 'нет, ' + userInfo.noCitizenReason;
+				}
+				userInfoHtml += '<br/>Гражданин: ' + userInfo.isCitizen;
+			}
 		}
 		
 		if ( !( userInfo.error == '' || userInfo.error == undefined ) ){
