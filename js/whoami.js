@@ -54,7 +54,7 @@ function Login() {
 	if ( userInfo == '' || userInfo == undefined ) {
 		$.ajaxSetup( { async: false, cache: false } );
 			
-		$.getJSON( CHAT_URL + 'gate.php?task=GetAuthInfo', function( data ) {
+		$.getJSON( CHAT_URL + 'gate.php?task=GetUserInfo', function( data ) {
 			userInfo = data;
 		});
 		

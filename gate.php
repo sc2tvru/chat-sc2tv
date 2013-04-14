@@ -31,7 +31,8 @@ if ( $task === 'GetUserInfo' ) {
 
 // для всех действий, кроме авторизации, проверяем установленный токен
 if ( empty( $_REQUEST[ 'token' ] ) || $chat->user[ 'token' ] !== $_REQUEST[ 'token' ] ) {
-	SendDefaultResponse( $chat->user, CHAT_TOKEN_VERIFICATION_FAILED );
+	$chat->user[ 'error' ] = CHAT_TOKEN_VERIFICATION_FAILED;
+	SendDefaultResponse( $chat->user );
 }
 
 // выполняем действия для задачи
@@ -41,7 +42,8 @@ switch ( $task ) {
 			$message = $_POST[ 'message' ];
 		}
 		else {
-			SendDefaultResponse( $chat->user, CHAT_USER_MESSAGE_EMPTY );
+			$chat->user[ 'error' ] = CHAT_USER_MESSAGE_EMPTY;
+			SendDefaultResponse( $chat->user );
 		}
 		
 		$chat->SetDatabase();
@@ -50,8 +52,7 @@ switch ( $task ) {
 		if ( $res === true ) {
 			// для автомодерации, чтобы держать в памяти актуальное значение кол-ва сообщений
 			// в чате и лишний раз не обращаться за ним в базу
-			$chatMessagesCountMemcacheKey = 'AM_uid_'. $chat->user[ 'uid' ] .
-				'_chatMsgCount';
+			$chatMessagesCountMemcacheKey = 'AM_uid_'. $chat->user[ 'uid' ] .	'_chatMsgCount';
 			
 			$currentChatMessagesCount = $memcache->Get( $chatMessagesCountMemcacheKey );
 			
