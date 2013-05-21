@@ -117,5 +117,6 @@ var smiles = [
   {code: ':moon:', img: 'moon.png?1', width: '23', height: '30'},
   {code: ':ghost:', img: 'gay.png?1', width: '30', height: '30'},
   {code: ':omsk:', img: 'omsk.png?2', width: '30', height: '30'},
-	{code: ':grumpy:', img: 'grumpy.png?2', width: '30', height: '30'}
+	{code: ':grumpy:', img: 'grumpy.png?2', width: '30', height: '30'},
+  {code: ':bobr:', img: 'bobr.png?1', width: '30', height: '30'}
 ];
