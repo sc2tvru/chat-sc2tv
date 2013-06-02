@@ -436,15 +436,39 @@ class Chat {
 		
 		return FALSE;
 	}
-	
-	
+
+    /*
+     * удаление недопустимых для данной роли смайлов
+     * @param string message сообщение
+     * @return string отфильтрованное сообщение
+     */
+    private function FilterSmiles ( $message ) {
+        $queryResult = $this->db->Query( 'SELECT smiles FROM role_smiles WHERE rid = ' . $this->user[ 'rid' ] );
+
+        if ( $queryResult === FALSE ) {
+            return $message;
+        }
+
+        $result = $queryResult->fetch_assoc();
+        $allowed_smiles = explode(',', $result['smiles']);
+
+        preg_match_all( '/:s(:[a-z-]+:)/us', $message, $matches );
+        foreach ( $matches[1] as $match ) {
+            if ( !in_array( $match, $allowed_smiles) ) {
+                $message = str_replace( ':s' . $match, ' ',  $message );
+            }
+        }
+
+        return $message;
+    }
+
 	/**
 	 *  пост сообщения в чат
 	 *  @param string message текст сообщения
 	 *  @return bool TRUE в случае успеха, FALSE неудачи
 	 */
 	public function WriteMessage( $message ) {
-		
+
 		/* удаляем явно не разрешенные символы
 		разрешены
 		U+0020 - U+003F - знаки препинания и арабские цифры
@@ -479,7 +503,9 @@ class Chat {
 		if( $this->CheckForAutoBan( $message ) ) {
 			return FALSE;
 		}
-		
+
+        $message = $this->FilterSmiles($message);
+
 		$message = $this->db->mysqli->real_escape_string( $message );
 		
 		$queryString = '
@@ -489,7 +515,7 @@ class Chat {
 				$message .'", "'.
 				CURRENT_DATE .'", "'.
 				$channelId .'")';
-		
+
 		$queryResult = $this->db->Query( $queryString );
 		
 		if ( $queryResult ) {
