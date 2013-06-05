@@ -27,9 +27,11 @@ class QueryResultStub {
     }
 
     public function fetch_assoc() {
-        return array(
-            'smiles' => $this->smiles,
-        );
+        if($data = array_shift($this->smiles)) {
+            return array( 'smiles' => $data, );
+        }
+
+        return false;
     }
 }
 
@@ -39,10 +41,10 @@ class FakeDB {
     }
 
     public function Query( $query ) {
-        if ( $query === 'SELECT smiles FROM role_smiles WHERE rid = 1' ) {
-            return new QueryResultStub('');
-        } else if ( $query === 'SELECT smiles FROM role_smiles WHERE rid = 2' ) {
-            return new QueryResultStub(':a:,:b:');
+        if ( $query === 'SELECT smiles FROM role_smiles WHERE rid in (1)' ) {
+            return new QueryResultStub(array(''));
+        } else if ( $query === 'SELECT smiles FROM role_smiles WHERE rid in (2,3)' ) {
+            return new QueryResultStub(array(':a:', ':b:'));
         }
 
         return false;
@@ -62,7 +64,7 @@ $mysqlStub = new MysqliStub();
 $chat->SetDatabase(new FakeDB($mysqlStub));
 
 
-$chat->user[ 'rid' ] = 1;
+$chat->user[ 'roleIds' ] = array(1);
 
 $mysqlStub->setCorrectResult('sdfdsfsd fsd f sadf sdf');
 $chat->WriteMessage('sdfdsfsd fsd:s:d-f:f sadf sdf');
@@ -72,7 +74,8 @@ $chat->WriteMessage('sdf:s:c:dsfsd fsdf sad:dd sdf:f sdf');
 
 
 
-$chat->user[ 'rid' ] = 2;
+$chat->user[ 'roleIds' ] = array(2, 3);
+
 $mysqlStub->setCorrectResult('sdf:s:a:dsfsd fsdf sa df sdf');
 $chat->WriteMessage('sdf:s:a:dsfsd fsdf sa:s:c:df sdf');
 
@@ -81,3 +84,6 @@ $chat->WriteMessage('sdfds:s:gg_ff:fs d fs:s:b:df sadf sdf');
 
 $mysqlStub->setCorrectResult('какой-то текст со :s:b: смайлом');
 $chat->WriteMessage('какой-то:s:c:текст со :s:b: смайлом');
+
+$mysqlStub->setCorrectResult('какой-то:s:пп:текст со :s:b: смайлом');
+$chat->WriteMessage('какой-то:s:пп:текст со :s:b: смайлом');

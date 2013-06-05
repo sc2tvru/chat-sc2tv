@@ -79,7 +79,8 @@ class Chat {
 		
     // roles priority Moderator > Root > Admin > Streamer > others
     $queryString = 'SELECT users.uid as uid, name, created, rid, banExpirationTime, banTime,
-      chat_ban.status as ban, rid in (5) as isModerator, rid in (4) as isAdmin, rid in (3) as isRoot
+      chat_ban.status as ban, rid in (5) as isModerator, rid in (4) as isAdmin, rid in (3) as isRoot,
+      (SELECT GROUP_CONCAT(rid SEPARATOR ",") FROM users_roles WHERE users_roles.uid = users.uid) as roleIds
       FROM users INNER JOIN sessions using(uid)
       LEFT JOIN chat_ban ON users.uid = chat_ban.uid
       LEFT JOIN users_roles ON users_roles.uid = users.uid
@@ -93,7 +94,7 @@ class Chat {
 			$this->user[ 'error' ] = 'Ошибка авторизации';
 			return;
 		}
-		
+
 		$userInfo = $queryResult->fetch_assoc();
 		
 		// Drupal обнуляет uid в сессии, если пользователю в профиле поставить статус blocked
@@ -101,7 +102,7 @@ class Chat {
 			$this->user[ 'error' ] = CHAT_UID_FOR_SESSION_NOT_FOUND;
 			return;
 		}
-		
+
 		$this->user = $userInfo;
 		
 		$newbieStatusTTL = $userInfo[ 'created' ] + CHAT_TIME_ON_SITE_AFTER_REG_NEEDED - CURRENT_TIME;
@@ -134,7 +135,13 @@ class Chat {
 		}
 		
 		$this->user[ 'error' ] = '';
-		
+
+        if ( $this->user[ 'roleIds' ] === NULL ) {
+            $this->user[ 'roleIds' ] = array(2);
+        } else {
+            $userInfo[ 'roleIds' ] = explode ( $userInfo[ 'roleIds' ], ',' );
+        }
+
 		// 3 - root, 4 - admin, 5 - moder, 6 - journalist, 7 - editor, 8 - banned, 9 - streamer, 10 - userstreamer
 		if ( $this->user[ 'rid' ] === NULL ) {
 			$this->user[ 'rid' ] = 2;
@@ -443,14 +450,16 @@ class Chat {
      * @return string отфильтрованное сообщение
      */
     private function FilterSmiles ( $message ) {
-        $queryResult = $this->db->Query( 'SELECT smiles FROM role_smiles WHERE rid = ' . $this->user[ 'rid' ] );
+        $queryResult = $this->db->Query( 'SELECT smiles FROM role_smiles WHERE rid in (' . implode(',', $this->user[ 'roleIds' ]) . ')' );
 
         if ( $queryResult === FALSE ) {
             return $message;
         }
 
-        $result = $queryResult->fetch_assoc();
-        $allowed_smiles = explode(',', $result['smiles']);
+        $allowed_smiles = array();
+        while( $result = $queryResult->fetch_assoc() ) {
+            $allowed_smiles = array_merge($allowed_smiles, explode(',', $result['smiles']));
+        }
 
         preg_match_all( '/:s(:[a-z-]+:)/us', $message, $matches );
         foreach ( $matches[1] as $match ) {

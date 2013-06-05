@@ -42,10 +42,7 @@ class MySqlDb {
 
 	public function Query( $queryString ) {
 		$queryString = trim( $queryString );
-		$result = $this->mysqli->query( $queryString );
-		if ( $result ) {
-			return $result;
-		}
+		return $this->mysqli->query( $queryString );
 	}
 
 
