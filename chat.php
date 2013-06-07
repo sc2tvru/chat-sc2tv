@@ -139,7 +139,7 @@ class Chat {
         if ( $this->user[ 'roleIds' ] === NULL ) {
             $this->user[ 'roleIds' ] = array(2);
         } else {
-            $userInfo[ 'roleIds' ] = explode ( $userInfo[ 'roleIds' ], ',' );
+            $userInfo[ 'roleIds' ] = array_merge( array(2), explode ( $userInfo[ 'roleIds' ], ',' ) );
         }
 
 		// 3 - root, 4 - admin, 5 - moder, 6 - journalist, 7 - editor, 8 - banned, 9 - streamer, 10 - userstreamer
