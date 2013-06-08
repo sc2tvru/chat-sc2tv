@@ -119,7 +119,7 @@ var smiles = [
   {code: ':omsk:', img: 'omsk.png?2', width: '30', height: '30'},
 	{code: ':grumpy:', img: 'grumpy.png?2', width: '30', height: '30'},
   {code: ':bobr:', img: 'bobr.png?1', width: '30', height: '30'},
-  {code: ':kingalf:', img: 'alfi-crown.png?1', width: '30', height: '30'},
-  {code: ':mofgod:', img: 'mother-of-the-god.png?1', width: '30', height: '30'},
-  {code: ':prime:', img: 'fredy18.png?1', width: '33', height: '35'}
+  {code: ':kingalf:', img: 'alfi-crown.png?1', width: '30', height: '30', private: true},
+  {code: ':mofgod:', img: 'mother-of-the-god.png?1', width: '30', height: '30', private: true},
+  {code: ':prime:', img: 'fredy18.png?1', width: '33', height: '35', private: true}
 ];
