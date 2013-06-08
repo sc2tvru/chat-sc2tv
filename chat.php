@@ -139,7 +139,7 @@ class Chat {
         if ( $this->user[ 'roleIds' ] === NULL ) {
             $this->user[ 'roleIds' ] = array(2);
         } else {
-            $userInfo[ 'roleIds' ] = array_merge( array(2), explode ( $userInfo[ 'roleIds' ], ',' ) );
+            $this->user[ 'roleIds' ] = array_merge( array(2), array_map('intval', explode ( ',', $userInfo[ 'roleIds' ] ) ) );
         }
 
 		// 3 - root, 4 - admin, 5 - moder, 6 - journalist, 7 - editor, 8 - banned, 9 - streamer, 10 - userstreamer
@@ -461,7 +461,7 @@ class Chat {
             $allowed_smiles = array_merge($allowed_smiles, explode(',', $result['smiles']));
         }
 
-        preg_match_all( '/:s(:[a-z-]+:)/us', $message, $matches );
+        preg_match_all( '/:s(:[a-z0-9-]+:)/us', $message, $matches );
         foreach ( $matches[1] as $match ) {
             if ( !in_array( $match, $allowed_smiles) ) {
                 $message = str_replace( ':s' . $match, ' ',  $message );
