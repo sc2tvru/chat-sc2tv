@@ -722,26 +722,13 @@ function getmenu( nick, mid, uid, channelId ) {
 	if ( userInfo.type == 'bannedInChat' || userInfo.type == 'bannedOnSite' ) {
 		$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick="IgnoreUnignore(user_name, ' + uid + ');">Ignore\Unignore</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
 		return false;
-	}
+	} else if ( userInfo.type == 'anon' ) {
+        return false;
+    }
 		
 	rid = parseInt( userInfo.rid );
 	
 	switch( rid ) {
-		// юзер
-		case 2:
-		// журналист
-		case 6:
-		// редактор
-		case 7:
-		// стример
-		case 9:
-		// фанстример
-		case 10:
-		// real стример
-		case 14:
-			$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick=otvet(user_name)>Ответить</li><li><a href="' + SC2TV_URL + '/messages/new/' + uid + '" target="_blank" onclick="$(\'.menushka\').remove();">Послать ЛС</a></li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><li onclick="IgnoreUnignore(user_name, ' + uid + ');">Ignore\Unignore</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
-		break;
-		
 		// root
 		case 3:
 		// админ
@@ -751,9 +738,22 @@ function getmenu( nick, mid, uid, channelId ) {
 		case 5:
 			$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick=otvet(user_name)>Ответить</li><li onclick="DeleteMessage( ' + mid + ', ' + channelId + ')">Удалить сообщение</li><li onclick="JumpToUserChannel(' + mid + ')">В канал к юзеру</li><li><a href="' + SC2TV_URL + '/messages/new/' + uid + '" target="_blank" onclick="$(\'.menushka\').remove();">Послать ЛС</a></li><li onclick="BanUser( ' + uid + ', user_name, 10, ' + mid + ', ' + channelId + ')">Молчать 10 мин.</li><li onclick="BanUser(' + uid + ', user_name, 1440, ' + mid + ', ' + channelId + ')">Молчать сутки</li><li onclick="BanUser( ' + uid + ', user_name, 4320, ' + mid + ', ' + channelId + ')">Молчать 3 дня</li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
 		break;
-		
-		default:
-			return false;
+
+        // юзер
+        case 2:
+        // журналист
+        case 6:
+        // редактор
+        case 7:
+        // стример
+        case 9:
+        // фанстример
+        case 10:
+        // real стример
+        case 14:
+        // хз кто
+        default:
+            $( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick=otvet(user_name)>Ответить</li><li><a href="' + SC2TV_URL + '/messages/new/' + uid + '" target="_blank" onclick="$(\'.menushka\').remove();">Послать ЛС</a></li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><li onclick="IgnoreUnignore(user_name, ' + uid + ');">Ignore\Unignore</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
 	}
 }
 
