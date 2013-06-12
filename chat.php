@@ -461,10 +461,10 @@ class Chat {
             $allowed_smiles = array_merge($allowed_smiles, explode(',', $result['smiles']));
         }
 
-        preg_match_all( '/:s(:[a-z0-9-]+:)/us', $message, $matches );
+        preg_match_all( '/:s(:[a-z0-9-]+:)/usi', $message, $matches );
         foreach ( $matches[1] as $match ) {
-            if ( !in_array( $match, $allowed_smiles) ) {
-                $message = str_replace( ':s' . $match, ' ',  $message );
+            if ( !in_array( strtolower($match), $allowed_smiles) ) {
+                $message = str_ireplace( ':s' . $match, ' ',  $message );
             }
         }
 
