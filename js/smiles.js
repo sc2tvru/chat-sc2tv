@@ -121,5 +121,6 @@ var smiles = [
   {code: ':bobr:', img: 'bobr.png?1', width: '30', height: '30'},
   {code: ':kingalf:', img: 'alfi-crown.png?1', width: '30', height: '30', private: true},
   {code: ':mofgod:', img: 'mother-of-the-god.png?1', width: '30', height: '30', private: true},
-  {code: ':prime:', img: 'fredy18.png?1', width: '33', height: '35', private: true}
+  {code: ':prime:', img: 'fredy18.png?1', width: '33', height: '35', private: true},
+  {code: ':pekaking:', img: 'pekaking.png?1', width: '32', height: '35', private: true}
 ];
