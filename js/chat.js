@@ -963,8 +963,13 @@ function IsStringCapsOrAbuse( str ) {
 }
 
 function CheckForAutoBan( str ) {
-	// 3 смайла
-	regexp = /(?::s:[^:]+:.*){3,}/gi;
+	// 3 или 4 смайла
+    if ( userInfo.roleIds.indexOf( 20 ) !== -1 ) {
+        regexp = /(?::s:[^:]+:.*){4,}/gi;
+    } else {
+        regexp = /(?::s:[^:]+:.*){3,}/gi;
+    }
+
 	stringWithThreeSmiles = str.match( regexp );
 	
 	if ( stringWithThreeSmiles == null ) {

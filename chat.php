@@ -434,8 +434,14 @@ class Chat {
 	 *  @return bool TRUE | FALSE
 	 */
 	private function CheckForAutoBan( $message ) {
-		// 3 смайла
-		if( preg_match( '/(?::s:[^:]+:.*){3,}/usi', $message ) ) {
+		// 3 или 4 смайла смайла
+        if ( in_array( 20, $this->user[ 'roleIds' ] ) ) {
+            $pattern = '/(?::s:[^:]+:.*){4,}/usi';
+        } else {
+            $pattern = '/(?::s:[^:]+:.*){3,}/usi';
+        }
+
+		if( preg_match( $pattern, $message ) ) {
 			$this->BanUser( $this->user[ 'uid' ], $this->user[ 'name' ], 4320, 0, 0,
 				CHAT_AUTOBAN_REASON_1, TRUE );
 			return TRUE;
