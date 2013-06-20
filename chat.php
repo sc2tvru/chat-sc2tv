@@ -146,34 +146,20 @@ class Chat {
 		if ( $this->user[ 'rid' ] === NULL ) {
 			$this->user[ 'rid' ] = 2;
 		}
-		
-		switch ( $this->user[ 'rid' ] ) {
-			case 2:
-			case 6:
-			case 7:
-				$this->user[ 'type' ] = 'user';
-				$this->user[ 'rights' ] = 0;
-				break;
-			
-			case 3:
-			case 4:
-			case 5:
-				$this->user[ 'type' ] = 'chatAdmin';
-				$this->user[ 'rights' ] = 1;
-				break;
-			
-			case 8:
-				$this->user[ 'ban' ] = 1;
-				$this->user[ 'rights' ] = -1;
-				$this->user[ 'type' ] = 'bannedOnSite';
-				$this->user[ 'error' ] = CHAT_USER_BANNED_ON_SITE;
-				break;
-			
-			default:
-				$this->user[ 'type' ] = 'user';
-				$this->user[ 'rights' ] = 0;
-		}
-		
+
+        if ( count( array_intersect( array( 3, 4, 5 ), $this->user[ 'roleIds' ] ) ) > 0 ) {
+            $this->user[ 'type' ] = 'chatAdmin';
+            $this->user[ 'rights' ] = 1;
+        } elseif ( count( array_intersect( array( 8 ), $this->user[ 'roleIds' ] ) ) > 0 ) {
+            $this->user[ 'ban' ] = 1;
+            $this->user[ 'rights' ] = -1;
+            $this->user[ 'type' ] = 'bannedOnSite';
+            $this->user[ 'error' ] = CHAT_USER_BANNED_ON_SITE;
+        } else {
+            $this->user[ 'type' ] = 'user';
+            $this->user[ 'rights' ] = 0;
+        }
+
 		// генерируем токен на основе сессии и запоминаем
 		if ( empty( $_COOKIE[ CHAT_COOKIE_TOKEN ] ) ) {
 			$this->user[ 'token' ] = GenerateSecurityToken( $drupalSession );
@@ -408,7 +394,7 @@ class Chat {
     			date > "' . date( 'Y-m-d H:i:s', CURRENT_TIME - 259200 ) . '" AND
           deletedBy is NULL
           ORDER BY id DESC LIMIT '. $messagesCount * 3 . '
-        ) as tmp_table_chat  ORDER BY FIELD(rid,3,4,5,9,6,7,10,14,2) ASC LIMIT '. $messagesCount * 3 . '
+        ) as tmp_table_chat  ORDER BY FIELD(rid,3,4,5,9,6,7,10,14,16,17,18,19,20,2) ASC LIMIT '. $messagesCount * 3 . '
       ) as tmp_table_chat_limited GROUP BY id ORDER BY id DESC LIMIT '. $messagesCount;
 		
 		$queryResult = $this->db->Query( $queryString );
