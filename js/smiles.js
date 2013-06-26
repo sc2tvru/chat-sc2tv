@@ -120,11 +120,10 @@ var smiles = [
 	{code: ':grumpy:', img: 'grumpy.png?2', width: '30', height: '30'},
   {code: ':bobr:', img: 'bobr.png?1', width: '30', height: '30'},
   {code: ':yeah:', img: 'yeah.png?1', width: '30', height: '30'},
-  {code: ':322:', img: '322.png?1', width: '30', height: '27'},
   {code: ':kingalf:', img: 'alfi-crown.png?1', width: '30', height: '30', private: true},
   {code: ':mofgod:', img: 'mother-of-the-god.png?1', width: '30', height: '30', private: true},
   {code: ':prime:', img: 'fredy18.png?1', width: '33', height: '35', private: true},
   {code: ':pekaking:', img: 'pekaking.png?1', width: '32', height: '35', private: true},
   {code: ':ilied:', img: 'ilied.png?1', width: '30', height: '30', private: true},
-  {code: ':peka2:', img: 'peka2.png?1', width: '30', height: '30', private: true}
+  {code: ':coupeka:', img: 'coupeka.png?1', width: '30', height: '30', private: true}
 ];
