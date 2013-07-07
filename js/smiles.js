@@ -129,5 +129,14 @@ var smiles = [
   {code: ':prime:', img: 'fredy18.png?1', width: '33', height: '35', private: true},
   {code: ':pekaking:', img: 'pekaking.png?1', width: '32', height: '35', private: true},
   {code: ':ilied:', img: 'ilied.png?1', width: '30', height: '30', private: true},
-  {code: ':coupeka:', img: 'coupeka.png?1', width: '30', height: '30', private: true}
+  {code: ':coupeka:', img: 'coupeka.png?1', width: '30', height: '30', private: true},
+  {code: ':gogo:', img: 'gogo.png?1', width: '30', height: '30', private: true},
+  {code: ':pekling:', img: 'pekling.png?1', width: '30', height: '30', private: true},
+  {code: ':zeal:', img: 'zeal.png?1', width: '30', height: '26', private: true},
+  {code: ':infe:', img: 'infe.png?1', width: '30', height: '26', private: true},
+  {code: ':cheese:', img: 'cheese.png?1', width: '30', height: '30', private: true},
+  {code: ':dark:', img: 'dark.png?1', width: '30', height: '30', private: true},
+  {code: ':reaper:', img: 'reaper.png?1', width: '41', height: '30', private: true},
+  {code: ':maro:', img: 'maro.png?1', width: '43', height: '30', private: true},
+  {code: ':butth:', img: 'butth.png?1', width: '30', height: '30', private: true}
 ];
