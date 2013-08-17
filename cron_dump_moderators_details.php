@@ -15,7 +15,7 @@ function DumpModeratorsDetails() {
 	global $memcache;
 	//$memcache->Delete( MODERATORS_DETAILS_MEMCACHE_KEY );
 	$moderatorsDetails = $memcache->Get( MODERATORS_DETAILS_MEMCACHE_KEY );
-	SaveForDebug( 'cron dump moder details debug, get from memcache: ' . var_export( $moderatorsDetails, true ) );
+	//SaveForDebug( 'cron dump moder details debug, get from memcache: ' . var_export( $moderatorsDetails, true ) );
 	
 	// попытка считать статистику из файла, если ее нет в memcache
 	if ( $moderatorsDetails === FALSE ) {
@@ -43,12 +43,12 @@ function DumpModeratorsDetails() {
 			$moderatorsDetails[ $moderatorDetail[ 'uid' ] ][ 'name' ] =
 				$moderatorDetail[ 'name' ];
 		}
-		SaveForDebug( 'moderatorsDetails dump from bd' );
+		//SaveForDebug( 'moderatorsDetails dump from bd' );
 	}
 	
 	$memcache->Set( MODERATORS_DETAILS_MEMCACHE_KEY, $moderatorsDetails,
 		CHAT_MODERATORS_DETAILS_TTL );
-	SaveForDebug( 'send to memcache: ' . var_export( $moderatorsDetails, true ) );
+	//SaveForDebug( 'send to memcache: ' . var_export( $moderatorsDetails, true ) );
 	$dataJS = 'var moderatorsDetails = ' . json_encode( $moderatorsDetails );
 	file_put_contents( CHAT_MODERATORS_DETAILS, $dataJS );
 }

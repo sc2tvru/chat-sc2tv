@@ -1,7 +1,7 @@
 <?php
 /**
  * код для автомодерации пользователями
- * @author shr, forshr@gmail.com
+ * @author shr
  *
  */
 
