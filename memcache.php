@@ -1,7 +1,7 @@
 <?php
 /**
  * код для работы с memcache
- * @author shr, forshr@gmail.com
+ * @author shr
  *
  */
 
