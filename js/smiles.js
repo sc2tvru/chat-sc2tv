@@ -138,5 +138,14 @@ var smiles = [
   {code: ':dark:', img: 'dark.png?1', width: '30', height: '30', private: true},
   {code: ':reaper:', img: 'reaper.png?1', width: '41', height: '30', private: true},
   {code: ':maro:', img: 'maro.png?1', width: '43', height: '30', private: true},
-  {code: ':butth:', img: 'butth.png?1', width: '30', height: '30', private: true}
+  {code: ':butth:', img: 'butth.png?1', width: '30', height: '30', private: true},
+  {code: ':pri21:', img: 'pri21.png?1', width: '30', height: '30', private: true},
+  {code: ':daya:', img: 'daya.png?1', width: '30', height: '30', private: true},
+  {code: ':ggwp:', img: 'ggwp.png?1', width: '83', height: '25', private: true},
+  {code: ':imbaimba:', img: 'imbaimba.png?1', width: '69', height: '27', private: true},
+  {code: ':kid:', img: 'kid.png?1', width: '30', height: '30', private: true},
+  {code: ':num1:', img: 'num1.png?1', width: '30', height: '30', private: true},
+  {code: ':poker:', img: 'poker.png?1', width: '28', height: '30', private: true},
+  {code: ':povar:', img: 'povar.png?1', width: '30', height: '30', private: true},
+  {code: ':vuvu:', img: 'vuvu.png?1', width: '39', height: '27', private: true}
 ];
