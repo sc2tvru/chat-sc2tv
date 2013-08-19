@@ -27,7 +27,7 @@ for( i=0,t=2; i < smilesCount; i++ ) {
         privateStarted = true;
         smileHtml += '</div><div id="smile-panel-tab-' + t + '">';
         smilePanelTabsHtml += '<span id="smile-panel-pager-' + t + '" data-tab-number="' + t +'">prime</span>';
-        smileHtml += '<a href="http://forum.sc2tv.ru/threads/48503-%D0%9F%D1%80%D0%B0%D0%B9%D0%BC-%D1%81%D0%BC%D0%B0%D0%B9%D0%BB%D1%8B-%D0%B8%D0%BB%D0%B8-%D0%B2%D1%81%D0%B5-%D0%B2%D1%81%D0%B5-%D0%BF%D1%80%D0%BE-%D0%BD%D0%B8%D1%85-%28%D0%BE%D1%84%D0%B8%D1%86%D0%B8%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B9-%D1%82%D1%80%D0%B5%D0%B4%29" target="_blank">Получить смайлы</a><br/>';
+        smileHtml += '<a href="http://mike.sc2tv.ru/img/sc2tv.jpg" target="_blank">Получить смайлы</a><br/>';
     }
 	smileHtml += '<img src="' + CHAT_IMG_DIR + smiles[i].img +'" title="' + smiles[i].code +'" width="' + smiles[i].width + '" height="' + smiles[i].height+ '"class="chat-smile" alt="' + smiles[i].code + '"/>';
 	if ( i > 0 && i % 37 == 0 && i < ( smilesCount - 1 ) && !privateStarted ) {
