@@ -137,8 +137,6 @@ function GenerateSalt( $length = 3 ) {
  * нужна, когда значение в memcache больше недоступно
  */
 function GetModeratorDetailsFromFile() {
-	SaveForDebug( 'read moderatorsDetails from file' );
-	
 	if ( !file_exists( CHAT_MODERATORS_DETAILS ) ) {
 		return FALSE;
 	}
@@ -150,8 +148,6 @@ function GetModeratorDetailsFromFile() {
 	if ( json_last_error() !== JSON_ERROR_NONE ) {
 		return FALSE;
 	}
-	
-	SaveForDebug( 'read moderatorsDetails from file - success' );
 	
 	return $jsonData;
 }
