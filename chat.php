@@ -86,9 +86,9 @@ class Chat {
       LEFT JOIN users_roles ON users_roles.uid = users.uid
       WHERE sid = "'. $drupalSession .'"
       ORDER BY isModerator DESC, isRoot DESC, isAdmin DESC, ban DESC, banExpirationTime DESC, rid ASC LIMIT 1';
-		
+
 		$queryResult = $this->db->Query( $queryString );
-		
+
 		if ( $queryResult === FALSE ) {
 			SaveForDebug( 'Login fail ' . $queryString );
 			$this->user[ 'error' ] = 'Ошибка авторизации';
@@ -96,7 +96,7 @@ class Chat {
 		}
 
 		$userInfo = $queryResult->fetch_assoc();
-		
+
 		// Drupal обнуляет uid в сессии, если пользователю в профиле поставить статус blocked
 		if ( $userInfo === NULL || $userInfo[ 'uid' ] == 0 ) {
 			$this->user[ 'error' ] = CHAT_UID_FOR_SESSION_NOT_FOUND;
@@ -104,9 +104,9 @@ class Chat {
 		}
 
 		$this->user = $userInfo;
-		
+
 		$newbieStatusTTL = $userInfo[ 'created' ] + CHAT_TIME_ON_SITE_AFTER_REG_NEEDED - CURRENT_TIME;
-		
+
 		if( $newbieStatusTTL > 0 ) {
 			$this->user[ 'ban' ] = 0;
 			$this->user[ 'rights' ] = -1;
@@ -115,11 +115,11 @@ class Chat {
 			$this->memcache->Set( $chatAuthMemcacheKey, $this->user, $newbieStatusTTL );
 			return;
 		}
-		
+
 		if( $userInfo[ 'ban' ] == 1 ) {
 			// для проверки на гражданство в будущем
 			$this->user[ 'wasBanned' ] = 1;
-			
+
 			$banStatusTTL = $userInfo[ 'banExpirationTime' ] - CURRENT_TIME;
 			if ( $banStatusTTL > 0 ) {
 				$this->user[ 'ban' ] = 1;
@@ -133,7 +133,7 @@ class Chat {
 				$this->user[ 'ban' ] = 0;
 			}
 		}
-		
+
 		$this->user[ 'error' ] = '';
 
         if ( $this->user[ 'roleIds' ] === NULL ) {
@@ -150,7 +150,7 @@ class Chat {
         if ( count( array_intersect( array( 3, 4, 5 ), $this->user[ 'roleIds' ] ) ) > 0 ) {
             $this->user[ 'type' ] = 'chatAdmin';
             $this->user[ 'rights' ] = 1;
-        } elseif ( count( array_intersect( array( 8 ), $this->user[ 'roleIds' ] ) ) > 0 ) {
+        } elseif ( in_array( 8, $this->user[ 'roleIds' ] ) ) {
             $this->user[ 'ban' ] = 1;
             $this->user[ 'rights' ] = -1;
             $this->user[ 'type' ] = 'bannedOnSite';
@@ -369,47 +369,56 @@ class Chat {
       $index_condition = 'USE INDEX(channelId)';
 			$messagesCount = CHAT_CHANNEL_MSG_LIMIT;
 		}
-		
-		// ограничение по дате сделано, чтобы ускорить выборку при большом числе записей
-		/*$queryString = '
-			SELECT id, chat_message.uid, IFNULL( name, "system" ) as name, message,
-			IFNULL( min( rid ), 2 ) as rid, date, channelId
-			FROM chat_message
-			LEFT JOIN users on users.uid = chat_message.uid
-			LEFT JOIN users_roles ON users_roles.uid = chat_message.uid
-			WHERE '. $channelCondition .'
-			deletedBy is NULL
-			AND date > "' . date( 'Y-m-d H:i:s', CURRENT_TIME - 259200 ) . '"
-			GROUP BY id
-			ORDER BY id	DESC LIMIT '. $messagesCount;*/
 
-    // roles priority root > Admin > Moderator > Streamer > others.
-    $queryString = 'SELECT *  FROM (
-      SELECT * FROM (
-        SELECT id, IFNULL(rid, 2 ) as rid, chat_message.uid, IFNULL( name, "system" ) as name, message, date, channelId
+      $queryString = '
+        SELECT id, chat_message.uid, IFNULL( name, "system" ) as name, message, date, channelId,
+          (SELECT GROUP_CONCAT(rid SEPARATOR ",") FROM users_roles WHERE users_roles.uid = users.uid) as roleIds
           FROM chat_message '. $index_condition .'
     			LEFT JOIN users on users.uid = chat_message.uid
-    			LEFT JOIN users_roles ON users_roles.uid = chat_message.uid
           WHERE '. $channelCondition .'
     			date > "' . date( 'Y-m-d H:i:s', CURRENT_TIME - 259200 ) . '" AND
           deletedBy is NULL
-          ORDER BY id DESC LIMIT '. $messagesCount * 3 . '
-        ) as tmp_table_chat  ORDER BY FIELD(rid,3,4,5,9,6,7,10,14,16,17,18,19,20,21,22,2) ASC LIMIT '. $messagesCount * 3 . '
-      ) as tmp_table_chat_limited GROUP BY id ORDER BY id DESC LIMIT '. $messagesCount;
-		
+          ORDER BY id DESC LIMIT '. $messagesCount;
+
 		$queryResult = $this->db->Query( $queryString );
-		
+
 		if ( $queryResult === FALSE ) {
 			SaveForDebug( 'GetMessagesByChannelId fail ' . $queryString );
 			return FALSE;
 		}
-		
+
 		$messages = array();
 
 		while( $msg = $queryResult->fetch_assoc() ) {
+            if ( $msg[ 'roleIds' ] === NULL ) {
+                $msg[ 'roleIds' ] = array(2);
+            } else {
+                $msg[ 'roleIds' ] = array_merge( array(2), array_map('intval', explode ( ',', $msg[ 'roleIds' ] ) ) );
+            }
+
+            if ( in_array( 3, $msg[ 'roleIds' ] ) ) {
+                $msg[ 'role' ] = 'root';
+                $msg[ 'rid' ] = 3; //TODO: delete after all users refresh page
+            } elseif ( in_array( 4, $msg[ 'roleIds' ] ) ) {
+                $msg[ 'role' ] = 'admin';
+                $msg[ 'rid' ] = 4; //TODO: delete after all users refresh page
+            } elseif ( in_array( 5, $msg[ 'roleIds' ] ) ) {
+                $msg[ 'role' ] = 'moderator';
+                $msg[ 'rid' ] = 5; //TODO: delete after all users refresh page
+            } elseif ( in_array( 9, $msg[ 'roleIds' ] ) ) {
+                $msg[ 'role' ] = 'streamer';
+                $msg[ 'rid' ] = 9; //TODO: delete after all users refresh page
+            } elseif ( count( array_intersect( array( 6, 7 ), $msg[ 'roleIds' ] ) ) > 0 ) {
+                $msg[ 'role' ] = 'editor';
+                $msg[ 'rid' ] = 6; //TODO: delete after all users refresh page
+            } else {
+                $msg[ 'role' ] = 'user';
+                $msg[ 'rid' ] = 2; //TODO: delete after all users refresh page
+            }
+
 			$messages[] = $msg;
 		}
-		
+
 		return $messages;
 	}
 	

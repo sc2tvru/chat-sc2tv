@@ -487,11 +487,11 @@ function BuildChat( dataForBuild ) {
 		default:
 			myform = form_chat;
 	}
-	
-	if ( userInfo.isModerator == '1' ) {
-		$.cookie( 'is_moderator', '1', { expires: 365, path: '/'} );
-	}
-	
+
+    if ( userInfo.type === 'chatAdmin' ) {
+        $.cookie( 'is_moderator', '1', { expires: 365, path: '/'} );
+    }
+
 	$('#dialog2').html('<div id="add_styles"></div><div class="chat-channel-name"><div title="перейти на главный канал" class="channel 0">main</div><div id="stream-room" title="перейти на другой канал" class="channel other">other</div><br style="clear:both"/></div><div id="chat"></div>'+myform);
   
 	if ( top === self ) {
@@ -784,7 +784,7 @@ function BuildHtml( messageList ) {
 				color = GetSpecColor( messageList[ i ].uid );
 				// если не блат, то цвет по классу группы
 				if ( color == '' ) {
-					nicknameClass += ' user-' + messageList[ i ].rid;
+					nicknameClass += ' role-' + messageList[ i ].role;
 				}
 				else {
 					customColorStyle = ' style="color:' + color + ';"';

@@ -2,22 +2,41 @@
 .user-2, .user-8, .user-10 {
 color:#7797be !important;
 }
+.role-user{
+    color:#7797be !important;
+}
 .user-3{
 color:#BC3C3E !important;
 font-style: italic;
 }
+.role-root{
+    color:#BC3C3E !important;
+    font-style: italic;
+}
 .user-4{
 color:#BC3C3E !important;
 }
+.role-admin{
+    color:#BC3C3E !important;
+}
 .user-5 {
 color:#C57C08 !important;
+}
+.role-moderator {
+    color:#C57C08 !important;
 }
 .user-6,
 .user-7{
 color: #dad871 !important;
 }
+.role-editor{
+    color: #dad871 !important;
+}
 .user-9{
 color: #5DA130 !important;
+}
+.role-streamer{
+    color: #5DA130 !important;
 }
 
 #dialog2{
