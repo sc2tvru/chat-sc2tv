@@ -488,7 +488,7 @@ function BuildChat( dataForBuild ) {
 			myform = form_chat;
 	}
 
-    if ( userInfo.type === 'chatAdmin' ) {
+    if ( userInfo.roleIds.indexOf( 5 ) !== -1 ) {
         $.cookie( 'is_moderator', '1', { expires: 365, path: '/'} );
     }
 
@@ -771,6 +771,7 @@ function BuildHtml( messageList ) {
 		var nicknameClass = 'nick';
 		var color = '';
 		var customColorStyle = '';
+        var namePrefix = '';
 		
 		// сообщения пользователей и системы выглядят по-разному
 		if ( messageList[ i ].uid != -1 ) {
@@ -790,6 +791,10 @@ function BuildHtml( messageList ) {
 					customColorStyle = ' style="color:' + color + ';"';
 				}
 			}
+
+            if ( messageList[ i ].roleIds.indexOf( 24 ) !== -1 ) {
+                namePrefix = '<img src="/css/donate_01.png" class="top-supporter" />';
+            }
 		}
 		else {
 			nicknameClass = 'system-nick';
@@ -821,7 +826,7 @@ function BuildHtml( messageList ) {
 		}
 		
 		if ( smileOnly == false ) {
-			data = '<div class="channel-' + channelId + ' mess message_' + messageList[ i ].id + '"><span' + customColorStyle + ' class="' + nicknameClass + '"' + userMenu + 'title="' + messageList[ i ].date + '">' + messageList[ i ].name + '</span><p class="' + textClass + '">' + messageList[ i ].message + '</p></div>' + data;
+			data = '<div class="channel-' + channelId + ' mess message_' + messageList[ i ].id + '">' + namePrefix + '<span' + customColorStyle + ' class="' + nicknameClass + '"' + userMenu + 'title="' + messageList[ i ].date + '">' + messageList[ i ].name + '</span><p class="' + textClass + '">' + messageList[ i ].message + '</p></div>' + data;
 		}
 	}
 	

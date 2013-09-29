@@ -337,3 +337,7 @@ body{
 	display:inline;
 	margin-right:18px !important;
 }
+.top-supporter{
+    display: inline-block;
+    margin-right: 2px;
+}
