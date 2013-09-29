@@ -488,9 +488,9 @@ function BuildChat( dataForBuild ) {
 			myform = form_chat;
 	}
 
-    if ( userInfo.roleIds.indexOf( 5 ) !== -1 ) {
-        $.cookie( 'is_moderator', '1', { expires: 365, path: '/'} );
-    }
+	if ( userInfo.type === 'chatAdmin' && userInfo.roleIds.indexOf( 5 ) !== -1 ) {
+		$.cookie( 'is_moderator', '1', { expires: 365, path: '/'} );
+	}
 
 	$('#dialog2').html('<div id="add_styles"></div><div class="chat-channel-name"><div title="перейти на главный канал" class="channel 0">main</div><div id="stream-room" title="перейти на другой канал" class="channel other">other</div><br style="clear:both"/></div><div id="chat"></div>'+myform);
   
