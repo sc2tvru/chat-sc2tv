@@ -80,7 +80,6 @@ $(document).ready(function(){
 	BuildChat();
 	
 	if ( whoStopChat == '0' || whoStopChat == undefined || whoStopChat == '' ) {
-		//CheckIsChannelAllowed( chat_channel_id );
 		if ( $.cookie( 'chat-on' ) == null || $.cookie( 'chat-on' ) == '1' ) {
 			StartChat();
 		}
@@ -105,24 +104,6 @@ function getParameterByName( name ) {
 	else {
 		return decodeURIComponent(results[1].replace(/\+/g, " "));
 	}
-}
-
-function CheckIsChannelAllowed( channelId ) {
-	$.ajaxSetup({ ifModified: false, cache: true });
-	$.getJSON( CHAT_URL + 'memfs/channels.json', function( data ) {
-		if ( !( data == undefined || data == '' ) ){
-			channelList = data.channel;
-			var channelMaxNum = channelList.length - 1;
-			
-			for( var i=0; i <= channelMaxNum; i++ ) {
-				if ( channelList[ i ].channelId == channelId ) {
-					return true;
-				}
-			}
-			StopChat( true , 'Канал с таким ID не найден в списке разрешенных.' );
-			$( '#chat-on').remove();
-		}
-	});
 }
 
 function StartChat(){
@@ -885,7 +866,8 @@ function WriteMessage(){
 		return false;
 	}
 	
-	$.ajaxSetup({ async: false });
+	//$.ajaxSetup({ async: false });
+	$( '.chat-text' ).attr( 'readonly', 'readonly' );
 	$.post( CHAT_URL + 'gate.php', { task: 'WriteMessage', message: msg, channel_id: chat_channel_id, token: userInfo.token }, function( jsonData ) {
 		data = $.parseJSON( jsonData );
 		
@@ -898,8 +880,9 @@ function WriteMessage(){
 		else {
 			show_error( CHAT_USER_MESSAGE_ERROR );
 		}
+		$( '.chat-text' ).removeAttr( 'readonly' );
 	});
-	$.ajaxSetup({ async: true });
+	//$.ajaxSetup({ async: true });
 }
 
 function CheckUserState( currentUserData ) {

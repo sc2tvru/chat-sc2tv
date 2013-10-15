@@ -2,7 +2,7 @@
 class Chat {
 	public $user;
 	private $channelId, $memcache, $db;
-    
+	
 	function __construct( $memcacheObject ) {
 		
 		// по умолчанию считаем всех анонимами без прав
@@ -66,15 +66,17 @@ class Chat {
 		
 		$chatAuthMemcacheKey = 'ChatUserInfo_' . $drupalSession;
 		
-		$isAuthInfoInMemcache = $this->GetAuthInfoFromMemcache( $chatAuthMemcacheKey );
+		$isAuthInfoInMemcache = $this->GetAuthInfoFromMemcache(
+			$chatAuthMemcacheKey
+		);
 
 		if ( $isAuthInfoInMemcache ) {
 			return;
 		}
 		
 		$this->SetDatabase();
-		// TODO: регулярки выше должно хватить, но на всякий случай лучше подготовить
-		// убрать?
+		// регулярки выше должно хватить, но на всякий случай
+		// лучше подготовить. TODO: Убрать?
 		list( $drupalSession ) = $this->db->PrepareParams( $drupalSession );
 		
     // roles priority Moderator > Root > Admin > Streamer > others
@@ -97,22 +99,28 @@ class Chat {
 
 		$userInfo = $queryResult->fetch_assoc();
 
-		// Drupal обнуляет uid в сессии, если пользователю в профиле поставить статус blocked
+		// Drupal обнуляет uid в сессии, если пользователю в профиле
+		// поставить статус blocked
 		if ( $userInfo === NULL || $userInfo[ 'uid' ] == 0 ) {
 			$this->user[ 'error' ] = CHAT_UID_FOR_SESSION_NOT_FOUND;
 			return;
 		}
-
+		
 		$this->user = $userInfo;
-
-		$newbieStatusTTL = $userInfo[ 'created' ] + CHAT_TIME_ON_SITE_AFTER_REG_NEEDED - CURRENT_TIME;
-
+		
+		$newbieStatusTTL = $userInfo[ 'created' ] +
+			CHAT_TIME_ON_SITE_AFTER_REG_NEEDED - CURRENT_TIME;
+		
 		if( $newbieStatusTTL > 0 ) {
 			$this->user[ 'ban' ] = 0;
 			$this->user[ 'rights' ] = -1;
 			$this->user[ 'type' ] = 'newbie';
 			$this->user[ 'error' ] = CHAT_NEWBIE_USER;
-			$this->memcache->Set( $chatAuthMemcacheKey, $this->user, $newbieStatusTTL );
+			$this->memcache->Set(
+				$chatAuthMemcacheKey,
+				$this->user,
+				$newbieStatusTTL
+			);
 			return;
 		}
 
@@ -126,7 +134,7 @@ class Chat {
 				$this->user[ 'rights' ] = -1;
 				$this->user[ 'type' ] = 'bannedInChat';
 				$this->user[ 'error' ] = CHAT_USER_BANNED_IN_CHAT;
-				$this->memcache->Set( $chatAuthMemcacheKey, $this->user, $banStatusTTL );
+				$this->memcache->Set( $chatAuthMemcacheKey, $this->user, $banStatusTTL);
 				return;
 			}
 			else {
@@ -135,31 +143,37 @@ class Chat {
 		}
 
 		$this->user[ 'error' ] = '';
-
-        if ( $this->user[ 'roleIds' ] === NULL ) {
-            $this->user[ 'roleIds' ] = array(2);
-        } else {
-            $this->user[ 'roleIds' ] = array_merge( array(2), array_map('intval', explode ( ',', $userInfo[ 'roleIds' ] ) ) );
-        }
-
-		// 3 - root, 4 - admin, 5 - moder, 6 - journalist, 7 - editor, 8 - banned, 9 - streamer, 10 - userstreamer
+		
+		if ( $this->user[ 'roleIds' ] === NULL ) {
+			$this->user[ 'roleIds' ] = array(2);
+		} else {
+			$this->user[ 'roleIds' ] = array_merge(
+				array(2),
+				array_map( 'intval', explode( ',', $userInfo[ 'roleIds' ] ) )
+			);
+		}
+		
+		// 3 - root, 4 - admin, 5 - moder, 6 - journalist, 7 - editor, 8 - banned
+		// 9 - streamer, 10 - userstreamer
 		if ( $this->user[ 'rid' ] === NULL ) {
 			$this->user[ 'rid' ] = 2;
 		}
-
-        if ( count( array_intersect( array( 3, 4, 5 ), $this->user[ 'roleIds' ] ) ) > 0 ) {
-            $this->user[ 'type' ] = 'chatAdmin';
-            $this->user[ 'rights' ] = 1;
-        } elseif ( in_array( 8, $this->user[ 'roleIds' ] ) ) {
-            $this->user[ 'ban' ] = 1;
-            $this->user[ 'rights' ] = -1;
-            $this->user[ 'type' ] = 'bannedOnSite';
-            $this->user[ 'error' ] = CHAT_USER_BANNED_ON_SITE;
-        } else {
-            $this->user[ 'type' ] = 'user';
-            $this->user[ 'rights' ] = 0;
-        }
-
+		
+		if ( count(
+			array_intersect( array( 3, 4, 5 ), $this->user[ 'roleIds' ] )
+			) > 0 ) {
+			$this->user[ 'type' ] = 'chatAdmin';
+			$this->user[ 'rights' ] = 1;
+		} elseif ( in_array( 8, $this->user[ 'roleIds' ] ) ) {
+			$this->user[ 'ban' ] = 1;
+			$this->user[ 'rights' ] = -1;
+			$this->user[ 'type' ] = 'bannedOnSite';
+			$this->user[ 'error' ] = CHAT_USER_BANNED_ON_SITE;
+		} else {
+			$this->user[ 'type' ] = 'user';
+			$this->user[ 'rights' ] = 0;
+		}
+		
 		// генерируем токен на основе сессии и запоминаем
 		if ( empty( $_COOKIE[ CHAT_COOKIE_TOKEN ] ) ) {
 			$this->user[ 'token' ] = GenerateSecurityToken( $drupalSession );
@@ -169,7 +183,11 @@ class Chat {
 			$this->user[ 'token' ] = $_COOKIE[ CHAT_COOKIE_TOKEN ];
 		}
 		
-		$this->memcache->Set( $chatAuthMemcacheKey, $this->user, CHAT_USER_AUTHORIZATION_TTL );
+		$this->memcache->Set(
+			$chatAuthMemcacheKey,
+			$this->user,
+			CHAT_USER_AUTHORIZATION_TTL
+		);
 	}
 	
 	
@@ -186,7 +204,7 @@ class Chat {
 		}
 		
 		$this->user = $userInfo;
-		// SaveForDebug( 'GetAuthInfoFromMemcache userInfo ' .var_export( $userInfo, TRUE ) );
+		
 		// проверяем флаг в memcache на случай бана от модератора или граждан,
 		// либо изменения длительности бана
 		$banInfoMemcacheKey = 'Chat_uid_' . $this->user[ 'uid' ] . '_BanInfo'; 
@@ -196,8 +214,10 @@ class Chat {
 			. $banInfoMemcacheKey . ' banInfo ' .var_export( $banInfo, TRUE ) );
 		//*/
 		if ( $banInfo !== FALSE ) {
-			// при форсе релогина удаляем информацию о бане и возвращаем FALSE для авторизации через базу
-			if ( isset( $banInfo[ 'needRelogin' ] ) && ( $banInfo[ 'needRelogin' ] == 1 ) ) {
+			// при форсе релогина удаляем информацию о бане и возвращаем FALSE
+			// для авторизации через базу
+			if ( isset( $banInfo[ 'needRelogin' ] )
+				&& ( $banInfo[ 'needRelogin' ] == 1 ) ) {
 				$this->memcache->Delete( $banInfoMemcacheKey );
 				return FALSE;
 			}
@@ -205,13 +225,14 @@ class Chat {
 			$this->user[ 'error' ] = CHAT_USER_BANNED_IN_CHAT;
 			
 			/** если есть информация о бане, нужно обновить данные по пользователю,
-			 *  но только если это еще не сделано (тип пользователя отличен от bannedInChat)
+			 *  но только если это еще не сделано (тип пользователя не bannedInChat)
 			 *	либо установлен флаг needUpdate
 			 */
-			if ( $this->user[ 'type' ] != 'bannedInChat' || isset( $banInfo[ 'needUpdate' ] ) && ( $banInfo[ 'needUpdate' ] == 1 ) ) {
+			if ( $this->user[ 'type' ] != 'bannedInChat'
+				|| isset( $banInfo[ 'needUpdate' ] ) && ( $banInfo[ 'needUpdate' ] == 1)
+				) {
 				
 				$banInfoTTL = $banInfo[ 'banExpirationTime' ] - CURRENT_TIME;
-				//SaveForDebug( var_export( $banInfo, TRUE ) . "banInfoTTL = $banInfoTTL" );
 				// бан уже прошел
 				if ( $banInfoTTL <= 0 ) {
 					$this->memcache->Delete( $banInfoMemcacheKey );
@@ -247,7 +268,11 @@ class Chat {
 	 */
 	private function IsStringCapsOrAbuse( $str ) {
 		// удаляем обращения вроде [b]MEGAKILLER[/b], bb-код [b][/b]
-		$tempStr = preg_replace( '/^\[b\][-\.\w\x{400}-\x{45F}\x{490}\x{491}\x{207}\x{239}\[\]]+\[\/b\]|\[b\]|\[\/b\]/uis', '',  $str );
+		$tempStr = preg_replace(
+			'/^\[b\][-\.\w\x{400}-\x{45F}\x{490}\x{491}\x{207}\x{239}\[\]]+\[\/b\]|\[b\]|\[\/b\]/uis',
+			'', 
+			$str
+		);
 		
 		// если остались только пробельные символы, это абуз
 		if ( !preg_match( '/[^\s]+/uis', $tempStr ) ) {
@@ -255,13 +280,17 @@ class Chat {
 		}
 		
 		// URL
-		$tempStr = preg_replace( '/(?:ht|f)tp[s]{0,1}:\/\/[^\s]+/uis', '',  $tempStr );
+		$tempStr = preg_replace('/(?:ht|f)tp[s]{0,1}:\/\/[^\s]+/uis', '', $tempStr);
 		
 		// коды смайлов
 		$tempStr = preg_replace( '/:s:[^:]+:/uis', '',  $tempStr );
 		
 		// общее кол-во букв независимо от регистра
-		preg_match_all( '/[a-z\x{400}-\x{45F}\x{490}\x{491}\x{207}\x{239}]/ui', $tempStr, $matches );
+		preg_match_all(
+			'/[a-z\x{400}-\x{45F}\x{490}\x{491}\x{207}\x{239}]/ui',
+			$tempStr,
+			$matches
+		);
 		
 		$len = count( $matches[ 0 ] );
 		
@@ -312,21 +341,21 @@ class Chat {
 	 */
 	private function WriteChannelCache( $channelId = 0 ) {
 		if ( $channelId >= 0 ) {
-			$isCacheActualMemcacheKey = 'ChatChActual-' . $channelId;
+			//$isCacheActualMemcacheKey = 'ChatChActual-' . $channelId;
 			$channelFileName = CHAT_MEMFS_DIR . '/channel-' . $channelId . '.json';
 		}
 		else {
-			$isCacheActualMemcacheKey = 'ChatModChActual';
+			//$isCacheActualMemcacheKey = 'ChatModChActual';
 			$channelFileName = CHAT_MEMFS_DIR . '/channel-moderator.json';
 		}
-		
+		/*
 		$isCacheActual = $this->memcache->Get( $isCacheActualMemcacheKey );
 		
 		// пока кэш актуален, перезаписывать его не нужно
 		if ( $isCacheActual == '1' ) {
 			return;
 		}
-		
+		*/
 		// пишем в файл, если он не заблокирован
 		$channelCacheFile = fopen( $channelFileName, 'w' );
 	
@@ -342,9 +371,13 @@ class Chat {
 			gzwrite( $channelCacheGzFile, $dataJson );
 			gzclose( $channelCacheGzFile );
 			
-			// помечаем, что кэш актуален
-			$this->memcache->Set( $isCacheActualMemcacheKey, TRUE, CHANNEL_CACHE_ACTUAL_TTL );
-			
+			/*/ помечаем, что кэш актуален
+			$this->memcache->Set(
+				$isCacheActualMemcacheKey,
+				TRUE,
+				CHANNEL_CACHE_ACTUAL_TTL
+			);
+			*/
 			flock( $channelCacheFile, LOCK_UN );
 		}
 		
@@ -358,7 +391,8 @@ class Chat {
 	 *  @return array
 	 */
 	private function GetMessagesByChannelId( $channelId = -1 ) {
-		// если канал не указан, выбираются сообщения для модераторов по всем каналам
+		// если канал не указан, выбираются сообщения для модераторов
+		// по всем каналам
 		if (  $channelId === -1 ) {
 			$channelCondition = '';
       $index_condition = '';
@@ -369,53 +403,58 @@ class Chat {
       $index_condition = 'USE INDEX(channelId)';
 			$messagesCount = CHAT_CHANNEL_MSG_LIMIT;
 		}
-
-      $queryString = '
-        SELECT id, chat_message.uid, IFNULL( name, "system" ) as name, message, date, channelId,
-          (SELECT GROUP_CONCAT(rid SEPARATOR ",") FROM users_roles WHERE users_roles.uid = users.uid) as roleIds
-          FROM chat_message '. $index_condition .'
-    			LEFT JOIN users on users.uid = chat_message.uid
-          WHERE '. $channelCondition .'
-    			date > "' . date( 'Y-m-d H:i:s', CURRENT_TIME - 259200 ) . '" AND
-          deletedBy is NULL
-          ORDER BY id DESC LIMIT '. $messagesCount;
-
+		
+		$queryString = '
+			SELECT id, chat_message.uid, IFNULL( name, "system" ) as name, message, date, channelId,
+				(SELECT GROUP_CONCAT(rid SEPARATOR ",") FROM users_roles WHERE users_roles.uid = users.uid) as roleIds
+				FROM chat_message '. $index_condition .'
+				LEFT JOIN users on users.uid = chat_message.uid
+				WHERE '. $channelCondition .'
+				date > "' . date( 'Y-m-d H:i:s', CURRENT_TIME - 259200 ) . '" AND
+				deletedBy is NULL
+				ORDER BY id DESC LIMIT '. $messagesCount;
+		
 		$queryResult = $this->db->Query( $queryString );
-
+		
 		if ( $queryResult === FALSE ) {
 			SaveForDebug( 'GetMessagesByChannelId fail ' . $queryString );
 			return FALSE;
 		}
-
+		
 		$messages = array();
-
+		
 		while( $msg = $queryResult->fetch_assoc() ) {
-            if ( $msg[ 'roleIds' ] === NULL ) {
-                $msg[ 'roleIds' ] = array(2);
-            } else {
-                $msg[ 'roleIds' ] = array_merge( array(2), array_map('intval', explode ( ',', $msg[ 'roleIds' ] ) ) );
-            }
-
-            if ( in_array( 3, $msg[ 'roleIds' ] ) ) {
-                $msg[ 'role' ] = 'root';
-                $msg[ 'rid' ] = 3; //TODO: delete after all users refresh page
-            } elseif ( in_array( 4, $msg[ 'roleIds' ] ) ) {
-                $msg[ 'role' ] = 'admin';
-                $msg[ 'rid' ] = 4; //TODO: delete after all users refresh page
-            } elseif ( in_array( 5, $msg[ 'roleIds' ] ) ) {
-                $msg[ 'role' ] = 'moderator';
-                $msg[ 'rid' ] = 5; //TODO: delete after all users refresh page
-            } elseif ( in_array( 9, $msg[ 'roleIds' ] ) ) {
-                $msg[ 'role' ] = 'streamer';
-                $msg[ 'rid' ] = 9; //TODO: delete after all users refresh page
-            } elseif ( count( array_intersect( array( 6, 7 ), $msg[ 'roleIds' ] ) ) > 0 ) {
-                $msg[ 'role' ] = 'editor';
-                $msg[ 'rid' ] = 6; //TODO: delete after all users refresh page
-            } else {
-                $msg[ 'role' ] = 'user';
-                $msg[ 'rid' ] = 2; //TODO: delete after all users refresh page
-            }
-
+			if ( $msg[ 'roleIds' ] === NULL ) {
+				$msg[ 'roleIds' ] = array(2);
+			} else {
+				$msg[ 'roleIds' ] = array_merge(
+					array(2),
+					array_map( 'intval', explode ( ',', $msg[ 'roleIds' ] ) )
+				);
+			}
+			
+			if ( in_array( 3, $msg[ 'roleIds' ] ) ) {
+				$msg[ 'role' ] = 'root';
+				$msg[ 'rid' ] = 3; //TODO: delete after all users refresh page
+			} elseif ( in_array( 4, $msg[ 'roleIds' ] ) ) {
+				$msg[ 'role' ] = 'admin';
+				$msg[ 'rid' ] = 4; //TODO: delete after all users refresh page
+			} elseif ( in_array( 5, $msg[ 'roleIds' ] ) ) {
+				$msg[ 'role' ] = 'moderator';
+				$msg[ 'rid' ] = 5; //TODO: delete after all users refresh page
+			} elseif ( in_array( 9, $msg[ 'roleIds' ] ) ) {
+				$msg[ 'role' ] = 'streamer';
+				$msg[ 'rid' ] = 9; //TODO: delete after all users refresh page
+			} elseif (
+					count( array_intersect( array( 6, 7 ), $msg[ 'roleIds' ] ) ) > 0
+				) {
+				$msg[ 'role' ] = 'editor';
+				$msg[ 'rid' ] = 6; //TODO: delete after all users refresh page
+			} else {
+				$msg[ 'role' ] = 'user';
+				$msg[ 'rid' ] = 2; //TODO: delete after all users refresh page
+			}
+			
 			$messages[] = $msg;
 		}
 
@@ -430,12 +469,12 @@ class Chat {
 	 */
 	private function CheckForAutoBan( $message ) {
 		// 3 или 4 смайла смайла
-        if ( in_array( 20, $this->user[ 'roleIds' ] ) ) {
-            $pattern = '/(?::s:[^:]+:.*){4,}/usi';
-        } else {
-            $pattern = '/(?::s:[^:]+:.*){3,}/usi';
-        }
-
+		if ( in_array( 20, $this->user[ 'roleIds' ] ) ) {
+			$pattern = '/(?::s:[^:]+:.*){4,}/usi';
+		} else {
+			$pattern = '/(?::s:[^:]+:.*){3,}/usi';
+		}
+		
 		if( preg_match( $pattern, $message ) ) {
 			$this->BanUser( $this->user[ 'uid' ], $this->user[ 'name' ], 4320, 0, 0,
 				CHAT_AUTOBAN_REASON_1, TRUE );
@@ -444,34 +483,43 @@ class Chat {
 		
 		return FALSE;
 	}
+	
+	
+	/*
+	 * удаление недопустимых для данной роли смайлов
+	 * @param string message сообщение
+	 * @return string отфильтрованное сообщение
+	 */
+	private function FilterSmiles ( $message ) {
+		$queryResult = $this->db->Query(
+			'SELECT smiles FROM role_smiles WHERE rid in ('
+				. implode( ',', $this->user[ 'roleIds' ] )
+				. ')'
+		);
+		
+		if ( $queryResult === FALSE ) {
+			return $message;
+		}
 
-    /*
-     * удаление недопустимых для данной роли смайлов
-     * @param string message сообщение
-     * @return string отфильтрованное сообщение
-     */
-    private function FilterSmiles ( $message ) {
-        $queryResult = $this->db->Query( 'SELECT smiles FROM role_smiles WHERE rid in (' . implode(',', $this->user[ 'roleIds' ]) . ')' );
+		$allowed_smiles = array();
+		while( $result = $queryResult->fetch_assoc() ) {
+			$allowed_smiles = array_merge(
+				$allowed_smiles,
+				explode( ',', $result['smiles'] )
+			);
+		}
 
-        if ( $queryResult === FALSE ) {
-            return $message;
-        }
+		preg_match_all( '/:s(:[a-z0-9-]+:)/usi', $message, $matches );
+		foreach ( $matches[1] as $match ) {
+			if ( !in_array( strtolower($match), $allowed_smiles) ) {
+				$message = str_ireplace( ':s' . $match, ' ',  $message );
+			}
+		}
 
-        $allowed_smiles = array();
-        while( $result = $queryResult->fetch_assoc() ) {
-            $allowed_smiles = array_merge($allowed_smiles, explode(',', $result['smiles']));
-        }
-
-        preg_match_all( '/:s(:[a-z0-9-]+:)/usi', $message, $matches );
-        foreach ( $matches[1] as $match ) {
-            if ( !in_array( strtolower($match), $allowed_smiles) ) {
-                $message = str_ireplace( ':s' . $match, ' ',  $message );
-            }
-        }
-
-        return $message;
-    }
-
+		return $message;
+	}
+	
+	
 	/**
 	 *  пост сообщения в чат
 	 *  @param string message текст сообщения
@@ -486,7 +534,11 @@ class Chat {
 		U+0400 - U+045F, U+0490, U+0491, U+0207, U+0239 http://ru.wikipedia.org/wiki/Кириллица_в_Юникоде
 		U+2012, U+2013, U+2014 - тире
 		*/
-		$message = preg_replace( '/[^\x20-\x7E\x{400}-\x{45F}\x{490}\x{491}\x{207}\x{239}\x{2012}\x{2013}\x{2014}]+/us', '',  $message );
+		$message = preg_replace(
+			'/[^\x20-\x7E\x{400}-\x{45F}\x{490}\x{491}\x{207}\x{239}\x{2012}\x{2013}\x{2014}]+/us',
+			'',
+			$message
+		);
 		
 		// whitespaces
 		$message = preg_replace( '#[\s]+#uis', ' ',  $message );
@@ -503,19 +555,28 @@ class Chat {
 			// предотвращаем перевод кодов смайлов в картинки, чтобы не бился html
 			$message = preg_replace( '/(?::s)+(:[^:]+:)/uis', '\\1', $message );
 			// URL тоже
-			$message = preg_replace( '/(?:ht|f)tp[s]{0,1}:\/\/([^\s]+)/uis', '\\1',  $message );
-			$message = '<span class="red" title="' . $message . '">Предупреждение за CAPS / Abuse!</span>';
+			$message = preg_replace(
+				'/(?:ht|f)tp[s]{0,1}:\/\/([^\s]+)/uis',
+				'\\1',
+				$message
+			);
+			$message = '<span class="red" title="' . $message
+				. '">Предупреждение за CAPS / Abuse!</span>';
 		}
 		else {
-			$message = preg_replace( '#\[b\](.+?)\[/b\]#uis', '<b>\\1</b>',  $message );
+			$message = preg_replace(
+				'#\[b\](.+?)\[/b\]#uis',
+				'<b>\\1</b>',
+				$message
+			);
 		}
 		
 		if( $this->CheckForAutoBan( $message ) ) {
 			return FALSE;
 		}
-
-        $message = $this->FilterSmiles($message);
-
+		
+		$message = $this->FilterSmiles($message);
+		
 		$message = $this->db->mysqli->real_escape_string( $message );
 		
 		$queryString = '
@@ -608,8 +669,9 @@ class Chat {
 			'error' => 'hack';// текст ошибки
 		)
 	 */
-	public function BanUser( $banUid, $banUserName, $banDurationInMin, $banMessageId,
-		$channelId,	$banReasonId = 0, $isAutoBan = FALSE ) {
+	public function BanUser( $banUid, $banUserName, $banDurationInMin,
+		$banMessageId, $channelId,	$banReasonId = 0, $isAutoBan = FALSE
+		) {
 		
 		$banUid = (int)$banUid;
 		$banMessageId = (int)$banMessageId;
@@ -640,7 +702,8 @@ class Chat {
 		// проверяем флаг в memcache на случай бана от модератора или граждан
 		$banInfoMemcacheKey = 'Chat_uid_' . $banUid . '_BanInfo';
 		
-		// делаем через Add, чтобы одновременно проверить отсутствие флага и установить его
+		// делаем через Add, чтобы одновременно проверить отсутствие флага
+		// и установить его
 		$isUserBanned = $this->memcache->Add(
 			$banInfoMemcacheKey,
 			array(
@@ -680,7 +743,8 @@ class Chat {
 		$queryResult = $this->db->Query( $queryString );
 		
 		if( $queryResult === FALSE ) {
-			// в случае ошибки с запросом удаляем флаг в мемкеше, чтобы юзера можно было забанить в следующий раз
+			// в случае ошибки с запросом удаляем флаг в мемкеше,
+			// чтобы юзера можно было забанить в следующий раз
 			$this->memcache->Delete( $banInfoMemcacheKey );
 			$result = array(
 				'code' => 0,
@@ -709,7 +773,8 @@ class Chat {
 		
 		// сохраняем для модераторов кол-во банов
 		if ( $this->user[ 'type' ] === 'chatAdmin' ) {
-			$moderatorsDetails = $this->memcache->Get( MODERATORS_DETAILS_MEMCACHE_KEY );
+			$moderatorsDetails = $this->memcache->Get(
+				MODERATORS_DETAILS_MEMCACHE_KEY );
 			
 			// попытка считать статистику из файла, если ее нет в memcache
 			if ( $moderatorsDetails === FALSE ) {
@@ -734,8 +799,11 @@ class Chat {
 					);
 				}
 				
-				$this->memcache->Set( MODERATORS_DETAILS_MEMCACHE_KEY, $moderatorsDetails,
-					CHAT_MODERATORS_DETAILS_TTL );
+				$this->memcache->Set(
+					MODERATORS_DETAILS_MEMCACHE_KEY,
+					$moderatorsDetails,
+					CHAT_MODERATORS_DETAILS_TTL
+				);
 			}
 		}
 		
@@ -746,7 +814,8 @@ class Chat {
 			$this->WriteChannelCache( -1 );
 		}
 		
-		$message = $moderatorName .' забанил '. $banUserName .' на ' .$banDurationInMin.' минут.';
+		$message = $moderatorName . ' забанил ' . $banUserName . ' на '
+			. $banDurationInMin.' минут.';
 		$this->WriteSystemMessage( $message );
 		
 		$result = array(
