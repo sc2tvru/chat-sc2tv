@@ -435,24 +435,18 @@ class Chat {
 			
 			if ( in_array( 3, $msg[ 'roleIds' ] ) ) {
 				$msg[ 'role' ] = 'root';
-				$msg[ 'rid' ] = 3; //TODO: delete after all users refresh page
 			} elseif ( in_array( 4, $msg[ 'roleIds' ] ) ) {
 				$msg[ 'role' ] = 'admin';
-				$msg[ 'rid' ] = 4; //TODO: delete after all users refresh page
 			} elseif ( in_array( 5, $msg[ 'roleIds' ] ) ) {
 				$msg[ 'role' ] = 'moderator';
-				$msg[ 'rid' ] = 5; //TODO: delete after all users refresh page
 			} elseif ( in_array( 9, $msg[ 'roleIds' ] ) ) {
 				$msg[ 'role' ] = 'streamer';
-				$msg[ 'rid' ] = 9; //TODO: delete after all users refresh page
 			} elseif (
 					count( array_intersect( array( 6, 7 ), $msg[ 'roleIds' ] ) ) > 0
 				) {
 				$msg[ 'role' ] = 'editor';
-				$msg[ 'rid' ] = 6; //TODO: delete after all users refresh page
 			} else {
 				$msg[ 'role' ] = 'user';
-				$msg[ 'rid' ] = 2; //TODO: delete after all users refresh page
 			}
 			
 			$messages[] = $msg;

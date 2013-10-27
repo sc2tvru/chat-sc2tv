@@ -774,7 +774,7 @@ function BuildHtml( messageList ) {
 			}
 
             if ( messageList[ i ].roleIds.indexOf( 24 ) !== -1 ) {
-                namePrefix = '<img src="/css/donate_01.png" class="top-supporter" />';
+                namePrefix = '<img src="/css/donate_01.png" width="12" height="11" class="top-supporter" />';
             }
 		}
 		else {
