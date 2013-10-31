@@ -147,14 +147,6 @@ function BuildHtml( messageList ) {
 	return data;
 }
 
-function MakeShrinkUrl( str, proto, url ) {
-    if ( url.length > 60 ) {
-		length = url.length;
-		return '<a rel="nofollow" href="' + str + '" target="_blank" title="' + str + '" class="link">' + url.substring( 0, 30 ) + '...' + url.substring( length - 20) + '</a>';
-	}
-	return '<a rel="nofollow" href="' + str + '" target="_blank" class="link">' + url + '</a>';
-}
-
 // всевозможные замены
 function ProcessReplaces( str ) {
 	// смайлы
@@ -163,20 +155,6 @@ function ProcessReplaces( str ) {
 		var smilePattern = new RegExp( RegExp.escape( ':s' + smiles[ i ].code ), 'gi' );
 		str = str.replace( smilePattern, smileHtml );
 	}
-	
-	// URL
-	var urlPattern = new RegExp(
-		'((?:(?:ftp)|(?:https?))(?:://))' + // протокол (1)
-		// URL без протокола (2)
-		'(((?:(?:[a-z\u0430-\u0451\\d](?:[a-z\u0430-\u0451\\d-]*[a-z\u0430-\u0451\\d])*)\\.)+(?:[a-z]{2,}|\u0440\u0444)' + // хост (3)
-		'|(?:(?:\\d{1,3}\\.){3}\\d{1,3}))' + // хост в формате IPv4 (3)
-		'(:\\d+)?' + // порт (4)
-		'(/[-a-z\u0430-\u0451\\d%_~\\+\\(\\):]*(?:[\\.,][-a-z\u0430-\u0451\\d%_~\\+\\(\\):]+)*)*' + // путь (5)
-		'(\\?(?:&amp;|[:;a-z\u0430-\u0451\\d%_~\\+=-])*)?' + // параметры (6)
-		'(#(?:&amp;|[:;a-z\u0430-\u0451\\d%_~\\+=-])*)?)' // якорь (7)
-		, 'gi'
-	);
-	str = str.replace( urlPattern, MakeShrinkUrl );
 	
 	return str;
 }
