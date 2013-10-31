@@ -362,9 +362,6 @@ function ProcessReplaces( str ) {
 			str = str.replace( smilePattern, '' );
 		}
 	}
-	
-	// URL
-	str = str.replace( urlPattern, MakeShrinkUrl );
 
 	return str;
 }
