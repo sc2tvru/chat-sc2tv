@@ -515,6 +515,36 @@ class Chat {
 	
 	
 	/**
+	 *  преобразуем url
+	 *  @param string message текст сообщения
+	 *  @return string отфильтрованное сообщение
+	 */
+	private function MakeUrls( $message ) {
+		$pattern = '/((?:(?:ftp)|(?:https?))(?::\/\/))'.// протокол (1)
+		// URL без протокола (2)
+		'(((?:(?:[a-zа-ё\d](?:[a-zа-ё\d-]*[a-zа-ё\d])*)\.)+(?:[a-z]{2,}|рф)|'.// хост (3)
+		'(?:(?:\d{1,3}\.){3}\d{1,3}))'.// хост в формате IPv4 (3)
+		'(:\d+)?'.// порт (4)
+		'(\/[-a-zа-ё\d%_~\+\(\):]*(?:[\.,][-a-zа-ё\d%_~\+\(\):]+)*)*'.// путь (5)
+		'(\?(?:&amp;|[:;a-zа-ё\d%_~\+=-])*)?'.// параметры (6)
+		'(#(?:&amp;|[:;a-zа-ё\d%_~\+=-])*)?)'.// якорь (7)
+		'/i';
+		
+		$message = preg_replace_callback(
+			$pattern,
+			function ( $matches ){
+				$matches = preg_replace( '/:s(:[a-z0-9-]+:)/usi', '', $matches);
+				    if ( strlen($matches[0]) > 60 ) {
+						$length = strlen($matches[2]);
+						return '<a rel="nofollow" href="' . $matches[0] . '" target="_blank" title="' . $matches[0] . '">' . substr( $matches[2], 0, 30 ) . '...' . substr( $matches[2], $length - 20) . '</a>';
+					}
+				return '<a rel="nofollow" href="' . $matches[0].'" target="_blank">' . $matches[0] . '</a>';
+			},
+			$message
+		);
+		return $message;
+	}	
+	/**
 	 *  пост сообщения в чат
 	 *  @param string message текст сообщения
 	 *  @return bool TRUE в случае успеха, FALSE неудачи
@@ -570,6 +600,8 @@ class Chat {
 		}
 		
 		$message = $this->FilterSmiles($message);
+		
+		$message = $this->MakeUrls($message);
 		
 		$message = $this->db->mysqli->real_escape_string( $message );
 		

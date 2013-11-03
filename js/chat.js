@@ -340,15 +340,6 @@ function PutDataToChat( data ) {
 	}
 }
 
-function MakeShrinkUrl( str, proto, url ) {
-    if ( url.length > 60 ) {
-		length = url.length;
-		return '<a rel="nofollow" href="' + str + '" target="_blank" title="' + str + '">' + url.substring( 0, 30 ) + '...' + url.substring( length - 20) + '</a>';
-	}
-	return '<a rel="nofollow" href="' + str + '" target="_blank">' + url + '</a>';
-}
-
-
 // всевозможные замены
 function ProcessReplaces( str ) {
 	// смайлы
@@ -362,9 +353,6 @@ function ProcessReplaces( str ) {
 			str = str.replace( smilePattern, '' );
 		}
 	}
-	
-	// URL
-	str = str.replace( urlPattern, MakeShrinkUrl );
 
 	return str;
 }
