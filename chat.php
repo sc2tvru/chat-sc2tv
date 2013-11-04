@@ -549,11 +549,21 @@ class Chat {
 			// предотвращаем перевод кодов смайлов в картинки, чтобы не бился html
 			$message = preg_replace( '/(?::s)+(:[^:]+:)/uis', '\\1', $message );
 			// URL тоже
-			$message = preg_replace(
-				'/(?:ht|f)tp[s]{0,1}:\/\/([^\s]+)/uis',
-				'\\1',
-				$message
-			);
+			if ( mb_stripos( $message, '[url' ) !== FALSE ) {
+				// [url=link]text[/url]
+				$message = preg_replace(
+					'#\[url=((?:ht|f)tps?:\/\/[^\]]+)\](.+?)\[/url\]#uis',
+					'\\1 \\2',
+					$message
+				);
+				// [url]link[/url]
+				$message = preg_replace(
+					'#\[url\]((?:ht|f)tps?:\/\/.+?)\[/url\]#uis',
+					'\\1 \\2',
+					$message
+				);
+				echo $message;
+			}
 			
 			// length of DB field - length of errorMessage = 1024 - 81
 			$maxLength = 943;
