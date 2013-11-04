@@ -559,7 +559,7 @@ class Chat {
 				// [url]link[/url]
 				$message = preg_replace(
 					'#\[url\]((?:ht|f)tps?:\/\/.+?)\[/url\]#uis',
-					'\\1 \\2',
+					'\\1',
 					$message
 				);
 				echo $message;
