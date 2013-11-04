@@ -256,7 +256,7 @@ function BuildHtml( messageList ) {
 
 //преобразуем бб код в хтмл
 function bbCodeUrlToHtml(str, proto, url, host, port, path, query, fragment, text){
-		url = url.replace(/:s:/g, '');	//удаляем смайлы из ссылок
+		url = url.replace(/:s:/gi, ':%73:');	//удаляем смайлы из ссылок
 		if (!text) text = url;
 	    if ( text.length > 60 ) {
 			length = text.length;
