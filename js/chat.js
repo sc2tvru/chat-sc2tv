@@ -57,22 +57,8 @@ form_banned = '<div id="chat-form">' + divForFullScreen + chat_vkl_btn + ' ' + i
 
 form_newbie = '<div id="chat-form">' + divForFullScreen + chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + chat_history_link + ' <span>Вы зарегистрированы менее суток назад.</span></div>';
 
-tpl_chat_stopped = "<div id='chat_closed'><div>Чатик остановлен!</div><div>Остановил: [stopper].</div><div>Остановлено до: [min]</div><div>Причина: [reason].</div></div>";
 var chat_channel_id = 0;
 autoScroll = 1;
-
-var urlPattern = '((?:(?:ftp)|(?:https?))(?:://))' + // протокол (1)
-	// URL без протокола (2)
-	'(((?:(?:[a-z\u0430-\u0451\\d](?:[a-z\u0430-\u0451\\d-]*[a-z\u0430-\u0451\\d])*)\\.)+(?:[a-z]{2,}|\u0440\u0444)' + // хост (3)
-	'|(?:(?:\\d{1,3}\\.){3}\\d{1,3}))' + // хост в формате IPv4 (3)
-	'(:\\d+)?' + // порт (4)
-	'(/[-a-z\u0430-\u0451\\d%_~\\+\\(\\):]*(?:[\\.,][-a-z\u0430-\u0451\\d%_~\\+\\(\\):]+)*)*' + // путь (5)
-	'(\\?(?:&amp;|&quot;|&#039|[&"\'.:;a-z\u0430-\u0451\\d%_~\\+=-])*)?' + // параметры (6)
-	'(#(?:&amp;|&quot;|&#039|[\/&"\'.:;a-z\u0430-\u0451\\d%_~\\+=-]){0,255})?)'; // якорь (7)
-
-var bbToUrlPattern = new RegExp('\\[url\\]' + urlPattern + '\\[\/url\\]()', 'gi');//пусто(8)
-var bbToUrlPatternWithText = new RegExp('\\[url=' + urlPattern + '\\]([\u0020-\u007E\u0400-\u045F\u0490\u0491\u0207\u0239\u2012\u2013\u2014]+?)\\[\/url\\]', 'gi');//текст для ссылки(8)
-var urlPattern = new RegExp(urlPattern, 'gi');
 
 $(document).ready(function(){
 	chat_channel_id = getParameterByName( 'channelId' );
@@ -342,20 +328,6 @@ function PutDataToChat( data ) {
 	}
 }
 
-//преобразуем бб код в хтмл
-function bbCodeUrlToHtml(str, proto, url, host, port, path, query, fragment, text){
-	//удаляем смайлы из ссылок
-	url = url.replace(/:s:/gi, ':%73:' );
-	if (!text) {
-		text = url;
-	}
-	if ( text.length > 60 ) {
-		length = text.length;
-		return '<a rel="nofollow" href="' + proto + url + '" target="_blank" title="' + proto + url + '">' + text.substring( 0, 30 ) + '...' + text.substring( length - 20) + '</a>';
-	}
-	return '<a rel="nofollow" href="' + proto + url + '" title="' + proto + url + '" target="_blank">' + text + '</a>';
-}
-
 // всевозможные замены
 function ProcessReplaces( str ) {
 	// URL
@@ -389,27 +361,24 @@ function GetSpecColor( uid ) {
 		case '65377':
 		// Siena
 		case '8324':
-        //milkSHake
-        case '22600':
+    //milkSHake
+    case '22600':
 			color = '#FFC0CB';
 		break;
 		// Kas
 		case '62395':
 			color = '#5DA130';
-        break;
-        // Usual color of regular users
-        //BIT
-        case '41386':
-            color = '#7797BE';
-        break;
-        case '7787':// Unstable.
-        case '60490':// Twilight_Sparkle
-        case '108457':// abilisk
-        case '84873':// abilisk
-        case '14929':// [7x]Atlant
-        case '102924':// Hyperon
-            color = '#C9D5E5';
-        break;
+			break;
+		// Usual color of regular users
+		break;
+		case '7787':// Unstable.
+		case '60490':// Twilight_Sparkle
+		case '108457':// abilisk
+		case '84873':// abilisk
+		case '14929':// [7x]Atlant
+		case '102924':// Hyperon
+			color = '#C9D5E5';
+			break;
 		default:
 			color = '';
 	}
@@ -709,11 +678,13 @@ function getmenu( nick, mid, uid, channelId ) {
 	
 	// for banned users show only ignore/unignore
 	if ( userInfo.type == 'bannedInChat' || userInfo.type == 'bannedOnSite' ) {
-		$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick="IgnoreUnignore(user_name, ' + uid + ');">Ignore\Unignore</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
+		$( 'body' ).append(
+			'<ul class="menushka" style="display:block;"><li onclick="IgnoreUnignore(user_name, ' + uid + ');">Ignore\Unignore</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>'
+		);
 		return false;
 	} else if ( userInfo.type == 'anon' ) {
-        return false;
-    }
+		return false;
+  }
 		
 	rid = parseInt( userInfo.rid );
 	
@@ -728,21 +699,21 @@ function getmenu( nick, mid, uid, channelId ) {
 			$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick=otvet(user_name)>Ответить</li><li onclick="DeleteMessage( ' + mid + ', ' + channelId + ')">Удалить сообщение</li><li onclick="JumpToUserChannel(' + mid + ')">В канал к юзеру</li><li><a href="' + SC2TV_URL + '/messages/new/' + uid + '" target="_blank" onclick="$(\'.menushka\').remove();">Послать ЛС</a></li><li onclick="BanUser( ' + uid + ', user_name, 10, ' + mid + ', ' + channelId + ')">Молчать 10 мин.</li><li onclick="BanUser(' + uid + ', user_name, 1440, ' + mid + ', ' + channelId + ')">Молчать сутки</li><li onclick="BanUser( ' + uid + ', user_name, 4320, ' + mid + ', ' + channelId + ')">Молчать 3 дня</li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
 		break;
 
-        // юзер
-        case 2:
-        // журналист
-        case 6:
-        // редактор
-        case 7:
-        // стример
-        case 9:
-        // фанстример
-        case 10:
-        // real стример
-        case 14:
-        // хз кто
-        default:
-            $( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick=otvet(user_name)>Ответить</li><li><a href="' + SC2TV_URL + '/messages/new/' + uid + '" target="_blank" onclick="$(\'.menushka\').remove();">Послать ЛС</a></li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><li onclick="IgnoreUnignore(user_name, ' + uid + ');">Ignore\Unignore</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
+		// юзер
+		case 2:
+		// журналист
+		case 6:
+		// редактор
+		case 7:
+		// стример
+		case 9:
+		// фанстример
+		case 10:
+		// real стример
+		case 14:
+		// хз кто
+		default:
+			$( 'body' ).append( '<ul class="menushka" style="display:block;"><li onclick=otvet(user_name)>Ответить</li><li><a href="' + SC2TV_URL + '/messages/new/' + uid + '" target="_blank" onclick="$(\'.menushka\').remove();">Послать ЛС</a></li><li onclick="ShowBanMenuForCitizen(' + uid +',user_name,' + mid + ')">Забанить</li><li onclick="IgnoreUnignore(user_name, ' + uid + ');">Ignore\Unignore</li><span class="menushka_close" onclick="$(\'.menushka\').remove();">X</span></ul>' );
 	}
 }
 
@@ -760,7 +731,7 @@ function BuildHtml( messageList ) {
 		var nicknameClass = 'nick';
 		var color = '';
 		var customColorStyle = '';
-        var namePrefix = '';
+    var namePrefix = '';
 		
 		// сообщения пользователей и системы выглядят по-разному
 		if ( messageList[ i ].uid != -1 ) {
@@ -780,10 +751,10 @@ function BuildHtml( messageList ) {
 					customColorStyle = ' style="color:' + color + ';"';
 				}
 			}
-
-            if ( messageList[ i ].roleIds.indexOf( 24 ) !== -1 ) {
-                namePrefix = '<img src="/css/donate_01.png" width="12" height="11" class="top-supporter" />';
-            }
+			
+			if ( messageList[ i ].roleIds.indexOf( 24 ) !== -1 ) {
+				namePrefix = '<img src="/css/donate_01.png" width="12" height="11" class="top-supporter" />';
+			}
 		}
 		else {
 			nicknameClass = 'system-nick';
@@ -834,12 +805,6 @@ function BuildHtml( messageList ) {
 	return data;
 }
 
-// Оборачиваем url в bb код
-function AddUrlBBCode( message ) {
-	message = message.replace( urlPattern, '[url]$&[/url]' );
-	return message;
-}
-
 // изменение кода смайлов, к которым привыкли пользователи, на коды, которые можно выделить регуляркой в php
 function FixSmileCode( str ) {
 	for( i = 0; i < smilesCount; i++) {
@@ -847,6 +812,24 @@ function FixSmileCode( str ) {
 		str = str.replace( smilePattern, ':s' + smiles[ i ].code  );
 	}
 	return str;
+}
+
+function AddUrlBBCode( message ) {
+	var noUrlWithText = message.search( bbToUrlPatternWithText ) == -1;
+	
+	// add bb code only if it wasn't supplied by user
+	if ( noUrlWithText ) {
+		var noUrlWithoutText = message.search( bbToUrlPattern ) == -1;
+		if ( noUrlWithoutText ) {
+			// max length of DB field - length of bb code = 1024 - 11 = 1013
+			// but don't forget about html entities, so ~900
+			if ( message.length < 900 ) {
+				message = message.replace( urlPattern, '[url]$&[/url]' );
+			}
+		}
+	}
+	
+	return message;
 }
 
 function WriteMessage(){
@@ -875,9 +858,7 @@ function WriteMessage(){
 	
 	msg = FixSmileCode( msg );
 	
-	if ( msg.length < 500 ) {
-		msg = AddUrlBBCode( msg );
-	}
+	msg = AddUrlBBCode( msg );
 	
 	if ( CheckForAutoBan( msg ) == true ) {
 		show_error( CHAT_USER_NO_SPAM_SMILES );
@@ -970,11 +951,11 @@ function IsStringCapsOrAbuse( str ) {
 
 function CheckForAutoBan( str ) {
 	// 3 или 4 смайла
-    if ( userInfo.roleIds.indexOf( 20 ) !== -1 ) {
-        regexp = /(?::s:[^:]+:.*){4,}/gi;
-    } else {
-        regexp = /(?::s:[^:]+:.*){3,}/gi;
-    }
+	if ( userInfo.roleIds.indexOf( 20 ) !== -1 ) {
+			regexp = /(?::s:[^:]+:.*){4,}/gi;
+	} else {
+			regexp = /(?::s:[^:]+:.*){3,}/gi;
+	}
 
 	stringWithThreeSmiles = str.match( regexp );
 	
