@@ -554,6 +554,12 @@ class Chat {
 				'\\1',
 				$message
 			);
+			
+			// length of DB field - length of errorMessage = 1024 - 81
+			$maxLength = 943;
+			if ( mb_strlen( $message ) > $maxLength ) {
+				$message = mb_substr( $message, 0, $maxLength );
+			}
 			$message = '<span class="red" title="' . $message
 				. '">Предупреждение за CAPS / Abuse!</span>';
 		}

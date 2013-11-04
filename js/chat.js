@@ -3,6 +3,7 @@ var CHAT_USER_MESSAGE_ERROR = 'Ошибка при отправке сообще
 var CHAT_USER_BANNED = 'Вы были забанены.';
 var CHAT_USER_NO_CAPS = 'КАПСИТЬ нельзя. Проверьте caps lock.';
 var CHAT_USER_NO_SPAM_SMILES = 'В одном сообщении нельзя использовать 3 и более смайла.';
+var CHAT_TOO_LONG_URL = 'Слишком длинный URL. Используйте сокращатели ссылок.';
 var user_name="";
 
 // chat reload interval in ms
@@ -67,7 +68,7 @@ var urlPattern = '((?:(?:ftp)|(?:https?))(?:://))' + // протокол (1)
 	'(:\\d+)?' + // порт (4)
 	'(/[-a-z\u0430-\u0451\\d%_~\\+\\(\\):]*(?:[\\.,][-a-z\u0430-\u0451\\d%_~\\+\\(\\):]+)*)*' + // путь (5)
 	'(\\?(?:&amp;|&quot;|&#039|[&"\'.:;a-z\u0430-\u0451\\d%_~\\+=-])*)?' + // параметры (6)
-	'(#(?:&amp;|&quot;|&#039|[&"\'.:;a-z\u0430-\u0451\\d%_~\\+=-])*)?)'; // якорь (7)
+	'(#(?:&amp;|&quot;|&#039|[\/&"\'.:;a-z\u0430-\u0451\\d%_~\\+=-]){0,255})?)'; // якорь (7)
 
 var bbToUrlPattern = new RegExp('\\[url\\]' + urlPattern + '\\[\/url\\]()', 'gi');//пусто(8)
 var bbToUrlPatternWithText = new RegExp('\\[url=' + urlPattern + '\\]([\u0020-\u007E\u0400-\u045F\u0490\u0491\u0207\u0239\u2012\u2013\u2014]+?)\\[\/url\\]', 'gi');//текст для ссылки(8)
@@ -834,9 +835,9 @@ function BuildHtml( messageList ) {
 }
 
 // Оборачиваем url в bb код
-function AddUrlBBCode( str ) {
-	str = str.replace( urlPattern, '[url]$&[/url]' );
-	return str;
+function AddUrlBBCode( message ) {
+	message = message.replace( urlPattern, '[url]$&[/url]' );
+	return message;
 }
 
 // изменение кода смайлов, к которым привыкли пользователи, на коды, которые можно выделить регуляркой в php
@@ -874,7 +875,9 @@ function WriteMessage(){
 	
 	msg = FixSmileCode( msg );
 	
-	msg = AddUrlBBCode( msg );
+	if ( msg.length < 500 ) {
+		msg = AddUrlBBCode( msg );
+	}
 	
 	if ( CheckForAutoBan( msg ) == true ) {
 		show_error( CHAT_USER_NO_SPAM_SMILES );
