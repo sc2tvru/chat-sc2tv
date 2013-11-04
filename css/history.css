@@ -41,7 +41,7 @@ a {
 a:hover {
 	text-decoration:underline;
 }
-a.link {
+a.link, .text a {
 	color:#c57c08;
 }
 
