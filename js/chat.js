@@ -18,6 +18,7 @@ var userInfo = [];
 var moderatorData = '';
 var moderatorMessageList = [];
 var prevModeratorMessageList = [];
+var ignoreList = [];
 
 var smilesCount = smiles.length;
 smileHtml = '<div id="smile-panel-tab-1">';
@@ -335,17 +336,24 @@ function ProcessReplaces( str ) {
 	str = str.replace( bbToUrlPattern, bbCodeUrlToHtml );
 
 	// смайлы
-	for( i = 0; i < smilesCount; i++ ) {
-		smileHtml = '<img src="' + CHAT_IMG_DIR + smiles[ i ].img +'" width="' + smiles[ i ].width + '" height="' + smiles[ i ].height+ '" class="chat-smile"/>';
-		var smilePattern = new RegExp( RegExp.escape( ':s' + smiles[ i ].code ), 'gi' );
-		if ( $.cookie( 'chat-img' ) == '1' ) {
-			str = str.replace( smilePattern, smileHtml );
-		}
-		else if ( $.cookie( 'chat-img' ) == '0' ) {
-			str = str.replace( smilePattern, '' );
-		}
-	}
-		
+	var smilesEnabled = $.cookie('chat-img') == 1;
+	str = str.replace(/:s(:[a-z0-9-]+:)/gi, function(match, code) {
+			for (var i = 0; i < smilesCount && smiles[i].code != code; ++i) {};
+			if (i < smilesCount) { // smile exists
+				if (!smilesEnabled) return '';
+
+				var replacement =
+						'<img src="' + CHAT_IMG_DIR + smiles[ i ].img +
+						'" width="' + smiles[ i ].width +
+						'" height="' + smiles[ i ].height +
+						'" class="chat-smile"/>';
+
+				return replacement;
+			} else {
+					return match;
+			}
+	});
+
 	return str;
 }
 
@@ -391,26 +399,14 @@ RegExp.escape = function(text) {
 	}
 }
 
+function updateIgnoreList() {
+	var ignoreData = $.cookie('chat_ignored');
+	ignoreList = ignoreData ? ignoreData.split(',') : [];
+}
+
 // в игноре ли пользователь
 function IsUserIgnored( uid ) {
-	if ( $.cookie( 'chat_ignored' ) == '' || $.cookie( 'chat_ignored' ) == undefined ) {
-		return false;
-	}
-	
-	var ignoredUids = $.cookie( 'chat_ignored').split( ',' );
-	
-	if ( !$.isArray( ignoredUids ) ) {
-		return false;
-	}
-	
-	var ignoredCount = ignoredUids.length;
-	for( var k = 0; k < ignoredCount; k++ ) {
-		if ( ignoredUids[ k ] == uid ) {
-			return true;
-		}
-	}
-	
-	return false;
+	return ignoreList.indexOf('' + uid) != -1;
 }
 
 function BuildChat( dataForBuild ) {
@@ -727,18 +723,21 @@ function BuildHtml( messageList ) {
 		return '';
 	}
 	
+	var chat_color_nicks_off = $.cookie( 'chat_color_nicks_off');
+	var chatImg = $.cookie( 'chat-img' );
+
 	for( i=0; i < messageCount; i++ ) {
 		var nicknameClass = 'nick';
 		var color = '';
 		var customColorStyle = '';
-    var namePrefix = '';
+		var namePrefix = '';
 		
 		// сообщения пользователей и системы выглядят по-разному
 		if ( messageList[ i ].uid != -1 ) {
 			var textClass = 'text';
 			
 			// подсветка ников выключена
-			if ( $.cookie( 'chat_color_nicks_off') == '1') {
+			if ( chat_color_nicks_off == '1') {
 				nicknameClass += ' user-2';
 			}
 			else {
@@ -764,6 +763,7 @@ function BuildHtml( messageList ) {
 		
 		channelId = messageList[ i ].channelId;
 		
+		updateIgnoreList();
 		// TODO убрать лишнее
 		if( IsUserIgnored( messageList[ i ].uid ) == true ) {
 			nicknameClass += ' ignored';
@@ -778,7 +778,7 @@ function BuildHtml( messageList ) {
 		// img on/off
 		smileOnly = false;
 		
-		if( $.cookie( 'chat-img' ) == '0' ) {
+		if( chatImg == '0' ) {
 			msg = messageList[ i ].message;
 			msg = msg.replace( /[\s]+/g, '' );
 			regexp = /^(<b>[^<]*<\/b>[,\s]*){0,}[\s]*(:s:[^:]+:[\s]*){1,}[\s]*$/gi;

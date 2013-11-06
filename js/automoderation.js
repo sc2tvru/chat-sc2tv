@@ -249,12 +249,22 @@ function ProcessReplaces( str ) {
 	str = str.replace( bbToUrlPattern, bbCodeUrlToHtml );
 
 	// смайлы
-	for( i = 0; i < smilesCount; i++) {
-		smileHtml = '<img src="' + CHAT_IMG_DIR + smiles[ i ].img +'" width="' + smiles[ i ].width + '" height="' + smiles[ i ].height+ '" class="chat-smile"/>';
-		var smilePattern = new RegExp( RegExp.escape( ':s' + smiles[ i ].code ), 'gi' );
-		str = str.replace( smilePattern, smileHtml );
-	}
-	
+	str = str.replace(/:s(:[a-z0-9-]+:)/gi, function(match, code) {
+			for (var i = 0; i < smilesCount && smiles[i].code != code; ++i) {};
+			if (i < smilesCount) { // smile exists
+
+				var replacement =
+						'<img src="' + CHAT_IMG_DIR + smiles[ i ].img +
+						'" width="' + smiles[ i ].width +
+						'" height="' + smiles[ i ].height +
+						'" class="chat-smile"/>';
+
+				return replacement;
+			} else {
+					return match;
+			}
+	});
+
 	return str;
 }
 
