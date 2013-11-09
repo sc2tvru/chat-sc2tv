@@ -163,3 +163,15 @@ var smiles = [
   {code: ':povar:', img: 'povar.png?1', width: '30', height: '30', private: true},
   {code: ':vuvu:', img: 'vuvu.png?1', width: '39', height: '27', private: true}
 ];
+
+var CHAT_IMG_DIR = '/img/';
+var smilesCount = smiles.length;
+
+var smileHtmlReplacement = [];
+for( i = 0; i < smilesCount; i++ ) {
+	smileHtmlReplacement[ i ] =
+		'<img src="' + CHAT_IMG_DIR + smiles[ i ].img +
+		'" width="' + smiles[ i ].width +
+		'" height="' + smiles[ i ].height +
+		'" class="chat-smile"/>';
+}

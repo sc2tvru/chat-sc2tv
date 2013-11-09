@@ -4,32 +4,33 @@ var CHAT_USER_BANNED = 'Вы были забанены.';
 var CHAT_USER_NO_CAPS = 'КАПСИТЬ нельзя. Проверьте caps lock.';
 var CHAT_USER_NO_SPAM_SMILES = 'В одном сообщении нельзя использовать 3 и более смайла.';
 var CHAT_TOO_LONG_URL = 'Слишком длинный URL. Используйте сокращатели ссылок.';
-var user_name="";
+var user_name = '';
 
 // chat reload interval in ms
 var CHAT_RELOAD_INTERVAL = 5000;
 var CHAT_CHANNEL_RELOAD_INTERVAL = 300000;
 var SC2TV_URL = 'http://sc2tv.ru';
 var CHAT_URL =  'http://chat.sc2tv.ru/';
-var CHAT_IMG_DIR = '/img/';
 var chatTimerId = 0;
 var channelList = [];
 var userInfo = [];
 var moderatorData = '';
 var moderatorMessageList = [];
 var prevModeratorMessageList = [];
+var ignoreList = [];
+var isModerator = false;
+var isModeratorActive;
 
-var smilesCount = smiles.length;
 smileHtml = '<div id="smile-panel-tab-1">';
 smilePanelTabsHtml = '<span id="smile-panel-pager-1" data-tab-number="1">[ 1 ]</span>';
 var privateStarted = false;
 for( i=0,t=2; i < smilesCount; i++ ) {
-    if (smiles[i].private && !privateStarted) {
-        privateStarted = true;
-        smileHtml += '</div><div id="smile-panel-tab-' + t + '">';
-        smilePanelTabsHtml += '<span id="smile-panel-pager-' + t + '" data-tab-number="' + t +'">prime</span>';
-        smileHtml += '<a href="http://mike.sc2tv.ru/img/sc2tv.jpg" target="_blank">Получить смайлы</a><br/>';
-    }
+	if (smiles[i].private && !privateStarted) {
+		privateStarted = true;
+		smileHtml += '</div><div id="smile-panel-tab-' + t + '">';
+		smilePanelTabsHtml += '<span id="smile-panel-pager-' + t + '" data-tab-number="' + t +'">prime</span>';
+		smileHtml += '<a href="http://mike.sc2tv.ru/img/sc2tv.jpg" target="_blank">Получить смайлы</a><br/>';
+	}
 	smileHtml += '<img src="' + CHAT_IMG_DIR + smiles[i].img +'" title="' + smiles[i].code +'" width="' + smiles[i].width + '" height="' + smiles[i].height+ '"class="chat-smile" alt="' + smiles[i].code + '"/>';
 	if ( i > 0 && i % 37 == 0 && i < ( smilesCount - 1 ) && !privateStarted ) {
 		smileHtml += '</div><div id="smile-panel-tab-' + t + '">';
@@ -80,6 +81,7 @@ $(document).ready(function(){
 	}
 });
 
+
 function getParameterByName( name ) {
 	name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
 	var regexS = "[\\?&]" + name + "=([^&#]*)";
@@ -94,6 +96,7 @@ function getParameterByName( name ) {
 	}
 }
 
+
 function StartChat(){
 	$.cookie( 'chat-on', '1', { expires: 365, path: '/'} );
 	
@@ -102,7 +105,7 @@ function StartChat(){
 	$( '#smile-btn' ).show();
 	
 	chatTimerId = setInterval( 'ReadChat()', CHAT_RELOAD_INTERVAL );
-	if( $.cookie( 'is_moderator') ) {
+	if( isModerator ) {
 		GetChannelsList();
 		channelListTimerId = setInterval( 'GetChannelsList()', CHAT_CHANNEL_RELOAD_INTERVAL );
 	}
@@ -111,6 +114,7 @@ function StartChat(){
 	ReadChat( true );
 	AddStreamerNameBtn();
 }
+
 
 function StopChat( setStopCookie, message ){
 	clearInterval( chatTimerId );
@@ -132,6 +136,7 @@ function StopChat( setStopCookie, message ){
 	$( '#chat-form-id' ).hide();
 }
 
+
 function GetChannelsList(){
 	$.ajaxSetup({ ifModified: true, cache: false });
 	$.getJSON( CHAT_URL + 'memfs/channels.json', function( data ) {
@@ -141,6 +146,7 @@ function GetChannelsList(){
 	});
 	$.ajaxSetup({ ifModified: true, cache: true });
 }
+
 
 function toogleImgBtn() {
 	if( $.cookie( 'chat-img' ) == null ) {
@@ -174,6 +180,7 @@ function toogleImgBtn() {
 	});
 }
 
+
 function GetChannelId( id ) {
 	id = id.replace( /[^0-9]/ig, '' );
 	if( id == '' ) {
@@ -181,6 +188,7 @@ function GetChannelId( id ) {
 	}
 	return id;
 }
+
 
 function AddChannelTitles(){
 	var channelMaxNum = channelList.length - 1;
@@ -190,6 +198,7 @@ function AddChannelTitles(){
 		});
 	}
 }
+
 
 function JumpToUserChannel( mid ) {
 	messageClass = $( 'div[class$="' + mid + '"]').attr( 'class' );
@@ -211,7 +220,16 @@ function JumpToUserChannel( mid ) {
 	$( '.menushka' ).remove();
 }
 
-function ReadChat( firstRead ){
+function IsModeratorActive() {
+	if ( isModeratorActive == undefined ) {
+		isModeratorActive = $.cookie( 'moderatorReadAllChannels' ) === '1'
+			|| $.cookie( 'moderatorReadAllChannels' ) == undefined;
+	}
+	return isModeratorActive;
+}
+
+
+function ReadChat( firstRead ) {
 	// проверка, чтобы после отключения чат не обновился
 	if ( $.cookie( 'chat-on' ) == '0' ) {
 		return;
@@ -225,7 +243,7 @@ function ReadChat( firstRead ){
 	}
 	
 	// модеры читают все каналы
-	if( $.cookie( 'is_moderator' ) && ( $.cookie( 'moderatorReadAllChannels' ) === '1' || $.cookie( 'moderatorReadAllChannels' ) == undefined ) ) {
+	if( isModerator && IsModeratorActive() ) {
 		channelCount = channelList.length;
 		
 		$.getJSON( CHAT_URL + 'memfs/channel-moderator.json', function( jsonData ){
@@ -250,6 +268,7 @@ function ReadChat( firstRead ){
 		});
 	}
 }
+
 
 // add streamer nickname to the top
 function AddStreamerNameBtn(){
@@ -278,6 +297,7 @@ function AddStreamerNameBtn(){
 	});
 }
 
+
 function AddStreamerNameBtnHtml( streamerName ) {
 	$( '#stream-room' ).after( '<div title="написать стримеру" id="chat-streamer-msg">streamer</div>' );
 	
@@ -294,20 +314,22 @@ function AddStreamerNameBtnHtml( streamerName ) {
 	});
 }
 
+
 function FilterMessages(messages) {
-    var pattern = /\w{0,2}[х]([х\s\!@#\$%\^&*+-\|\/]{0,2})[у]([у\s\!@#\$%\^&*+-\|\/]{0,2})[ёлeеюийя]\w{0,5}|\w{0,2}[п]([п\s\!@#\$%\^&*+-\|\/]{0,2})([ие\s\!@#\$%\^&*+-\|\/]{0,2})[3зс]([3зс\s\!@#\$%\^&*+-\|\/]{0,2})[д]\w{0,5}|[с][у]([у\!@#\$%\^&*+-\|\/]{0,2})[чк]\w{1,3}|\w{0,2}[б][л]([л\s\!@#\$%\^&*+-\|\/]{0,2})[я]\w{0,5}|\w{0,2}[её][б][лске@ыиа]([наи@йвл]|[щ])\w{0,5}|\w{0,2}[е]([е\s\!@#\$%\^&*+-\|\/]{0,2})[б]([б\s\!@#\$%\^&*+-\|\/]{0,2})[у]([у\s\!@#\$%\^&*+-\|\/]{0,2})[н4ч]\w{0,4}|\w{0,2}[её]([её\s\!@#\$%\^&*+-\|\/]{0,2})[б]([б\s\!@#\$%\^&*+-\|\/]{0,2})[н]([н\s\!@#\$%\^&*+-\|\/]{0,2})[у]\w{0,4}|\w{0,2}[е]([е\s\!@#\$%\^&*+-\|\/]{0,1})[б]([б\s\!@#\$%\^&*+-\|\/]{0,2})[оа@]([оа@\s\!@#\$%\^&*+-\|\/]{0,2})[тн]\w{0,4}|\w{0,5}[ё]([ё\!@#\$%\^&*+-\|\/]{0,2})[б]\w{0,5}|\w{0,2}[п]([п\s\!@#\$%\^&*+-\|\/]{0,1})[ие]([ие\s\!@#\$%\^&*+-\|\/]{0,2})[д]([д\s\!@#\$%\^&*+-\|\/]{0,2})([оа@еи\s\!@#\$%\^&*+-\|\/]{0,1})[р]\w{0,5}|\w{0,3}[с][у]([у\s\!@#\$%\^&*+-\|\/]{0,1})[к]\w{0,5}|\w{0,2}[м]([м\s\!@#\$%\^&*+-\|\/]{0,2})[у]([у\s\!@#\$%\^&*+-\|\/]{0,2})[д]([д\s\!@#\$%\^&*+-\|\/]{0,1})[аи]\w{0,5}|\w{0,2}[её]([её\s\!@#\$%\^&*+-\|\/]{0,2})[п]([п\s\!@#\$%\^&*+-\|\/]{0,2})[т]\w{0,5}/gi;
-
-    for (i=0; i < messages.length; i++) {
-        messages[i].message = messages[i].message.replace(pattern, '<font color="red">[$&]</font>');
-    }
-
-    return messages;
+	var pattern = /\w{0,2}[х]([х\s\!@#\$%\^&*+-\|\/]{0,2})[у]([у\s\!@#\$%\^&*+-\|\/]{0,2})[ёлeеюийя]\w{0,5}|\w{0,2}[п]([п\s\!@#\$%\^&*+-\|\/]{0,2})([ие\s\!@#\$%\^&*+-\|\/]{0,2})[3зс]([3зс\s\!@#\$%\^&*+-\|\/]{0,2})[д]\w{0,5}|[с][у]([у\!@#\$%\^&*+-\|\/]{0,2})[чк]\w{1,3}|\w{0,2}[б][л]([л\s\!@#\$%\^&*+-\|\/]{0,2})[я]\w{0,5}|\w{0,2}[её][б][лске@ыиа]([наи@йвл]|[щ])\w{0,5}|\w{0,2}[е]([е\s\!@#\$%\^&*+-\|\/]{0,2})[б]([б\s\!@#\$%\^&*+-\|\/]{0,2})[у]([у\s\!@#\$%\^&*+-\|\/]{0,2})[н4ч]\w{0,4}|\w{0,2}[её]([её\s\!@#\$%\^&*+-\|\/]{0,2})[б]([б\s\!@#\$%\^&*+-\|\/]{0,2})[н]([н\s\!@#\$%\^&*+-\|\/]{0,2})[у]\w{0,4}|\w{0,2}[е]([е\s\!@#\$%\^&*+-\|\/]{0,1})[б]([б\s\!@#\$%\^&*+-\|\/]{0,2})[оа@]([оа@\s\!@#\$%\^&*+-\|\/]{0,2})[тн]\w{0,4}|\w{0,5}[ё]([ё\!@#\$%\^&*+-\|\/]{0,2})[б]\w{0,5}|\w{0,2}[п]([п\s\!@#\$%\^&*+-\|\/]{0,1})[ие]([ие\s\!@#\$%\^&*+-\|\/]{0,2})[д]([д\s\!@#\$%\^&*+-\|\/]{0,2})([оа@еи\s\!@#\$%\^&*+-\|\/]{0,1})[р]\w{0,5}|\w{0,3}[с][у]([у\s\!@#\$%\^&*+-\|\/]{0,1})[к]\w{0,5}|\w{0,2}[м]([м\s\!@#\$%\^&*+-\|\/]{0,2})[у]([у\s\!@#\$%\^&*+-\|\/]{0,2})[д]([д\s\!@#\$%\^&*+-\|\/]{0,1})[аи]\w{0,5}|\w{0,2}[её]([её\s\!@#\$%\^&*+-\|\/]{0,2})[п]([п\s\!@#\$%\^&*+-\|\/]{0,2})[т]\w{0,5}/gi;
+	
+	for (i=0; i < messages.length; i++) {
+			messages[i].message = messages[i].message.replace(pattern, '<font color="red">[$&]</font>');
+	}
+	
+	return messages;
 }
+
 
 function PutDataToChat( data ) {
 	channelId = GetChannelId( chat_channel_id );
 	
-	if( $.cookie( 'is_moderator') ) {
+	if( isModerator ) {
 		data = data.replace('class="censured"', 'class="red"');
 		$( '#chat' ).html( data );
 		AddChannelTitles();
@@ -328,6 +350,7 @@ function PutDataToChat( data ) {
 	}
 }
 
+
 // всевозможные замены
 function ProcessReplaces( str ) {
 	// URL
@@ -335,19 +358,43 @@ function ProcessReplaces( str ) {
 	str = str.replace( bbToUrlPattern, bbCodeUrlToHtml );
 
 	// смайлы
-	for( i = 0; i < smilesCount; i++ ) {
-		smileHtml = '<img src="' + CHAT_IMG_DIR + smiles[ i ].img +'" width="' + smiles[ i ].width + '" height="' + smiles[ i ].height+ '" class="chat-smile"/>';
-		var smilePattern = new RegExp( RegExp.escape( ':s' + smiles[ i ].code ), 'gi' );
-		if ( $.cookie( 'chat-img' ) == '1' ) {
-			str = str.replace( smilePattern, smileHtml );
-		}
-		else if ( $.cookie( 'chat-img' ) == '0' ) {
-			str = str.replace( smilePattern, '' );
-		}
-	}
+	var smilesMode = $.cookie( 'chat-img' );
+	str = str.replace( /:s(:[-a-z0-9]{2,}:)/gi, function( match, code ) {
+		var indexOfSmileWithThatCode = -1;
+		for ( var i = 0; i < smilesCount; i++ ) {
+			if ( smiles[ i ].code == code ) {
+				indexOfSmileWithThatCode = i;
+				break;
+			}
+		};
 		
+		var replace = '';
+		if ( indexOfSmileWithThatCode != -1 ) {
+			switch( smilesMode ) {
+				// text code smiles
+				case '2':
+					replace = code;
+					break;
+				// img smiles
+				case '1':
+				default:
+					replace = smileHtmlReplacement[ indexOfSmileWithThatCode ];
+					break;
+				// no smiles
+				case '0':
+					replace = '';
+					break;
+			}
+		} else {
+			replace = match;
+		}
+		
+		return replace;
+	});
+	
 	return str;
 }
+
 
 // спеццвета
 function GetSpecColor( uid ) {
@@ -385,33 +432,25 @@ function GetSpecColor( uid ) {
 	return color;
 }
 
+
 RegExp.escape = function(text) {
 	if ( text != undefined ) {
 		return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 	}
 }
 
+
+function RefreshIgnoreList() {
+	var ignoreData = $.cookie( 'chat_ignored' );
+	ignoreList = ignoreData ? ignoreData.split(',') : [];
+}
+
+
 // в игноре ли пользователь
 function IsUserIgnored( uid ) {
-	if ( $.cookie( 'chat_ignored' ) == '' || $.cookie( 'chat_ignored' ) == undefined ) {
-		return false;
-	}
-	
-	var ignoredUids = $.cookie( 'chat_ignored').split( ',' );
-	
-	if ( !$.isArray( ignoredUids ) ) {
-		return false;
-	}
-	
-	var ignoredCount = ignoredUids.length;
-	for( var k = 0; k < ignoredCount; k++ ) {
-		if ( ignoredUids[ k ] == uid ) {
-			return true;
-		}
-	}
-	
-	return false;
+	return ignoreList.indexOf( uid ) != -1;
 }
+
 
 function BuildChat( dataForBuild ) {
 	if ( IsAnon() == true ) {
@@ -447,7 +486,7 @@ function BuildChat( dataForBuild ) {
 	}
 
 	if ( userInfo.type === 'chatAdmin' && userInfo.roleIds.indexOf( 5 ) !== -1 ) {
-		$.cookie( 'is_moderator', '1', { expires: 365, path: '/'} );
+		isModerator = true;
 	}
 
 	$('#dialog2').html('<div id="add_styles"></div><div class="chat-channel-name"><div title="перейти на главный канал" class="channel 0">main</div><div id="stream-room" title="перейти на другой канал" class="channel other">other</div><br style="clear:both"/></div><div id="chat"></div>'+myform);
@@ -548,6 +587,7 @@ function BuildChat( dataForBuild ) {
 	toogleChatRooms();
 }
 
+
 //change stream room when userstream channel is loading
 function toogleStreamChatRoom() {
 	$("#stream-room").attr({
@@ -556,6 +596,7 @@ function toogleStreamChatRoom() {
 		style: 'color: #BBB !important'
 	}).text( 'stream' );
 }
+
 
 function toogleChatRooms() {
 	$( 'div.' + chat_channel_id ).attr( 'style', 'color: #BBB !important' );
@@ -574,6 +615,7 @@ function toogleChatRooms() {
 	});
 }
 
+
 function BanUser( uid, user_name, duration, mid, channelId ){
 	$.post( CHAT_URL + 'gate.php', { task: 'BanUser', banUserId: uid, userName: user_name, duration: duration, messageId: mid, channelId: channelId, token: userInfo.token }, function( data ) {
 		data = $.parseJSON( data );
@@ -589,6 +631,7 @@ function BanUser( uid, user_name, duration, mid, channelId ){
 	});
 }
 
+
 function DeleteMessage( mid, channelId ) {
 	$.post( CHAT_URL + 'gate.php', { task: 'DeleteMessage', messageId: mid, channelId: channelId, token: userInfo.token }, function(data) {
 		data = $.parseJSON( data );
@@ -600,6 +643,7 @@ function DeleteMessage( mid, channelId ) {
 		$('.menushka').remove();
 	});
 }
+
 
 function IgnoreUnignore( username, uid ) {
 	// 1й игнор
@@ -644,6 +688,7 @@ function VoteForUserBan( uid, user_name, mid, reasonId ) {
 	$('.menushka').fadeOut( 10000 );
 }
 
+
 function ShowBanMenuForCitizen( uid, user_name, mid ) {
 	currentMenushaTop = $('.menushka').css( 'top' );
 	$('.menushka').css( 'top', 95 );
@@ -660,11 +705,13 @@ function ShowBanMenuForCitizen( uid, user_name, mid ) {
 	} );
 }
 
+
 function otvet(nick){
 	$('.chat-text').val('[b]'+nick+'[/b], ');
 	$('.chat-text').focus();
 	$('.menushka').remove();
 }
+
 
 function getmenu( nick, mid, uid, channelId ) {
 	user_name = $( nick ).html();
@@ -717,6 +764,7 @@ function getmenu( nick, mid, uid, channelId ) {
 	}
 }
 
+
 // сборка html для канала
 function BuildHtml( messageList ) {
 	var data = '';
@@ -727,6 +775,10 @@ function BuildHtml( messageList ) {
 		return '';
 	}
 	
+	var chatNoColorNicknames = $.cookie( 'chat_color_nicks_off') == '1';
+	var chatNoSmiles = $.cookie( 'chat-img' ) == '0';
+	RefreshIgnoreList();
+ 
 	for( i=0; i < messageCount; i++ ) {
 		var nicknameClass = 'nick';
 		var color = '';
@@ -738,7 +790,7 @@ function BuildHtml( messageList ) {
 			var textClass = 'text';
 			
 			// подсветка ников выключена
-			if ( $.cookie( 'chat_color_nicks_off') == '1') {
+			if ( chatNoColorNicknames ) {
 				nicknameClass += ' user-2';
 			}
 			else {
@@ -778,7 +830,7 @@ function BuildHtml( messageList ) {
 		// img on/off
 		smileOnly = false;
 		
-		if( $.cookie( 'chat-img' ) == '0' ) {
+		if ( chatNoSmiles ) {
 			msg = messageList[ i ].message;
 			msg = msg.replace( /[\s]+/g, '' );
 			regexp = /^(<b>[^<]*<\/b>[,\s]*){0,}[\s]*(:s:[^:]+:[\s]*){1,}[\s]*$/gi;
@@ -792,10 +844,6 @@ function BuildHtml( messageList ) {
 	
 	data = ProcessReplaces( data );
 	
-	if( !$.cookie( 'chat_channel_id') ) {
-		$.cookie( 'chat_channel_id', chat_channel_id, {path: '/'} );
-	}
-	
 	if ( userInfo.name != undefined ) {
 		// подсветка своих сообщений
 		var regExp = new RegExp( '><b>' + RegExp.escape( userInfo.name ) +'<\/b>,', 'mig' );
@@ -805,6 +853,7 @@ function BuildHtml( messageList ) {
 	return data;
 }
 
+
 // изменение кода смайлов, к которым привыкли пользователи, на коды, которые можно выделить регуляркой в php
 function FixSmileCode( str ) {
 	for( i = 0; i < smilesCount; i++) {
@@ -813,6 +862,7 @@ function FixSmileCode( str ) {
 	}
 	return str;
 }
+
 
 function AddUrlBBCode( message ) {
 	var noUrlWithText = message.search( bbToUrlPatternWithText ) == -1;
@@ -831,6 +881,7 @@ function AddUrlBBCode( message ) {
 	
 	return message;
 }
+
 
 function WriteMessage(){
 	msg = $( '.chat-text' ).val();
@@ -896,6 +947,7 @@ function CheckUserState( currentUserData ) {
 	}
 }
 
+
 function IsStringCapsOrAbuse( str ) {
 	// удаляем обращения вроде [b]MEGAKILLER[/b], bb-код [b][/b]
 	tempStr = str.replace( /\[b\][-\.\w\u0400-\u045F\u0490\u0491\u0207\u0239\[\]]+\[\/b\]|\[b\]|\[\/b\]/gi, '' );
@@ -949,12 +1001,13 @@ function IsStringCapsOrAbuse( str ) {
 	}
 }
 
+
 function CheckForAutoBan( str ) {
 	// 3 или 4 смайла
 	if ( userInfo.roleIds.indexOf( 20 ) !== -1 ) {
-			regexp = /(?::s:[^:]+:.*){4,}/gi;
+		regexp = /(?::s:[^:]+:.*){4,}/gi;
 	} else {
-			regexp = /(?::s:[^:]+:.*){3,}/gi;
+		regexp = /(?::s:[^:]+:.*){3,}/gi;
 	}
 
 	stringWithThreeSmiles = str.match( regexp );
@@ -966,14 +1019,17 @@ function CheckForAutoBan( str ) {
 		return true;
 	}
 }
+
 	
 function show_error( err ) {
 	alert( 'Ошибка: ' + err );
 }
 
+
 function show_result(res){
 	//alert (res);
 }
+
 
 function IsAnon(){
 	return $.cookie( 'drupal_user' ) === null;

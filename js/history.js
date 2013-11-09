@@ -154,18 +154,28 @@ function ProcessReplaces( str ) {
 	str = str.replace( bbToUrlPattern, bbCodeUrlToHtml );
 
 	// смайлы
-	for( i = 0; i < smilesCount; i++) {
-		smileHtml = '<img src="' + CHAT_IMG_DIR + smiles[ i ].img +'" width="' + smiles[ i ].width + '" height="' + smiles[ i ].height+ '" class="chat-smile"/>';
-		var smilePattern = new RegExp( RegExp.escape( ':s' + smiles[ i ].code ), 'gi' );
-		str = str.replace( smilePattern, smileHtml );
-	}
+	str = str.replace( /:s(:[-a-z0-9]{2,}:)/gi, function( match, code ) {
+		var indexOfSmileWithThatCode = -1;
+		for ( var i = 0; i < smilesCount; i++ ) {
+			if ( smiles[ i ].code == code ) {
+				indexOfSmileWithThatCode = i;
+				break;
+			}
+		};
+		
+		var replace = '';
+		if ( indexOfSmileWithThatCode == -1 ) {
+			replace = match;
+		} else {
+			replace = smileHtmlReplacement[ indexOfSmileWithThatCode ];
+		}
+		
+		return replace;
+	});
 	
 	return str;
 }
 
-RegExp.escape = function(text) {
-    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-}
 
 function GetSpecColor( uid ) {
 	var color = '';

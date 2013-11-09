@@ -13,7 +13,6 @@ var CHAT_MODERATORS_DETAILS_ERROR = 'Ошибка при получении да
 var CHAT_COMPLAINS_FOR_BANS_ERROR = 'Ошибка при получении данных по жалобам на баны. Сообщите разработчикам.';
 var userInfo = [];
 var uid = 0;
-var smilesCount = smiles.length;
 var topModeratorsCount = 10;
 var moderatorsDetailsHtml = '';
 var SC2TV_TIME_DIFF = 14400;
@@ -249,18 +248,28 @@ function ProcessReplaces( str ) {
 	str = str.replace( bbToUrlPattern, bbCodeUrlToHtml );
 
 	// смайлы
-	for( i = 0; i < smilesCount; i++) {
-		smileHtml = '<img src="' + CHAT_IMG_DIR + smiles[ i ].img +'" width="' + smiles[ i ].width + '" height="' + smiles[ i ].height+ '" class="chat-smile"/>';
-		var smilePattern = new RegExp( RegExp.escape( ':s' + smiles[ i ].code ), 'gi' );
-		str = str.replace( smilePattern, smileHtml );
-	}
+	str = str.replace( /:s(:[-a-z0-9]{2,}:)/gi, function( match, code ) {
+		var indexOfSmileWithThatCode = -1;
+		for ( var i = 0; i < smilesCount; i++ ) {
+			if ( smiles[ i ].code == code ) {
+				indexOfSmileWithThatCode = i;
+				break;
+			}
+		};
+		
+		var replace = '';
+		if ( indexOfSmileWithThatCode == -1 ) {
+			replace = match;
+		} else {
+			replace = smileHtmlReplacement[ indexOfSmileWithThatCode ];
+		}
+		
+		return replace;
+	});
 	
 	return str;
 }
 
-RegExp.escape = function(text) {
-    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-}
 
 function PrepareNick( nick ) {
 	nick = nick.replace( /[\/]+/g, '' );
