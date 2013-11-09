@@ -99,7 +99,7 @@ $( document ).ready( function(){
 		
 		$( '#history' ).html( userInfoHtml );
 		
-		if ( $.cookie( 'is_moderator') ) {
+		if ( userInfo.type === 'chatAdmin' && userInfo.roleIds.indexOf( 5 ) !== -1 ) {
 			checkboxHtml = '';
 			if ( $.cookie( 'moderatorReadAllChannels' ) === '1' || $.cookie( 'moderatorReadAllChannels' ) == undefined ) {
 				$.cookie( 'moderatorReadAllChannels', '1', { expires: 365, path: '/'} );
