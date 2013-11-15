@@ -92,7 +92,7 @@ $(document).ready(function(){
 	
 	whoStopChat = getParameterByName( 'stop' );
 	
-	BuildChat();
+	BuildChat( userInfo );
 	
 	if ( whoStopChat == '0' || whoStopChat == undefined || whoStopChat == '' ) {
 		if ( $.cookie( 'chat-on' ) == null || $.cookie( 'chat-on' ) == '1' ) {
