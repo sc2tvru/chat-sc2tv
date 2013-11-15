@@ -21,6 +21,19 @@ var ignoreList = [];
 var isModerator = false;
 var isModeratorActive;
 
+if ( IsAnon() !== true ) {
+	$.ajaxSetup( { async: false, cache: false } );
+
+	$.getJSON( CHAT_URL + 'gate.php?task=GetUserInfo&ref=' + document.referrer, function( data ) {
+		userInfo = data;
+	});
+		
+	$.ajaxSetup({ async: true, cache: true });
+}
+else {
+	userInfo.type = 'anon';
+}
+
 smileHtml = '<div id="smile-panel-tab-1">';
 smilePanelTabsHtml = '<span id="smile-panel-pager-1" data-tab-number="1">[ 1 ]</span>';
 var privateStarted = false;
@@ -31,7 +44,20 @@ for( i=0,t=2; i < smilesCount; i++ ) {
 		smilePanelTabsHtml += '<span id="smile-panel-pager-' + t + '" data-tab-number="' + t +'">prime</span>';
 		smileHtml += '<a href="http://mike.sc2tv.ru/img/sc2tv.jpg" target="_blank">Получить смайлы</a><br/>';
 	}
-	smileHtml += '<img src="' + CHAT_IMG_DIR + smiles[i].img +'" title="' + smiles[i].code +'" width="' + smiles[i].width + '" height="' + smiles[i].height+ '"class="chat-smile" alt="' + smiles[i].code + '"/>';
+	if (smiles[i].private && userInfo.type != 'anon'){
+			smileInactive = '-not-available';
+			for( k=0; k < userInfo.roleIds.length; k++){
+				if (smiles[i].roles.indexOf( userInfo.roleIds[k] ) !== -1) {
+					smileInactive = '';
+					break;
+				}
+			}
+	}
+	else {
+		smileInactive = '';
+	}
+	smileHtml += '<img src="' + CHAT_IMG_DIR + smiles[i].img +'" title="' + smiles[i].code +'" width="' + smiles[i].width + '" height="' + smiles[i].height+ '"class="chat-smile' + smileInactive + '" alt="' + smiles[i].code + '"/>';
+	
 	if ( i > 0 && i % 37 == 0 && i < ( smilesCount - 1 ) && !privateStarted ) {
 		smileHtml += '</div><div id="smile-panel-tab-' + t + '">';
 		smilePanelTabsHtml += '<span id="smile-panel-pager-' + t + '" data-tab-number="' + t +'">[ ' + t + ' ]</span>';
@@ -66,7 +92,7 @@ $(document).ready(function(){
 	
 	whoStopChat = getParameterByName( 'stop' );
 	
-	BuildChat();
+	BuildChat( userInfo );
 	
 	if ( whoStopChat == '0' || whoStopChat == undefined || whoStopChat == '' ) {
 		if ( $.cookie( 'chat-on' ) == null || $.cookie( 'chat-on' ) == '1' ) {

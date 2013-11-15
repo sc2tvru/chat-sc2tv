@@ -138,32 +138,54 @@ var smiles = [
   {code: ':daaa:', img: 'daaa.png?1', width: '33', height: '30'},
   {code: ':gg:', img: 'gg.png?1', width: '51', height: '27'},
   {code: ':op:', img: 'op.png?1', width: '49', height: '27'},
-  {code: ':kingalf:', img: 'alfi-crown.png?1', width: '30', height: '30', private: true},
-  {code: ':mofgod:', img: 'mother-of-the-god.png?1', width: '30', height: '30', private: true},
-  {code: ':prime:', img: 'fredy18.png?1', width: '33', height: '35', private: true},
-  {code: ':pekaking:', img: 'pekaking.png?1', width: '32', height: '35', private: true},
-  {code: ':ilied:', img: 'ilied.png?1', width: '30', height: '30', private: true},
-  {code: ':coupeka:', img: 'coupeka.png?1', width: '30', height: '30', private: true},
-  {code: ':gogo:', img: 'gogo.png?1', width: '30', height: '30', private: true},
-  {code: ':pekling:', img: 'pekling.png?1', width: '30', height: '30', private: true},
-  {code: ':zeal:', img: 'zeal.png?1', width: '30', height: '26', private: true},
-  {code: ':infe:', img: 'infe.png?1', width: '30', height: '26', private: true},
-  {code: ':cheese:', img: 'cheese.png?1', width: '30', height: '30', private: true},
-  {code: ':dark:', img: 'dark.png?1', width: '30', height: '30', private: true},
-  {code: ':reaper:', img: 'reaper.png?1', width: '41', height: '30', private: true},
-  {code: ':maro:', img: 'maro.png?1', width: '43', height: '30', private: true},
-  {code: ':butth:', img: 'butth.png?1', width: '30', height: '30', private: true},
-  {code: ':pri21:', img: 'pri21.png?1', width: '30', height: '30', private: true},
-  {code: ':daya:', img: 'daya.png?1', width: '30', height: '30', private: true},
-  {code: ':ggwp:', img: 'ggwp.png?1', width: '83', height: '25', private: true},
-  {code: ':imbaimba:', img: 'imbaimba.png?1', width: '69', height: '27', private: true},
-  {code: ':kid:', img: 'kid.png?1', width: '30', height: '30', private: true},
-  {code: ':num1:', img: 'num1.png?1', width: '30', height: '30', private: true},
-  {code: ':poker:', img: 'poker.png?1', width: '28', height: '30', private: true},
-  {code: ':povar:', img: 'povar.png?1', width: '30', height: '30', private: true},
-  {code: ':vuvu:', img: 'vuvu.png?1', width: '39', height: '27', private: true}
+  {code: ':kingalf:', img: 'alfi-crown.png?1', width: '30', height: '30', private: true, roles: [16, 17]},
+  {code: ':mofgod:', img: 'mother-of-the-god.png?1', width: '30', height: '30', private: true, roles: [17]},
+  {code: ':prime:', img: 'fredy18.png?1', width: '33', height: '35', private: true, roles: [18]},
+  {code: ':pekaking:', img: 'pekaking.png?1', width: '32', height: '35', private: true, roles: [18, 19, 22]},
+  {code: ':ilied:', img: 'ilied.png?1', width: '30', height: '30', private: true, roles: [10, 16, 17, 18, 19, 21, 22]},
+  {code: ':coupeka:', img: 'coupeka.png?1', width: '30', height: '30', private: true, roles: [10, 16, 17, 18, 19, 21, 22]},
+  {code: ':gogo:', img: 'gogo.png?1', width: '30', height: '30', private: true, roles: [3, 5, 6, 7, 9, 10, 14, 16, 17, 18, 19, 21, 22]},
+  {code: ':pekling:', img: 'pekling.png?1', width: '30', height: '30', private: true, roles: [3, 5, 6, 7, 9, 10, 14, 16, 17, 18, 19, 21, 22]},
+  {code: ':zeal:', img: 'zeal.png?1', width: '30', height: '26', private: true, roles: [3, 5, 6, 7, 9, 10, 14, 16, 17, 18, 19, 21, 22]},
+  {code: ':infe:', img: 'infe.png?1', width: '30', height: '26', private: true, roles: [3, 5, 6, 7, 9, 10, 14, 16, 17, 18, 19, 21, 22]},
+  {code: ':cheese:', img: 'cheese.png?1', width: '30', height: '30', private: true, roles: [3, 5, 6, 7, 9, 10, 14, 16, 17, 18, 19, 21, 22]},
+  {code: ':dark:', img: 'dark.png?1', width: '30', height: '30', private: true, roles: [3, 5, 6, 7, 9, 10, 14, 16, 17, 18, 19, 21, 22]},
+  {code: ':reaper:', img: 'reaper.png?1', width: '41', height: '30', private: true, roles: [3, 5, 6, 7, 9, 10, 14, 16, 17, 18, 19, 21, 22]},
+  {code: ':maro:', img: 'maro.png?1', width: '43', height: '30', private: true, roles: [3, 5, 6, 7, 9, 10, 14, 16, 17, 18, 19, 21, 22]},
+  {code: ':butth:', img: 'butth.png?1', width: '30', height: '30', private: true, roles: [3, 5, 6, 7, 9, 10, 14, 16, 17, 18, 19, 21, 22]},
+  {code: ':pri21:', img: 'pri21.png?1', width: '30', height: '30', private: true, roles: [22]},
+  {code: ':daya:', img: 'daya.png?1', width: '30', height: '30', private: true, roles: [22]},
+  {code: ':ggwp:', img: 'ggwp.png?1', width: '83', height: '25', private: true, roles: [22]},
+  {code: ':imbaimba:', img: 'imbaimba.png?1', width: '69', height: '27', private: true, roles: [22]},
+  {code: ':kid:', img: 'kid.png?1', width: '30', height: '30', private: true, roles: [22]},
+  {code: ':num1:', img: 'num1.png?1', width: '30', height: '30', private: true, roles: [22]},
+  {code: ':poker:', img: 'poker.png?1', width: '28', height: '30', private: true, roles: [22]},
+  {code: ':povar:', img: 'povar.png?1', width: '30', height: '30', private: true, roles: [22]},
+  {code: ':vuvu:', img: 'vuvu.png?1', width: '39', height: '27', private: true, roles: [22]}
 ];
-
+/*
+roles
+1 	anonymous user
+2 	authenticated user
+3 	Root
+4 	Administrator
+5 	Moderator
+6 	Journalist
+7 	Editor
+8 	Banned
+9 	Streamer
+10 	User Streamer
+14 	Real Streamer
+16 	Alex007's army
+17 	Alex007's captains
+18 	Prime-time user
+19 	Peka King
+20 	Tripple smile
+21 	konkurs1
+22 	mma1
+24 	Top supporter
+25 	Prime Time Streamers
+*/
 var CHAT_IMG_DIR = '/img/';
 var smilesCount = smiles.length;
 
