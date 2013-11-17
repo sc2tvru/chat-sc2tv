@@ -252,6 +252,11 @@ cursor:pointer;
 	cursor:pointer;
 }
 
+#chat-smile-panel .chat-smile-not-available {
+	display:inline;
+	opacity:0.5;
+}
+
 #chat-smile-panel div {
 	display:none;
 }
