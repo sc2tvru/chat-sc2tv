@@ -30,7 +30,7 @@ if ( $rolesResult === FALSE ) {
 
 $smile_roles = array();
 while ( $role = $rolesResult->fetch_assoc() ) {
-    $rid = $role['rid'];
+    $rid = intval($role['rid']);
     foreach (explode(',', $role['smiles']) as $smile) {
         if ( array_key_exists( $smile, $smiles ) ) {
             $smiles[$smile]['roles'][] = $rid;
@@ -41,7 +41,7 @@ while ( $role = $rolesResult->fetch_assoc() ) {
 $public = array();
 $private = array();
 foreach ( $smiles as $smile ) {
-    if ( count( array_diff( $smile['roles'], array( '2' ) ) ) > 0 ) {
+    if ( count( array_diff( $smile['roles'], array( 2 ) ) ) > 0 ) {
         $smile['private'] = true;
         $private[] = $smile;
     } else {
