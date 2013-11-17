@@ -42,7 +42,7 @@ $public = array();
 $private = array();
 foreach ( $smiles as $smile ) {
     if ( count( array_diff( $smile['roles'], array( '2' ) ) ) > 0 ) {
-        $smiles[$smile['code']]['private'] = true;
+        $smile['private'] = true;
         $private[] = $smile;
     } else {
         $public[] = $smile;
