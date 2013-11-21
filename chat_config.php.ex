@@ -121,4 +121,7 @@ define( 'CHAT_COOKIE_DOMAIN', '.sc2tv.ru' );
 define( 'CHAT_COOKIE_TOKEN', 'chat_token' );
 define( 'DEBUG_FILE', CHAT_MEMFS_DIR . '/debug_____gh34aw5u5ja9.txt' );
 define( 'ERROR_FILE', CHAT_MEMFS_DIR . '/error_____sgsrhh53y55l.txt' );
+
+// айди прайм чата
+define( 'PRIME_CHANNEL_ID', 666 );
 ?>
