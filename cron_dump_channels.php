@@ -7,7 +7,10 @@ require_once 'db.php';
 
 $db = new MySqlDb( CHAT_DB_HOST, CHAT_DB_NAME, CHAT_DB_USER, CHAT_DB_PASSWORD );
 
-$queryStream = 'SELECT `node`.`nid` AS `stream_id`, `node`.`title` AS `stream_title`, `node`.`created` AS `timeCreated`, `users`.`name` as `streamer_name`
+$queryStream = 'SELECT `node`.`nid` AS `stream_id`,
+`node`.`title` AS `stream_title`,
+`node`.`created` AS `timeCreated`,
+`users`.`name` as `streamer_name`
 FROM `content_type_stream`, `node`, `users`
 WHERE `content_type_stream`.`field_stream_is_over_value`=0
 AND `users`.`uid` = `node`.`uid`
@@ -16,7 +19,10 @@ AND NOW() >`content_type_stream`.`field_stream_time_value`
 AND `node`.`status` = 1
 ORDER BY `timeCreated` DESC';
 
-$queryPrimeStream = 'SELECT `node`.`nid` AS `stream_id`, `node`.`title` AS `stream_title`, `node`.`created` AS `timeCreated`, `users`.`name` as `streamer_name`
+$queryPrimeTimeStream = 'SELECT `node`.`nid` AS `stream_id`,
+`node`.`title` AS `stream_title`,
+`node`.`created` AS `timeCreated`,
+`users`.`name` as `streamer_name`
 FROM `content_type_prime_stream`, `node`, `users`
 WHERE `content_type_prime_stream`.`field_prime_is_over_value`=0
 AND `users`.`uid` = `node`.`uid`
@@ -25,14 +31,20 @@ AND NOW() >`content_type_prime_stream`.`field_prime_time_value`
 AND `node`.`status` = 1
 ORDER BY `timeCreated` DESC';
 
-$queryUserStream = 'SELECT `node`.`nid` AS `stream_id`, `node`.`title` AS `stream_title`, `node`.`created` AS `timeCreated`, `users`.`name` as `streamer_name`
+$queryUserStream = 'SELECT `node`.`nid` AS `stream_id`,
+`node`.`title` AS `stream_title`,
+`node`.`created` AS `timeCreated`,
+`users`.`name` as `streamer_name`
 FROM `content_type_userstream`, `node`, `users`
 WHERE `content_type_userstream`.`field_channel_status_value`=1
 AND `users`.`uid` = `node`.`uid`
 AND `content_type_userstream`.`nid`=`node`.`nid`
 ORDER BY `timeCreated` DESC';
 
-$queryLifeStream = 'SELECT `node`.`nid` AS `stream_id`, `node`.`title` AS `stream_title`, `node`.`created` AS `timeCreated`, `users`.`name` as `streamer_name`
+$queryLifeStream = 'SELECT `node`.`nid` AS `stream_id`,
+`node`.`title` AS `stream_title`,
+`node`.`created` AS `timeCreated`,
+`users`.`name` as `streamer_name`
 FROM `content_type_life_stream`, `node`, `users`
 WHERE `content_type_life_stream`.`field_lifest_channel_status_value`=1
 AND `users`.`uid` = `node`.`uid`
@@ -47,7 +59,7 @@ $data[] = array(
 $data = array_merge(
 	$data,
 	GetDataByQuery( $queryStream ),
-	GetDataByQuery( $queryPrimeStream , 1),
+	GetDataByQuery( $queryPrimeTimeStream, $isPrimeTimeQuery = TRUE ),
 	GetDataByQuery( $queryUserStream ),
 	GetDataByQuery( $queryLifeStream )
 );
@@ -56,24 +68,35 @@ $dataJson = json_encode( array( 'channel' => $data ) );
 $channelsFile = CHAT_MEMFS_DIR . '/channels.json';
 file_put_contents( $channelsFile, $dataJson );
 
-function GetDataByQuery( $queryString , $is_prime = 0) {
+function GetDataByQuery( $queryString, $isPrimeTimeQuery = FALSE ) {
 	global $db;
 	$queryResult = $db->Query( $queryString );
 	
 	if ( $queryResult === false ) {
 		return false;
 	}
-
+	
 	$data = array();
 	$maxLength = 100;
 	
+	if ( $isPrimeTimeQuery && $queryResult->num_rows === 0 ) {
+		$data[] = array(
+			'channelId' => PRIME_TIME_CHANNEL_ID,
+			'channelTitle' => PRIME_TIME_CHANNEL_TITLE,
+			'streamerName' => PRIME_TIME_DEFAULT_STREAMER
+		);
+		
+		return $data;
+	}
+	
 	while ( $channel = $queryResult->fetch_assoc() ) {
 		if ( mb_strlen( $channel[ 'stream_title' ] ) > $maxLength ) {
-			$channel[ 'stream_title' ] = mb_substr( $channel[ 'stream_title' ], 0, $maxLength ).'...';
+			$channel[ 'stream_title' ] = mb_substr( $channel[ 'stream_title' ], 0,
+				$maxLength ) . '...';
 		}
-		if($is_prime == 1){
+		if ( $isPrimeTimeQuery ) {
 			$data[] = array(
-				'channelId' => PRIME_CHANNEL_ID,
+				'channelId' => PRIME_TIME_CHANNEL_ID,
 				'channelTitle' => $channel[ 'stream_title' ],
 				'streamerName' => $channel[ 'streamer_name' ]
 			);
@@ -86,6 +109,7 @@ function GetDataByQuery( $queryString , $is_prime = 0) {
 			);
 		}
 	}
+	
 	return $data;
 }
 ?>

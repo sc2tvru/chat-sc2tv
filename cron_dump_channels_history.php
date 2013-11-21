@@ -26,8 +26,8 @@ $data[] = array(
 	'channelTitle' => 'main'
 );
 $data[] = array(
-	'channelId' => PRIME_CHANNEL_ID,
-	'channelTitle' => 'Prime Time'
+	'channelId' => PRIME_TIME_CHANNEL_ID,
+	'channelTitle' => PRIME_TIME_CHANNEL_TITLE
 );
 
 $data = array_merge(
