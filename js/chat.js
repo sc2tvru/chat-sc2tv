@@ -34,37 +34,46 @@ else {
 	userInfo.type = 'anon';
 }
 
-smileHtml = '<div id="smile-panel-tab-1">';
-smilePanelTabsHtml = '<span id="smile-panel-pager-1" data-tab-number="1">[ 1 ]</span>';
-var privateStarted = false;
-for( i=0,t=2; i < smilesCount; i++ ) {
-	if (smiles[i].private && !privateStarted) {
-		privateStarted = true;
-		smileHtml += '</div><div id="smile-panel-tab-' + t + '">';
-		smilePanelTabsHtml += '<span id="smile-panel-pager-' + t + '" data-tab-number="' + t +'">prime</span>';
-		smileHtml += '<a href="http://mike.sc2tv.ru/img/sc2tv.jpg" target="_blank">Получить смайлы</a><br/>';
-	}
-	if (smiles[i].private && userInfo.type != 'anon'){
-			smileInactive = '-not-available';
+if ( userInfo.type == 'anon' ) {
+	smileHtml = '';
+}
+else {
+	smileHtml = '<div id="smile-panel-tab-1">';
+	smilePanelTabsHtml = '<span id="smile-panel-pager-1" data-tab-number="1">[ 1 ]</span>';
+	var privateStarted = false;
+	for( i=0,t=2; i < smilesCount; i++ ) {
+		inactiveSmileClass = '';
+		if ( smiles[i].private ) {
+			if ( !privateStarted ) {
+				privateStarted = true;
+				smileHtml += '</div><div id="smile-panel-tab-' + t + '">';
+				smilePanelTabsHtml += '<span id="smile-panel-pager-' + t
+					+ '" data-tab-number="' + t +'">prime</span>';
+				smileHtml += '<a href="http://mike.sc2tv.ru/img/sc2tv.jpg" target="_blank">Получить смайлы</a><br/>';
+			}
+			
+			inactiveSmileClass = '-not-available';
 			for( k=0; k < userInfo.roleIds.length; k++){
 				if (smiles[i].roles.indexOf( userInfo.roleIds[k] ) !== -1) {
-					smileInactive = '';
+					inactiveSmileClass = '';
 					break;
 				}
 			}
+		}
+		smileHtml += '<img src="' + CHAT_IMG_DIR + smiles[i].img
+			+'" title="' + smiles[i].code +'" width="' + smiles[i].width
+			+ '" height="' + smiles[i].height+ '"class="chat-smile'
+			+ inactiveSmileClass + '" alt="' + smiles[i].code + '"/>';
+		
+		if ( i > 0 && i % 37 == 0 && i < ( smilesCount - 1 ) && !privateStarted ) {
+			smileHtml += '</div><div id="smile-panel-tab-' + t + '">';
+			smilePanelTabsHtml += '<span id="smile-panel-pager-' + t
+				+ '" data-tab-number="' + t +'">[ ' + t + ' ]</span>';
+			t++;
+		}
 	}
-	else {
-		smileInactive = '';
-	}
-	smileHtml += '<img src="' + CHAT_IMG_DIR + smiles[i].img +'" title="' + smiles[i].code +'" width="' + smiles[i].width + '" height="' + smiles[i].height+ '"class="chat-smile' + smileInactive + '" alt="' + smiles[i].code + '"/>';
-	
-	if ( i > 0 && i % 37 == 0 && i < ( smilesCount - 1 ) && !privateStarted ) {
-		smileHtml += '</div><div id="smile-panel-tab-' + t + '">';
-		smilePanelTabsHtml += '<span id="smile-panel-pager-' + t + '" data-tab-number="' + t +'">[ ' + t + ' ]</span>';
-		t++;
-	}
+	smileHtml += '</div>' + smilePanelTabsHtml;
 }
-smileHtml += '</div>' + smilePanelTabsHtml;
 
 chat_rules_link = '<a title="Правила чата" href="' + SC2TV_URL + '/chat-rules" target="_blank">rules</a>';
 chat_history_link = '<a title="История чата" href="/history.htm" target="_blank">history</a>';
