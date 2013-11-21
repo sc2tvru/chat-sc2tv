@@ -53,7 +53,8 @@ else {
 			}
 			
 			inactiveSmileClass = '-not-available';
-			for( k=0; k < userInfo.roleIds.length; k++){
+			var roleIdsLength = userInfo.roleIds ? userInfo.roleIds.length : 0;
+			for( k=0; k < roleIdsLength; k++){
 				if (smiles[i].roles.indexOf( userInfo.roleIds[k] ) !== -1) {
 					inactiveSmileClass = '';
 					break;

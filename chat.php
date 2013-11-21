@@ -108,6 +108,36 @@ class Chat {
 		
 		$this->user = $userInfo;
 		
+		if ( $this->user[ 'roleIds' ] === NULL ) {
+			$this->user[ 'roleIds' ] = array(2);
+		} else {
+			$this->user[ 'roleIds' ] = array_merge(
+				array(2),
+				array_map( 'intval', explode( ',', $userInfo[ 'roleIds' ] ) )
+			);
+		}
+
+		// 3 - root, 4 - admin, 5 - moder, 6 - journalist, 7 - editor, 8 - banned
+		// 9 - streamer, 10 - userstreamer
+		if ( $this->user[ 'rid' ] === NULL ) {
+			$this->user[ 'rid' ] = 2;
+		}
+
+		if ( count(
+			array_intersect( array( 3, 4, 5 ), $this->user[ 'roleIds' ] )
+			) > 0 ) {
+			$this->user[ 'type' ] = 'chatAdmin';
+			$this->user[ 'rights' ] = 1;
+		} elseif ( in_array( 8, $this->user[ 'roleIds' ] ) ) {
+			$this->user[ 'ban' ] = 1;
+			$this->user[ 'rights' ] = -1;
+			$this->user[ 'type' ] = 'bannedOnSite';
+			$this->user[ 'error' ] = CHAT_USER_BANNED_ON_SITE;
+		} else {
+			$this->user[ 'type' ] = 'user';
+			$this->user[ 'rights' ] = 0;
+		}
+
 		$newbieStatusTTL = $userInfo[ 'created' ] +
 			CHAT_TIME_ON_SITE_AFTER_REG_NEEDED - CURRENT_TIME;
 		
@@ -143,36 +173,6 @@ class Chat {
 		}
 
 		$this->user[ 'error' ] = '';
-		
-		if ( $this->user[ 'roleIds' ] === NULL ) {
-			$this->user[ 'roleIds' ] = array(2);
-		} else {
-			$this->user[ 'roleIds' ] = array_merge(
-				array(2),
-				array_map( 'intval', explode( ',', $userInfo[ 'roleIds' ] ) )
-			);
-		}
-		
-		// 3 - root, 4 - admin, 5 - moder, 6 - journalist, 7 - editor, 8 - banned
-		// 9 - streamer, 10 - userstreamer
-		if ( $this->user[ 'rid' ] === NULL ) {
-			$this->user[ 'rid' ] = 2;
-		}
-		
-		if ( count(
-			array_intersect( array( 3, 4, 5 ), $this->user[ 'roleIds' ] )
-			) > 0 ) {
-			$this->user[ 'type' ] = 'chatAdmin';
-			$this->user[ 'rights' ] = 1;
-		} elseif ( in_array( 8, $this->user[ 'roleIds' ] ) ) {
-			$this->user[ 'ban' ] = 1;
-			$this->user[ 'rights' ] = -1;
-			$this->user[ 'type' ] = 'bannedOnSite';
-			$this->user[ 'error' ] = CHAT_USER_BANNED_ON_SITE;
-		} else {
-			$this->user[ 'type' ] = 'user';
-			$this->user[ 'rights' ] = 0;
-		}
 		
 		// генерируем токен на основе сессии и запоминаем
 		if ( empty( $_COOKIE[ CHAT_COOKIE_TOKEN ] ) ) {
