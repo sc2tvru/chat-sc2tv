@@ -24,9 +24,6 @@ class ChatAutomoderationHistory {
 	 *	использоваться last.json
 	 */
 	public function Get( $channelId, $startDate, $endDate, $userNames = '', $bannedNickNames = '', $isModeratorRequest = false, $historyCache = ''  ) {
-		$startDate = $this->PrepareDate( $startDate );
-		$endDate = $this->PrepareDate( $endDate );
-		
 		if ( $isModeratorRequest == true ) {
 			$timeDifference = CHAT_HISTORY_MAX_TIME_DIFFERENCE_MODERATOR;
 		}
@@ -34,8 +31,13 @@ class ChatAutomoderationHistory {
 			$timeDifference = CHAT_HISTORY_MAX_TIME_DIFFERENCE;
 		}
 		
-		if ( $startDate == 0 || $endDate == 0 ||
-			( strtotime( $endDate ) - strtotime( $startDate ) > $timeDifference ) ) {
+		$startDate = $this->PrepareDate( $startDate );
+		$endDate = $this->PrepareDate( $endDate );
+		$startTime = strtotime( $startDate );
+		$endTime = strtotime( $endDate );
+		
+		if( $startTime === FALSE || $endTime === FALSE ||
+			( $endTime - $startTime > $timeDifference ) ) {
 			$result = array(
 				'messages' => '',
 				'error' => CHAT_HISTORY_CHECK_PARAMS
