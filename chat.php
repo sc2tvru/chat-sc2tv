@@ -108,6 +108,15 @@ class Chat {
 		
 		$this->user = $userInfo;
 		
+		if ( $this->user[ 'roleIds' ] === NULL ) {
+			$this->user[ 'roleIds' ] = array(2);
+		} else {
+			$this->user[ 'roleIds' ] = array_merge(
+				array(2),
+				array_map( 'intval', explode( ',', $userInfo[ 'roleIds' ] ) )
+			);
+		}
+		
 		$newbieStatusTTL = $userInfo[ 'created' ] +
 			CHAT_TIME_ON_SITE_AFTER_REG_NEEDED - CURRENT_TIME;
 		
@@ -144,17 +153,9 @@ class Chat {
 
 		$this->user[ 'error' ] = '';
 		
-		if ( $this->user[ 'roleIds' ] === NULL ) {
-			$this->user[ 'roleIds' ] = array(2);
-		} else {
-			$this->user[ 'roleIds' ] = array_merge(
-				array(2),
-				array_map( 'intval', explode( ',', $userInfo[ 'roleIds' ] ) )
-			);
-		}
-		
 		// 3 - root, 4 - admin, 5 - moder, 6 - journalist, 7 - editor, 8 - banned
 		// 9 - streamer, 10 - userstreamer
+		// TODO: rid is useless since we add roleIds list?
 		if ( $this->user[ 'rid' ] === NULL ) {
 			$this->user[ 'rid' ] = 2;
 		}

@@ -15,7 +15,7 @@ require_once 'chat.php';
 
 global $memcache;
 $chat = new Chat( $memcache );
-$authInfo = $chat->GetAuthInfo();
+$chat->GetAuthInfo();
 
 // если есть ошибка авторизации, лучше сразу отдать ее и прекратить выполнение
 if ( isset( $chat->user[ 'error' ] ) && $chat->user[ 'error' ] !== '' ) {

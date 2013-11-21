@@ -34,7 +34,8 @@ else {
 	userInfo.type = 'anon';
 }
 
-if ( userInfo.type == 'anon' ) {
+if ( userInfo.type == 'anon' || userInfo.type == 'newbie'
+	|| userInfo.type == 'bannedInChat' || userInfo.type == 'bannedOnSite' ) {
 	smileHtml = '';
 }
 else {
