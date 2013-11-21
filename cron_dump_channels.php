@@ -16,6 +16,15 @@ AND NOW() >`content_type_stream`.`field_stream_time_value`
 AND `node`.`status` = 1
 ORDER BY `timeCreated` DESC';
 
+$queryPrimeStream = 'SELECT `node`.`nid` AS `stream_id`, `node`.`title` AS `stream_title`, `node`.`created` AS `timeCreated`, `users`.`name` as `streamer_name`
+FROM `content_type_prime_stream`, `node`, `users`
+WHERE `content_type_prime_stream`.`field_prime_is_over_value`=0
+AND `users`.`uid` = `node`.`uid`
+AND `content_type_prime_stream`.`nid`=`node`.`nid`
+AND NOW() >`content_type_prime_stream`.`field_prime_time_value`
+AND `node`.`status` = 1
+ORDER BY `timeCreated` DESC';
+
 $queryUserStream = 'SELECT `node`.`nid` AS `stream_id`, `node`.`title` AS `stream_title`, `node`.`created` AS `timeCreated`, `users`.`name` as `streamer_name`
 FROM `content_type_userstream`, `node`, `users`
 WHERE `content_type_userstream`.`field_channel_status_value`=1
@@ -38,6 +47,7 @@ $data[] = array(
 $data = array_merge(
 	$data,
 	GetDataByQuery( $queryStream ),
+	GetDataByQuery( $queryPrimeStream , 1),
 	GetDataByQuery( $queryUserStream ),
 	GetDataByQuery( $queryLifeStream )
 );
@@ -46,7 +56,7 @@ $dataJson = json_encode( array( 'channel' => $data ) );
 $channelsFile = CHAT_MEMFS_DIR . '/channels.json';
 file_put_contents( $channelsFile, $dataJson );
 
-function GetDataByQuery( $queryString ) {
+function GetDataByQuery( $queryString , $is_prime = 0) {
 	global $db;
 	$queryResult = $db->Query( $queryString );
 	
@@ -61,11 +71,20 @@ function GetDataByQuery( $queryString ) {
 		if ( mb_strlen( $channel[ 'stream_title' ] ) > $maxLength ) {
 			$channel[ 'stream_title' ] = mb_substr( $channel[ 'stream_title' ], 0, $maxLength ).'...';
 		}
-		$data[] = array(
-			'channelId' => $channel[ 'stream_id' ],
-			'channelTitle' => $channel[ 'stream_title' ],
-			'streamerName' => $channel[ 'streamer_name' ]
-		);
+		if($is_prime == 1){
+			$data[] = array(
+				'channelId' => 666666,
+				'channelTitle' => $channel[ 'stream_title' ],
+				'streamerName' => $channel[ 'streamer_name' ]
+			);
+		}
+		else {
+			$data[] = array(
+				'channelId' => $channel[ 'stream_id' ],
+				'channelTitle' => $channel[ 'stream_title' ],
+				'streamerName' => $channel[ 'streamer_name' ]
+			);
+		}
 	}
 	return $data;
 }
