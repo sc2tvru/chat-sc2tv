@@ -73,7 +73,7 @@ function GetDataByQuery( $queryString , $is_prime = 0) {
 		}
 		if($is_prime == 1){
 			$data[] = array(
-				'channelId' => 666666,
+				'channelId' => PRIME_CHANNEL_ID,
 				'channelTitle' => $channel[ 'stream_title' ],
 				'streamerName' => $channel[ 'streamer_name' ]
 			);
