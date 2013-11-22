@@ -21,6 +21,15 @@ WHERE `users`.`uid` = `node`.`uid`
 AND `content_type_userstream`.`nid`=`node`.`nid`
 ORDER BY `timeCreated` DESC LIMIT 20';
 
+$queryPrimeTimeStream = 'SELECT `node`.`nid` AS `stream_id`, `node`.`title` AS `stream_title`, `node`.`created` AS `timeCreated`
+FROM `content_type_prime_stream`, `node`, `users`
+WHERE `users`.`uid` = `node`.`uid`
+AND `content_type_prime_stream`.`nid`=`node`.`nid`
+AND NOW() >`content_type_prime_stream`.`field_prime_time_value`
+AND `node`.`status` = 1
+AND `content_type_prime_stream`.`field_prime_rubric_value` = 0
+ORDER BY `timeCreated` DESC LIMIT 20';
+
 $data[] = array(
 	'channelId' => '0',
 	'channelTitle' => 'main'
@@ -33,7 +42,8 @@ $data[] = array(
 $data = array_merge(
 	$data,
 	GetDataByQuery( $queryStream ),
-	GetDataByQuery( $queryUserStream )
+	GetDataByQuery( $queryUserStream ),
+	GetDataByQuery( $queryPrimeTimeStream )
 );
 
 $dataJson = json_encode( array( 'channel' => $data ) );
