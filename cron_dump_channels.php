@@ -19,7 +19,7 @@ AND NOW() >`content_type_stream`.`field_stream_time_value`
 AND `node`.`status` = 1
 ORDER BY `timeCreated` DESC';
 
-$queryPrimeTimeStream = 'SELECT `node`.`nid` AS `stream_id`,
+$queryPrimeTimeStreamNoRubric = 'SELECT `node`.`nid` AS `stream_id`,
 `node`.`title` AS `stream_title`,
 `node`.`created` AS `timeCreated`,
 `users`.`name` as `streamer_name`,
@@ -42,7 +42,7 @@ AND `users`.`uid` = `node`.`uid`
 AND `content_type_userstream`.`nid`=`node`.`nid`
 ORDER BY `timeCreated` DESC';
 
-$queryLifeStream = 'SELECT `node`.`nid` AS `stream_id`,
+$queryRealStream = 'SELECT `node`.`nid` AS `stream_id`,
 `node`.`title` AS `stream_title`,
 `node`.`created` AS `timeCreated`,
 `users`.`name` as `streamer_name`
@@ -60,9 +60,9 @@ $data[] = array(
 $data = array_merge(
 	$data,
 	GetDataByQuery( $queryStream ),
-	GetDataByQuery( $queryPrimeTimeStream, $isPrimeTimeQuery = TRUE ),
+	GetDataByQuery( $queryPrimeTimeStreamNoRubric, $isPrimeTimeQuery = TRUE ),
 	GetDataByQuery( $queryUserStream ),
-	GetDataByQuery( $queryLifeStream )
+	GetDataByQuery( $queryRealStream )
 );
 
 $dataJson = json_encode( array( 'channel' => $data ) );
