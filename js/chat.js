@@ -752,8 +752,8 @@ function otvet(nick){
 function getmenu( nick, mid, uid, channelId ) {
 	user_name = $( nick ).html();
 	
-	// do not show menu for system messages
-	if ( uid == '-1' ) {
+	// do not show menu for system messages and prime time bot
+	if ( uid == '-1' || uid == '-2') {
 		return false;
 	}
 	
@@ -822,34 +822,44 @@ function BuildHtml( messageList ) {
     var namePrefix = '';
 		
 		// сообщения пользователей и системы выглядят по-разному
-		if ( messageList[ i ].uid != -1 ) {
-			var textClass = 'text';
-			
-			// подсветка ников выключена
-			if ( chatNoColorNicknames ) {
-				nicknameClass += ' user-2';
-			}
-			else {
-				color = GetSpecColor( messageList[ i ].uid );
-				// если не блат, то цвет по классу группы
-				if ( color == '' ) {
-					nicknameClass += ' role-' + messageList[ i ].role;
-				}
-				else {
-					customColorStyle = ' style="color:' + color + ';"';
-				}
-			}
-			
-			if ( messageList[ i ].roleIds.indexOf( 24 ) !== -1 ) {
-				namePrefix = '<img src="/css/donate_01.png" width="12" height="11" class="top-supporter" />';
-			}
+		switch( messageList[ i ].uid ) {
+				// primetime bot
+				case '-2':
+					nicknameClass = 'primetimebot-nick';
+					var textClass = 'primetime_text';
+					namePrefix = '<img src="/img/primetime_bot.png" width="16" height="16" class="primetime-bot" />';
+					break;
+				// system message
+				case '-1':
+					nicknameClass = 'system-nick';
+					var textClass = 'system_text';
+					customColorStyle = '';
+					break;
+				// user message
+				default:
+					var textClass = 'text';
+					
+					// подсветка ников выключена
+					if ( chatNoColorNicknames ) {
+						nicknameClass += ' user-2';
+					}
+					else {
+						color = GetSpecColor( messageList[ i ].uid );
+						// если не блат, то цвет по классу группы
+						if ( color == '' ) {
+							nicknameClass += ' role-' + messageList[ i ].role;
+						}
+						else {
+							customColorStyle = ' style="color:' + color + ';"';
+						}
+					}
+					
+					if ( messageList[ i ].roleIds.indexOf( 24 ) !== -1 ) {
+						namePrefix = '<img src="/img/donate_01.png" width="12" height="11" class="top-supporter" />';
+					}
+					break;
 		}
-		else {
-			nicknameClass = 'system-nick';
-			var textClass = 'system_text';
-			customColorStyle = '';
-		}
-		
+			
 		channelId = messageList[ i ].channelId;
 		
 		// TODO убрать лишнее

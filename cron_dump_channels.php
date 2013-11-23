@@ -22,7 +22,8 @@ ORDER BY `timeCreated` DESC';
 $queryPrimeTimeStream = 'SELECT `node`.`nid` AS `stream_id`,
 `node`.`title` AS `stream_title`,
 `node`.`created` AS `timeCreated`,
-`users`.`name` as `streamer_name`
+`users`.`name` as `streamer_name`,
+`content_type_prime_stream`.`field_prime_rubric_value` as `rubric`
 FROM `content_type_prime_stream`, `node`, `users`
 WHERE `content_type_prime_stream`.`field_prime_is_over_value`=0
 AND `users`.`uid` = `node`.`uid`
@@ -79,22 +80,13 @@ function GetDataByQuery( $queryString, $isPrimeTimeQuery = FALSE ) {
 	$data = array();
 	$maxLength = 100;
 	
-	if ( $isPrimeTimeQuery && $queryResult->num_rows === 0 ) {
-		$data[] = array(
-			'channelId' => PRIME_TIME_CHANNEL_ID,
-			'channelTitle' => PRIME_TIME_CHANNEL_TITLE,
-			'streamerName' => PRIME_TIME_DEFAULT_STREAMER
-		);
-		
-		return $data;
-	}
 	
 	while ( $channel = $queryResult->fetch_assoc() ) {
 		if ( mb_strlen( $channel[ 'stream_title' ] ) > $maxLength ) {
 			$channel[ 'stream_title' ] = mb_substr( $channel[ 'stream_title' ], 0,
 				$maxLength ) . '...';
 		}
-		if ( $isPrimeTimeQuery ) {
+		if ( $isPrimeTimeQuery && $channel[ 'rubric' ] > 0) {
 			$data[] = array(
 				'channelId' => PRIME_TIME_CHANNEL_ID,
 				'channelTitle' => $channel[ 'stream_title' ],

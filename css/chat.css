@@ -122,6 +122,21 @@ div#dialog2 div#chat-form span {
 }
 #dialog2 .system_text{color:#808080;font-size:10px;display:inline;}
 
+/*primetime bot*/
+#dialog2 .primetimebot-nick {
+	color:gold;
+	font-size:11px;
+	font-weight:bold;
+	display:inline;
+	padding-right:7px;
+	margin:0;
+}
+#dialog2 .primetimebot-nick:after {
+	content:':';
+	position:relative;
+}
+#dialog2 .primetime_text{color:gold;font-size:11px;display:inline;}
+
 #dialog2 .mess {padding:.3em 0; border-bottom:1px solid #222222}
 #dialog2 .mess:even {background:red !important }
 #dialog2 .time {display:none}
@@ -346,4 +361,9 @@ body{
     display: inline-block;
     margin-right: 2px;
     height: 11px;
+}
+.primetime-bot{
+    display: inline-block;
+    margin-right: 2px;
+    height: 16px;
 }
