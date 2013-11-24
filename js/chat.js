@@ -50,7 +50,7 @@ else {
 				smileHtml += '</div><div id="smile-panel-tab-' + t + '">';
 				smilePanelTabsHtml += '<span id="smile-panel-pager-' + t
 					+ '" data-tab-number="' + t +'">prime</span>';
-				smileHtml += '<a href="http://mike.sc2tv.ru/img/sc2tv.jpg" target="_blank">Получить смайлы</a><br/>';
+				smileHtml += '<a href="http://prime.sc2tv.ru/donate" target="_blank">Получить смайлы</a><br/>';
 			}
 			
 			inactiveSmileClass = '-not-available';
