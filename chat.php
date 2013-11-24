@@ -450,7 +450,7 @@ class Chat {
 				$msg[ 'role' ] = 'user';
 			}
 			if ( $msg[ 'uid' ] == -2 ) {
-				$msg [ 'name' ] == 'PRIME-TIME';
+				$msg [ 'name' ] = 'PRIME-TIME';
 			}
 			$messages[] = $msg;
 		}
