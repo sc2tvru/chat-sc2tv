@@ -28,7 +28,7 @@ FROM `content_type_prime_stream`, `node`, `users`
 WHERE `content_type_prime_stream`.`field_prime_is_over_value`=0
 AND `users`.`uid` = `node`.`uid`
 AND `content_type_prime_stream`.`nid`=`node`.`nid`
-AND NOW() >`content_type_prime_stream`.`field_prime_time_value`
+AND UNIX_TIMESTAMP(NOW()) > UNIX_TIMESTAMP(`content_type_prime_stream`.`field_prime_time_value`) + `content_type_prime_stream`.`field_prime_time_offset`
 AND `node`.`status` = 1
 ORDER BY `timeCreated` DESC';
 
