@@ -424,6 +424,30 @@ class Chat {
 		
 		$messages = array();
 		
+		if ( $advertisement_message = $this->memcache->Get( 'advertisement_message' ) ) {
+			$messages[] = array('id' => 0,
+								'uid' => -2,
+								'name' => 'PRIME-TIME',
+								'message' => $advertisement_message,
+								'date' => date('Y-m-d H:i:s'),
+								'channelId' => $channelId,
+								'roleIds' => array(2),
+								'role' => 'user',
+								);
+		}
+		
+		if ( $prime_time_message = $this->memcache->Get( 'prime_time_message' ) ) {
+			$messages[] = array('id' => 0,
+								'uid' => -2,
+								'name' => 'PRIME-TIME',
+								'message' => $prime_time_message,
+								'date' => date('Y-m-d H:i:s'),
+								'channelId' => $channelId,
+								'roleIds' => array(2),
+								'role' => 'user',
+								);
+		}
+		
 		while( $msg = $queryResult->fetch_assoc() ) {
 			if ( $msg[ 'roleIds' ] === NULL ) {
 				$msg[ 'roleIds' ] = array(2);
