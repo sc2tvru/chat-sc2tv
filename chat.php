@@ -425,10 +425,14 @@ class Chat {
 		$messages = array();
 		if ( $channelId == PRIME_TIME_CHANNEL_ID ) {
 			if ( $advertisementMessage = $this->memcache->Get( 'advertisementMessage' ) ) {
-				$messages[] = $this->PreparePrimeTimeMessageForChat( $advertisementMessage )
+				if ( $msg = $this->PreparePrimeTimeMessageForChat( $advertisementMessage ) ) {
+					$messages[] = $msg;
+				}
 			}
 			if ( $primeTimeMessage = $this->memcache->Get( 'primeTimeMessage' ) ) {
-				$messages[] = $this->PreparePrimeTimeMessageForChat( $primeTimeMessage )
+				if ( $msg = $this->PreparePrimeTimeMessageForChat( $primeTimeMessage ) ) {
+					$messages[] = $msg;
+				}
 			}
 		}
 		
@@ -882,6 +886,24 @@ class Chat {
 	 *  @return array подготовленный массив сообщения
 	 */
 	public function PreparePrimeTimeMessageForChat( $message ) {
+		$message = preg_replace(
+			'/[^\x20-\x7E\x{400}-\x{45F}\x{490}\x{491}\x{207}\x{239}\x{2012}\x{2013}\x{2014}]+/us',
+			'',
+			$message
+		);
+		
+		$message = preg_replace( '#[\s]+#uis', ' ',  $message );
+		
+		if( $message === '' ) {
+			return FALSE;
+		}
+
+		$message = htmlspecialchars( $message, ENT_QUOTES, 'UTF-8' );
+
+		if( $this->IsStringCapsOrAbuse( $message ) ) {
+			return false;
+		}
+		
 		return array('id' => 0,
 					'uid' => -2,
 					'name' => PRIME_TIME_NAME,
