@@ -446,6 +446,8 @@ function GetSpecColor( uid ) {
 		case '8324':
     //milkSHake
     case '22600':
+		//Cuddlez
+		case '63034':
 			color = '#FFC0CB';
 		break;
 		// Kas

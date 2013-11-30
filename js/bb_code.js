@@ -24,9 +24,6 @@ function bbCodeToHtml(str) {
 	return str;
 }
 
-function bbCodeBoldToHtml(str, boldText){
-	return '<b>' + boldText + '</b>';
-}
 
 function bbCodeURLToHtml(str, proto, url, host, port, path, query, fragment, text){
 	//удаляем смайлы из ссылок
