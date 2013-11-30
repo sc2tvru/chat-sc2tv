@@ -79,14 +79,15 @@ function GetDataByQuery( $queryString, $isPrimeTimeQuery = FALSE ) {
 	
 	$data = array();
 	$maxLength = 100;
-	
+	$primeCount = 0;
 	
 	while ( $channel = $queryResult->fetch_assoc() ) {
 		if ( mb_strlen( $channel[ 'stream_title' ] ) > $maxLength ) {
 			$channel[ 'stream_title' ] = mb_substr( $channel[ 'stream_title' ], 0,
 				$maxLength ) . '...';
 		}
-		if ( $isPrimeTimeQuery && $channel[ 'rubric' ] > 0) {
+		if ( $isPrimeTimeQuery && $channel[ 'rubric' ] > 0 && $primeCount == 0) {
+			$primeCount = 1;
 			$data[] = array(
 				'channelId' => PRIME_TIME_CHANNEL_ID,
 				'channelTitle' => $channel[ 'stream_title' ],
