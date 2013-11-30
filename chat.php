@@ -423,6 +423,18 @@ class Chat {
 		}
 		
 		$messages = array();
+		if ( $channelId == PRIME_TIME_CHANNEL_ID ) {
+			if ( $advertisementMessage = $this->memcache->Get( 'advertisementMessage' ) ) {
+				if ( $msg = $this->PreparePrimeTimeMessageForChat( $advertisementMessage ) ) {
+					$messages[] = $msg;
+				}
+			}
+			if ( $primeTimeMessage = $this->memcache->Get( 'primeTimeMessage' ) ) {
+				if ( $msg = $this->PreparePrimeTimeMessageForChat( $primeTimeMessage ) ) {
+					$messages[] = $msg;
+				}
+			}
+		}
 		
 		while( $msg = $queryResult->fetch_assoc() ) {
 			if ( $msg[ 'roleIds' ] === NULL ) {
@@ -450,7 +462,7 @@ class Chat {
 				$msg[ 'role' ] = 'user';
 			}
 			if ( $msg[ 'uid' ] == -2 ) {
-				$msg [ 'name' ] = 'PRIME-TIME';
+				$msg [ 'name' ] = PRIME_TIME_NAME;
 			}
 			$messages[] = $msg;
 		}
@@ -865,6 +877,42 @@ class Chat {
 		else {
 			return FALSE;
 		}
+	}
+	
+	
+	/**
+	 *  подготовка прайм-тайм сообщения
+	 *  @param string message сообщение
+	 *  @return array подготовленный массив сообщения
+	 */
+	public function PreparePrimeTimeMessageForChat( $message ) {
+		$message = preg_replace(
+			'/[^\x20-\x7E\x{400}-\x{45F}\x{490}\x{491}\x{207}\x{239}\x{2012}\x{2013}\x{2014}]+/us',
+			'',
+			$message
+		);
+		
+		$message = preg_replace( '#[\s]+#uis', ' ',  $message );
+		
+		if( $message === '' ) {
+			return FALSE;
+		}
+
+		$message = htmlspecialchars( $message, ENT_QUOTES, 'UTF-8' );
+
+		if( $this->IsStringCapsOrAbuse( $message ) ) {
+			return false;
+		}
+		
+		return array('id' => 0,
+					'uid' => -2,
+					'name' => PRIME_TIME_NAME,
+					'message' => $message,
+					'date' => CURRENT_DATE,
+					'channelId' => PRIME_TIME_CHANNEL_ID,
+					'roleIds' => array(2),
+					'role' => 'user',
+		);
 	}
 }
 ?>

@@ -126,4 +126,5 @@ define( 'ERROR_FILE', CHAT_MEMFS_DIR . '/error_____sgsrhh53y55l.txt' );
 define( 'PRIME_TIME_CHANNEL_ID', 666 );
 define( 'PRIME_TIME_CHANNEL_TITLE', 'Prime time' );
 define( 'PRIME_TIME_DEFAULT_STREAMER', 'Adolf[RA]' );
+define( 'PRIME_TIME_NAME', 'PRIME-TIME' );
 ?>
