@@ -565,7 +565,6 @@ class Chat {
 					'\\1',
 					$message
 				);
-				echo $message;
 			}
 			
 			// length of DB field - length of errorMessage = 1024 - 81

@@ -1,6 +1,6 @@
 <?php
 /*
- * выгрузка stream_id и stream_title из базы в json для модераторов чата 
+ * выгрузка stream_id и stream_title из базы в channels.json
  */
 require_once 'chat_config.php';
 require_once 'db.php';
