@@ -19,7 +19,7 @@ AND NOW() >`content_type_stream`.`field_stream_time_value`
 AND `node`.`status` = 1
 ORDER BY `timeCreated` DESC';
 
-$queryPrimeTimeStreamNoRubric = 'SELECT `node`.`nid` AS `stream_id`,
+$queryPrimeTimeStream = 'SELECT `node`.`nid` AS `stream_id`,
 `node`.`title` AS `stream_title`,
 `node`.`created` AS `timeCreated`,
 `users`.`name` as `streamer_name`,
@@ -28,7 +28,10 @@ FROM `content_type_prime_stream`, `node`, `users`
 WHERE `content_type_prime_stream`.`field_prime_is_over_value`=0
 AND `users`.`uid` = `node`.`uid`
 AND `content_type_prime_stream`.`nid`=`node`.`nid`
-AND UNIX_TIMESTAMP(NOW()) > UNIX_TIMESTAMP(`content_type_prime_stream`.`field_prime_time_value`) + `content_type_prime_stream`.`field_prime_time_offset`
+AND UNIX_TIMESTAMP(NOW()) > (
+	UNIX_TIMESTAMP(`content_type_prime_stream`.`field_prime_time_value`) +
+	`content_type_prime_stream`.`field_prime_time_offset`
+)
 AND `node`.`status` = 1
 ORDER BY `timeCreated` DESC';
 
@@ -60,7 +63,7 @@ $data[] = array(
 $data = array_merge(
 	$data,
 	GetDataByQuery( $queryStream ),
-	GetDataByQuery( $queryPrimeTimeStreamNoRubric, $isPrimeTimeQuery = TRUE ),
+	GetDataByQuery( $queryPrimeTimeStream, $isPrimeTimeQuery = TRUE ),
 	GetDataByQuery( $queryUserStream ),
 	GetDataByQuery( $queryRealStream )
 );
@@ -79,14 +82,16 @@ function GetDataByQuery( $queryString, $isPrimeTimeQuery = FALSE ) {
 	
 	$data = array();
 	$maxLength = 100;
-	
+	$primeTimeStreamsCount = 0;
 	
 	while ( $channel = $queryResult->fetch_assoc() ) {
 		if ( mb_strlen( $channel[ 'stream_title' ] ) > $maxLength ) {
 			$channel[ 'stream_title' ] = mb_substr( $channel[ 'stream_title' ], 0,
 				$maxLength ) . '...';
 		}
-		if ( $isPrimeTimeQuery && $channel[ 'rubric' ] > 0) {
+		if ( $isPrimeTimeQuery && $channel[ 'rubric' ] > 0
+			&& $primeTimeStreamsCount < PRIME_TIME_STREAMS_AT_ONE_TIME ) {
+			$primeTimeStreamsCount++;
 			$data[] = array(
 				'channelId' => PRIME_TIME_CHANNEL_ID,
 				'channelTitle' => $channel[ 'stream_title' ],
