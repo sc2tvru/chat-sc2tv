@@ -367,3 +367,6 @@ body{
     margin-right: 2px;
     height: 16px;
 }
+.message-to-user {
+	color:#f36223;
+}

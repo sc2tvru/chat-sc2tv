@@ -11,6 +11,7 @@ var CHAT_RELOAD_INTERVAL = 5000;
 var CHAT_CHANNEL_RELOAD_INTERVAL = 300000;
 var SC2TV_URL = 'http://sc2tv.ru';
 var CHAT_URL =  'http://chat.sc2tv.ru/';
+var CHAT_GATE = CHAT_URL + 'gate.php';
 var chatTimerId = 0;
 var channelList = [];
 var userInfo = [];
@@ -24,7 +25,7 @@ var isModeratorActive;
 if ( IsAnon() !== true ) {
 	$.ajaxSetup( { async: false, cache: false } );
 
-	$.getJSON( CHAT_URL + 'gate.php?task=GetUserInfo&ref=' + document.referrer, function( data ) {
+	$.getJSON( CHAT_GATE + '?task=GetUserInfo&ref=' + document.referrer, function( data ) {
 		userInfo = data;
 	});
 		
@@ -389,9 +390,8 @@ function PutDataToChat( data ) {
 
 // всевозможные замены
 function ProcessReplaces( str ) {
-	// URL
-	str = str.replace( bbToUrlPatternWithText, bbCodeUrlToHtml );
-	str = str.replace( bbToUrlPattern, bbCodeUrlToHtml );
+	// bb codes
+	str = bbCodeToHtml( str );
 
 	// смайлы
 	var smilesMode = $.cookie( 'chat-img' );
@@ -444,8 +444,6 @@ function GetSpecColor( uid ) {
 		case '65377':
 		// Siena
 		case '8324':
-		//Cuddlez
-		case '63034':
     //milkSHake
     case '22600':
 			color = '#FFC0CB';
@@ -498,7 +496,7 @@ function BuildChat( dataForBuild ) {
 		// данных для сборки нет, запрашиваем сервер
 		$.ajaxSetup( { async: false, cache: false } );
 		
-		$.getJSON( CHAT_URL + 'gate.php?task=GetUserInfo&ref=' + document.referrer, function( data ) {
+		$.getJSON( CHAT_GATE + '?task=GetUserInfo&ref=' + document.referrer, function( data ) {
 			userInfo = data;
 		});
 		
@@ -655,7 +653,7 @@ function toogleChatRooms() {
 
 
 function BanUser( uid, user_name, duration, mid, channelId ){
-	$.post( CHAT_URL + 'gate.php', { task: 'BanUser', banUserId: uid, userName: user_name, duration: duration, messageId: mid, channelId: channelId, token: userInfo.token }, function( data ) {
+	$.post( CHAT_GATE, { task: 'BanUser', banUserId: uid, userName: user_name, duration: duration, messageId: mid, channelId: channelId, token: userInfo.token }, function( data ) {
 		data = $.parseJSON( data );
 		CheckUserState( data );
 		if( data.code == 0 ) {
@@ -671,7 +669,7 @@ function BanUser( uid, user_name, duration, mid, channelId ){
 
 
 function DeleteMessage( mid, channelId ) {
-	$.post( CHAT_URL + 'gate.php', { task: 'DeleteMessage', messageId: mid, channelId: channelId, token: userInfo.token }, function(data) {
+	$.post( CHAT_GATE, { task: 'DeleteMessage', messageId: mid, channelId: channelId, token: userInfo.token }, function(data) {
 		data = $.parseJSON( data );
 		CheckUserState( data );
 		if( data.code == 0 ) {
@@ -716,7 +714,7 @@ function IgnoreUnignore( username, uid ) {
 
 function VoteForUserBan( uid, user_name, mid, reasonId ) {
 	$.ajaxSetup({ async: false });
-	$.post( CHAT_URL + 'gate.php', {task: 'CitizenVoteForUserBan', banUserId: uid, userName: user_name, messageId: mid, reasonId: reasonId, token: userInfo.token }, function( data ) {
+	$.post( CHAT_GATE, {task: 'CitizenVoteForUserBan', banUserId: uid, userName: user_name, messageId: mid, reasonId: reasonId, token: userInfo.token }, function( data ) {
 		data = $.parseJSON( data );
 		CheckUserState( data );
 		$('.menushka').html( data.result );
@@ -805,7 +803,11 @@ function getmenu( nick, mid, uid, channelId ) {
 
 // сборка html для канала
 function BuildHtml( messageList ) {
-	var data = '';
+	var channelHTML = '';
+	var messageToUserRegexp = new RegExp(
+		'\\[b\\]' + RegExp.escape( userInfo.name ) + '\\[/b\\],',
+		'gi'
+	);
 	
 	var messageCount = messageList.length;
 	
@@ -825,41 +827,41 @@ function BuildHtml( messageList ) {
 		
 		// сообщения пользователей и системы выглядят по-разному
 		switch( messageList[ i ].uid ) {
-				// primetime bot
-				case '-2':
-					nicknameClass = 'primetimebot-nick';
-					var textClass = 'primetime_text';
-					namePrefix = '<img src="/img/primetime_bot.png" width="16" height="16" class="primetime-bot" />';
-					break;
-				// system message
-				case '-1':
-					nicknameClass = 'system-nick';
-					var textClass = 'system_text';
-					customColorStyle = '';
-					break;
-				// user message
-				default:
-					var textClass = 'text';
-					
-					// подсветка ников выключена
-					if ( chatNoColorNicknames ) {
-						nicknameClass += ' user-2';
+			// primetime bot
+			case '-2':
+				nicknameClass = 'primetimebot-nick';
+				var textClass = 'primetime_text';
+				namePrefix = '<img src="/img/primetime_bot.png" width="16" height="16" class="primetime-bot" />';
+				break;
+			// system message
+			case '-1':
+				nicknameClass = 'system-nick';
+				var textClass = 'system_text';
+				customColorStyle = '';
+				break;
+			// user message
+			default:
+				var textClass = 'text';
+				
+				// подсветка ников выключена
+				if ( chatNoColorNicknames ) {
+					nicknameClass += ' user-2';
+				}
+				else {
+					color = GetSpecColor( messageList[ i ].uid );
+					// если не блат, то цвет по классу группы
+					if ( color == '' ) {
+						nicknameClass += ' role-' + messageList[ i ].role;
 					}
 					else {
-						color = GetSpecColor( messageList[ i ].uid );
-						// если не блат, то цвет по классу группы
-						if ( color == '' ) {
-							nicknameClass += ' role-' + messageList[ i ].role;
-						}
-						else {
-							customColorStyle = ' style="color:' + color + ';"';
-						}
+						customColorStyle = ' style="color:' + color + ';"';
 					}
-					
-					if ( messageList[ i ].roleIds.indexOf( 24 ) !== -1 ) {
-						namePrefix = '<img src="/img/donate_01.png" width="12" height="11" class="top-supporter" />';
-					}
-					break;
+				}
+				
+				if ( messageList[ i ].roleIds.indexOf( 24 ) !== -1 ) {
+					namePrefix = '<img src="/img/donate_01.png" width="12" height="11" class="top-supporter" />';
+				}
+				break;
 		}
 			
 		channelId = messageList[ i ].channelId;
@@ -878,27 +880,27 @@ function BuildHtml( messageList ) {
 		// img on/off
 		smileOnly = false;
 		
+		currentMessage = messageList[ i ].message;
 		if ( chatNoSmiles ) {
-			msg = messageList[ i ].message;
-			msg = msg.replace( /[\s]+/g, '' );
+			msg = currentMessage.replace( /[\s]+/g, '' );
 			regexp = /^(<b>[^<]*<\/b>[,\s]*){0,}[\s]*(:s:[^:]+:[\s]*){1,}[\s]*$/gi;
 			smileOnly = regexp.test( msg );
 		}
 		
+		// подсветка своих сообщений
+		var isMessageToUser = currentMessage.search( messageToUserRegexp ) != -1;
+		if ( isMessageToUser ) {
+			textClass += ' message-to-user';
+		}
+		
+		currentMessage = ProcessReplaces( currentMessage );
+		
 		if ( smileOnly == false ) {
-			data = '<div class="channel-' + channelId + ' mess message_' + messageList[ i ].id + '">' + namePrefix + '<span' + customColorStyle + ' class="' + nicknameClass + '"' + userMenu + 'title="' + messageList[ i ].date + '">' + messageList[ i ].name + '</span><p class="' + textClass + '">' + messageList[ i ].message + '</p></div>' + data;
+			channelHTML = '<div class="channel-' + channelId + ' mess message_' + messageList[ i ].id + '">' + namePrefix + '<span' + customColorStyle + ' class="' + nicknameClass + '"' + userMenu + 'title="' + messageList[ i ].date + '">' + messageList[ i ].name + '</span><p class="' + textClass + '">' + currentMessage + '</p></div>' + channelHTML;
 		}
 	}
 	
-	data = ProcessReplaces( data );
-	
-	if ( userInfo.name != undefined ) {
-		// подсветка своих сообщений
-		var regExp = new RegExp( '><b>' + RegExp.escape( userInfo.name ) +'<\/b>,', 'mig' );
-		data = data.replace(regExp, " style='color:#f36223' $&");
-	}
-	
-	return data;
+	return channelHTML;
 }
 
 
@@ -913,16 +915,16 @@ function FixSmileCode( str ) {
 
 
 function AddUrlBBCode( message ) {
-	var noUrlWithText = message.search( bbToUrlPatternWithText ) == -1;
+	var noUrlWithText = message.search( bbCodeURLWithTextPattern ) == -1;
 	
 	// add bb code only if it wasn't supplied by user
 	if ( noUrlWithText ) {
-		var noUrlWithoutText = message.search( bbToUrlPattern ) == -1;
+		var noUrlWithoutText = message.search( bbCodeURLPattern ) == -1;
 		if ( noUrlWithoutText ) {
 			// max length of DB field - length of bb code = 1024 - 11 = 1013
 			// but don't forget about html entities, so ~900
 			if ( message.length < 900 ) {
-				message = message.replace( urlPattern, '[url]$&[/url]' );
+				message = message.replace( URLPattern, '[url]$&[/url]' );
 			}
 		}
 	}
@@ -966,7 +968,7 @@ function WriteMessage(){
 	
 	//$.ajaxSetup({ async: false });
 	$( '.chat-text' ).attr( 'readonly', 'readonly' );
-	$.post( CHAT_URL + 'gate.php', { task: 'WriteMessage', message: msg, channel_id: chat_channel_id, token: userInfo.token }, function( jsonData ) {
+	$.post( CHAT_GATE, { task: 'WriteMessage', message: msg, channel_id: chat_channel_id, token: userInfo.token }, function( jsonData ) {
 		data = $.parseJSON( jsonData );
 		
 		CheckUserState( data );
@@ -1009,7 +1011,7 @@ function IsStringCapsOrAbuse( str ) {
 	}
 	
 	// url
-	tempStr = tempStr.replace( urlPattern, '' );
+	tempStr = tempStr.replace( URLPattern, '' );
 	
 	// коды смайлов
 	tempStr = tempStr.replace( /:s:[^:]+:/gi, '' );

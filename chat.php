@@ -267,7 +267,7 @@ class Chat {
 	 *  @param string str строка для проверки
 	 *  @return bool TRUE | FALSE
 	 */
-	private function IsStringCapsOrAbuse( $str ) {
+	private function CheckMessageIsCapsOrAbuse( $str ) {
 		// удаляем обращения вроде [b]MEGAKILLER[/b], bb-код [b][/b]
 		$tempStr = preg_replace(
 			'/^\[b\][-\.\w\x{400}-\x{45F}\x{490}\x{491}\x{207}\x{239}\[\]]+\[\/b\]|\[b\]|\[\/b\]/uis',
@@ -482,7 +482,7 @@ class Chat {
 	}
 	
 	
-	/*
+	/**
 	 * удаление недопустимых для данной роли смайлов
 	 * @param string message сообщение
 	 * @return string отфильтрованное сообщение
@@ -516,14 +516,12 @@ class Chat {
 		return $message;
 	}
 	
-	
 	/**
-	 *  пост сообщения в чат
-	 *  @param string message текст сообщения
-	 *  @return bool TRUE в случае успеха, FALSE неудачи
+	 *  получение валидного сообщения
+	 *  @param string message исходный текст сообщения, которое отправляют в чат
+	 *  @return string валидное сообщение, прошедшее основные фильтры
 	 */
-	public function WriteMessage( $message ) {
-
+	private function GetValidMessage( $message ) {
 		/* удаляем явно не разрешенные символы
 		разрешены
 		U+0020 - U+003F - знаки препинания и арабские цифры
@@ -546,9 +544,22 @@ class Chat {
 		// TODO php 5.4.0 добавить ENT_SUBSTITUTE ?
 		$message = htmlspecialchars( $message, ENT_QUOTES, 'UTF-8' );
 		
-		$channelId = $this->GetChannelId();
+		return $message;
+	}
+	
+	
+	/**
+	 *  пост сообщения в чат
+	 *  @param string message текст сообщения
+	 *  @return bool TRUE в случае успеха, FALSE неудачи
+	 */
+	public function WriteMessage( $message ) {
+		$message = $this->GetValidMessage( $message );
+		if ( $message === FALSE ) {
+			return FALSE;
+		}
 		
-		if( $this->IsStringCapsOrAbuse( $message ) ) {
+		if( $this->CheckMessageIsCapsOrAbuse( $message ) ) {
 			// предотвращаем перевод кодов смайлов в картинки, чтобы не бился html
 			$message = preg_replace( '/(?::s)+(:[^:]+:)/uis', '\\1', $message );
 			// URL тоже
@@ -575,21 +586,16 @@ class Chat {
 			$message = '<span class="red" title="' . $message
 				. '">Предупреждение за CAPS / Abuse!</span>';
 		}
-		else {
-			$message = preg_replace(
-				'#\[b\](.+?)\[/b\]#uis',
-				'<b>\\1</b>',
-				$message
-			);
-		}
 		
 		if( $this->CheckForAutoBan( $message ) ) {
 			return FALSE;
 		}
 		
 		$message = $this->FilterSmiles($message);
-				
+		
 		$message = $this->db->mysqli->real_escape_string( $message );
+		
+		$channelId = $this->GetChannelId();
 		
 		$queryString = '
 			INSERT INTO chat_message (uid, message, date, channelId)
