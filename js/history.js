@@ -10,6 +10,7 @@ var CHAT_HISTORY_CHECK_PARAMS = 'Пожалуйста, проверьте пра
 var CHAT_HISTORY_FOR_USERS_ONLY = 'История доступна только для авторизованных в чате пользователей.';
 var smilesCount = smiles.length;
 var userInfo = [];
+var processReplacesMessageInfo = [];
 
 function GetHistoryData( channelId, startDate, endDate, nick ) {
 	nick = nick.replace( /[^\u0020-\u007E\u0400-\u045F\u0490\u0491\u0207\u0239]+/g, '' );
@@ -139,22 +140,24 @@ function BuildHtml( messageList ) {
 			actionButton = ' <span title="Забанить" class="banButton">[ Бан ]</span>';
 		}
 		
+		var currentMessage = ProcessReplaces( messageList[ i ] );
+		
 		// TODO убрать лишнее
-		data = '<div class="channel-' + messageList[ i ].channelId + ' mess message_' + messageList[ i ].id + ' uid_' + messageList[ i ].uid + '" onmouseover="ShowActionButton(' + messageList[ i ].id +');" onmouseout="HideActionButton('+ messageList[ i ].id +');"><span' + colorStyle + ' class="nick' + colorClass + '" title="' + messageList[ i ].date + '">' + messageList[ i ].name + '</span><p class="text">' + messageList[ i ].message + '</p>' + actionButton + '</div>' + data;
+		data = '<div class="channel-' + messageList[ i ].channelId + ' mess message_' + messageList[ i ].id + ' uid_' + messageList[ i ].uid + '" onmouseover="ShowActionButton(' + messageList[ i ].id +');" onmouseout="HideActionButton('+ messageList[ i ].id +');"><span' + colorStyle + ' class="nick' + colorClass + '" title="' + messageList[ i ].date + '">' + messageList[ i ].name + '</span><p class="text">' + currentMessage + '</p>' + actionButton + '</div>' + data;
 	}
 	
-	data = ProcessReplaces( data );
 	return data;
 }
 
 // всевозможные замены
-function ProcessReplaces( str ) {
-	// URL
-	str = str.replace( bbToUrlPatternWithText, bbCodeUrlToHtml );
-	str = str.replace( bbToUrlPattern, bbCodeUrlToHtml );
+function ProcessReplaces( messageInfo ) {
+	processReplacesMessageInfo = messageInfo;
+	var message = messageInfo.message;
+	// bb codes
+	message = bbCodeToHtml( message );
 
 	// смайлы
-	str = str.replace( /:s(:[-a-z0-9]{2,}:)/gi, function( match, code ) {
+	message = message.replace( /:s(:[-a-z0-9]{2,}:)/gi, function( match, code ) {
 		var indexOfSmileWithThatCode = -1;
 		for ( var i = 0; i < smilesCount; i++ ) {
 			if ( smiles[ i ].code == code ) {
@@ -173,7 +176,7 @@ function ProcessReplaces( str ) {
 		return replace;
 	});
 	
-	return str;
+	return message;
 }
 
 

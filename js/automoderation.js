@@ -16,6 +16,7 @@ var uid = 0;
 var topModeratorsCount = 10;
 var moderatorsDetailsHtml = '';
 var SC2TV_TIME_DIFF = 14400;
+var processReplacesMessageInfo = [];
 
 function GetReasonById( reasonId ) {
 	reasonId = parseInt( reasonId );
@@ -175,7 +176,7 @@ function BuildHtml( messageList ) {
 		var banReason = '';
 		
 		if ( parseInt( messageList[ i ].banMessageId ) > 0 ){
-			banReason = messageList[ i ].bannedForMessage;
+			banReason = ProcessReplaces( messageList[ i ] );
 		}
 		
 		if ( banReasonId > 0 ) {
@@ -224,7 +225,7 @@ function BuildHtml( messageList ) {
 			else {
 				banWithComplainsMessage = '';
 			}
-		
+			
 			data += '<div class="mess' + banWithComplainsCssClass + '"><span class="nick user-2" title="' + banDate + ' - ' + unBanDate + '">' +  messageList[ i ].userName + ' (' + banDuration + ', ' + moderatorName + ') </span>' + actionButton + banModificationInfo + banWithComplainsMessage + '<br/><p class="text">' + banReason + '</p>';
 			
 			previousBanKey = currentBanKey;
@@ -236,19 +237,18 @@ function BuildHtml( messageList ) {
 	}
 	
 	data += '</div>';
-	
-	data = ProcessReplaces( data );
 	return data;
 }
 
 // всевозможные замены
-function ProcessReplaces( str ) {
-	// URL
-	str = str.replace( bbToUrlPatternWithText, bbCodeUrlToHtml );
-	str = str.replace( bbToUrlPattern, bbCodeUrlToHtml );
+function ProcessReplaces( messageInfo ) {
+	processReplacesMessageInfo = messageInfo;
+	var message = messageInfo.bannedForMessage;
+	// bb codes
+	message = bbCodeToHtml( message );
 
 	// смайлы
-	str = str.replace( /:s(:[-a-z0-9]{2,}:)/gi, function( match, code ) {
+	message = message.replace( /:s(:[-a-z0-9]{2,}:)/gi, function( match, code ) {
 		var indexOfSmileWithThatCode = -1;
 		for ( var i = 0; i < smilesCount; i++ ) {
 			if ( smiles[ i ].code == code ) {
@@ -267,7 +267,7 @@ function ProcessReplaces( str ) {
 		return replace;
 	});
 	
-	return str;
+	return message;
 }
 
 

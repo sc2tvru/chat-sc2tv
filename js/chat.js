@@ -392,7 +392,7 @@ function PutDataToChat( data ) {
 // всевозможные замены
 function ProcessReplaces( messageInfo ) {
 	processReplacesMessageInfo = messageInfo;
-	message = messageInfo.message;
+	var message = messageInfo.message;
 	// bb codes
 	message = bbCodeToHtml( message );
 
