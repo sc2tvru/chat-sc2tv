@@ -21,6 +21,7 @@ var prevModeratorMessageList = [];
 var ignoreList = [];
 var isModerator = false;
 var isModeratorActive;
+var processReplacesMessageInfo = [];
 
 if ( IsAnon() !== true ) {
 	$.ajaxSetup( { async: false, cache: false } );
@@ -389,13 +390,15 @@ function PutDataToChat( data ) {
 
 
 // всевозможные замены
-function ProcessReplaces( str ) {
+function ProcessReplaces( messageInfo ) {
+	processReplacesMessageInfo = messageInfo;
+	message = messageInfo.message;
 	// bb codes
-	str = bbCodeToHtml( str );
+	message = bbCodeToHtml( message );
 
 	// смайлы
 	var smilesMode = $.cookie( 'chat-img' );
-	str = str.replace( /:s(:[-a-z0-9]{2,}:)/gi, function( match, code ) {
+	message = message.replace( /:s(:[-a-z0-9]{2,}:)/gi, function( match, code ) {
 		var indexOfSmileWithThatCode = -1;
 		for ( var i = 0; i < smilesCount; i++ ) {
 			if ( smiles[ i ].code == code ) {
@@ -428,7 +431,7 @@ function ProcessReplaces( str ) {
 		return replace;
 	});
 	
-	return str;
+	return message;
 }
 
 
@@ -818,7 +821,6 @@ function BuildHtml( messageList ) {
 	}
 	
 	var chatNoColorNicknames = $.cookie( 'chat_color_nicks_off') == '1';
-	var chatNoSmiles = $.cookie( 'chat-img' ) == '0';
 	RefreshIgnoreList();
  
 	for( i=0; i < messageCount; i++ ) {
@@ -879,27 +881,15 @@ function BuildHtml( messageList ) {
 			userMenu = 'onClick="getmenu(this,' + messageList[ i ].id + ',' + messageList[ i ].uid + ', ' + channelId + ')" ';
 		}
 		
-		// img on/off
-		smileOnly = false;
-		
-		currentMessage = messageList[ i ].message;
-		if ( chatNoSmiles ) {
-			msg = currentMessage.replace( /[\s]+/g, '' );
-			regexp = /^(<b>[^<]*<\/b>[,\s]*){0,}[\s]*(:s:[^:]+:[\s]*){1,}[\s]*$/gi;
-			smileOnly = regexp.test( msg );
-		}
-		
 		// подсветка своих сообщений
-		var isMessageToUser = currentMessage.search( messageToUserRegexp ) != -1;
+		var isMessageToUser = messageList[ i ].message.search( messageToUserRegexp ) != -1;
 		if ( isMessageToUser ) {
 			textClass += ' message-to-user';
 		}
 		
-		currentMessage = ProcessReplaces( currentMessage );
+		var currentMessage = ProcessReplaces( messageList[ i ] );
 		
-		if ( smileOnly == false ) {
-			channelHTML = '<div class="channel-' + channelId + ' mess message_' + messageList[ i ].id + '">' + namePrefix + '<span' + customColorStyle + ' class="' + nicknameClass + '"' + userMenu + 'title="' + messageList[ i ].date + '">' + messageList[ i ].name + '</span><p class="' + textClass + '">' + currentMessage + '</p></div>' + channelHTML;
-		}
+		channelHTML = '<div class="channel-' + channelId + ' mess message_' + messageList[ i ].id + '">' + namePrefix + '<span' + customColorStyle + ' class="' + nicknameClass + '"' + userMenu + 'title="' + messageList[ i ].date + '">' + messageList[ i ].name + '</span><p class="' + textClass + '">' + currentMessage + '</p></div>' + channelHTML;
 	}
 	
 	return channelHTML;

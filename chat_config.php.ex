@@ -113,7 +113,7 @@ define( 'CHAT_MODERATORS_DETAILS', CHAT_MEMFS_DIR . '/moderatorsDetails.js' );
 // путь к жалобам на баны в memfs относительно этого конфига
 define( 'CHAT_COMPLAINS_FOR_BANS', CHAT_MEMFS_DIR . '/complainsForBans.js' );
 
-// ключи в memcache
+// ключи в Memcache
 define( 'MODERATORS_DETAILS_MEMCACHE_KEY', 'ChatModeratorsDetails' );
 define( 'COMPLAINS_LIST_MEMCACHE_KEY', 'ChatAutoModerationComplains' );
 
@@ -122,8 +122,13 @@ define( 'CHAT_COOKIE_TOKEN', 'chat_token' );
 define( 'DEBUG_FILE', CHAT_MEMFS_DIR . '/debug_____gh34aw5u5ja9.txt' );
 define( 'ERROR_FILE', CHAT_MEMFS_DIR . '/error_____sgsrhh53y55l.txt' );
 
-// id канала Prime Time
+// Prime Time
 define( 'PRIME_TIME_CHANNEL_ID', 666 );
 define( 'PRIME_TIME_CHANNEL_TITLE', 'Prime time' );
 define( 'PRIME_TIME_STREAMS_AT_ONE_TIME', 1 );
+define( 'PRIME_TIME_NAME', 'PRIME-TIME' );
+define( 'PRIME_TIME_UID', '-2' );
+// ключи рекламы в Memcache
+define( 'PRIME_TIME_ADVERT_FROM_STREAMER', 'PrimeTimeAdvertFromStreamer' );
+define( 'PRIME_TIME_ADVERT_FROM_USER', 'PrimeTimeAdvertFromUser' );
 ?>

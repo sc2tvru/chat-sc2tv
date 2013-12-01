@@ -423,6 +423,13 @@ class Chat {
 		}
 		
 		$messages = array();
+		// Prime Time advertisement
+		if ( $channelId === PRIME_TIME_CHANNEL_ID ) {
+			$primeTimeMessages = $this->GetPrimeTimeMessages();
+			if ( $primeTimeMessages !== FALSE ) {
+				$messages = $primeTimeMessages;
+			}
+		}
 		
 		while( $msg = $queryResult->fetch_assoc() ) {
 			if ( $msg[ 'roleIds' ] === NULL ) {
@@ -449,13 +456,57 @@ class Chat {
 			} else {
 				$msg[ 'role' ] = 'user';
 			}
-			if ( $msg[ 'uid' ] == -2 ) {
-				$msg [ 'name' ] = 'PRIME-TIME';
+			if ( $msg[ 'uid' ] === PRIME_TIME_UID ) {
+				$msg [ 'name' ] = PRIME_TIME_NAME;
 			}
 			$messages[] = $msg;
 		}
 
 		return $messages;
+	}
+	
+	
+	/**
+	 *  получение данных о платежах и рекламе Prime Time и сборка в формат
+	 *  сообщений чата
+	 *  @param string message сообщение
+	 *  @return array массив c сообщением
+	 */
+	public function GetPrimeTimeMessages() {
+		$primeTimeMemcacheKeys = array(
+			PRIME_TIME_ADVERT_FROM_STREAMER,
+			PRIME_TIME_ADVERT_FROM_USER
+		);
+		$messages = array();
+		
+		foreach( $primeTimeMemcacheKeys as $primeTimeMemcacheKey ) {
+			$primeTimeMessage = $this->memcache->Get( $primeTimeMemcacheKey );
+			if ( $primeTimeMessage !== FALSE ) {
+				$primeTimeMessage = $this->GetValidMessage( $primeTimeMessage );
+				
+				if ( $primeTimeMessage === FALSE ) {
+					continue;
+				}
+				
+				$messages[] = array(
+					'id' => 0,
+					'uid' => PRIME_TIME_UID,
+					'name' => PRIME_TIME_NAME,
+					'message' => $primeTimeMessage,
+					'date' => CURRENT_DATE,
+					'channelId' => PRIME_TIME_CHANNEL_ID,
+					'roleIds' => array(2),
+					'role' => 'user'
+				);
+			}
+		}
+		
+		if ( count( $messages ) > 0 ) {
+			return $messages;
+		}
+		else {
+			return FALSE;
+		}
 	}
 	
 	
@@ -520,6 +571,7 @@ class Chat {
 	 *  получение валидного сообщения
 	 *  @param string message исходный текст сообщения, которое отправляют в чат
 	 *  @return string валидное сообщение, прошедшее основные фильтры
+	 *  @return bool FALSE либо FALSE в случае ошибки
 	 */
 	private function GetValidMessage( $message ) {
 		/* удаляем явно не разрешенные символы

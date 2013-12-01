@@ -31,9 +31,14 @@ function bbCodeURLToHtml(str, proto, url, host, port, path, query, fragment, tex
 	if (!text) {
 		text = url;
 	}
-	if ( text.length > 60 ) {
+	
+	if ( processReplacesMessageInfo.uid == '-2'
+		|| processReplacesMessageInfo.uid == '-1'
+		|| text.length <= 60 ) {
+		return '<a rel="nofollow" href="' + proto + url + '" title="' + proto + url + '" target="_blank">' + text + '</a>';
+	}
+	else {
 		length = text.length;
 		return '<a rel="nofollow" href="' + proto + url + '" target="_blank" title="' + proto + url + '">' + text.substring( 0, 30 ) + '...' + text.substring( length - 20) + '</a>';
 	}
-	return '<a rel="nofollow" href="' + proto + url + '" title="' + proto + url + '" target="_blank">' + text + '</a>';
 }
