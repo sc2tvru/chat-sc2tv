@@ -959,7 +959,7 @@ function WriteMessage(){
 	}
 	
 	//$.ajaxSetup({ async: false });
-	$( '.chat-text' ).attr( 'readonly', 'readonly' );
+	$( '.chat-text' ).attr( 'disabled', 'disabled' );
 	$.post( CHAT_GATE, { task: 'WriteMessage', message: msg, channel_id: chat_channel_id, token: userInfo.token }, function( jsonData ) {
 		data = $.parseJSON( jsonData );
 		
@@ -972,7 +972,7 @@ function WriteMessage(){
 		else {
 			show_error( CHAT_USER_MESSAGE_ERROR );
 		}
-		$( '.chat-text' ).removeAttr( 'readonly' );
+		$( '.chat-text' ).removeAttr( 'disabled' );
 	});
 	//$.ajaxSetup({ async: true });
 }
