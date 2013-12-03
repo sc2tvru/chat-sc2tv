@@ -4,8 +4,7 @@
 if ( isset(  $_REQUEST[ 'task' ] ) ) {
 	$task = $_REQUEST[ 'task' ];
 }
-
-if ( $task === '' ) {
+else {
 	exit;
 }
 
