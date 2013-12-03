@@ -1,11 +1,11 @@
 <?php
 // TODO перенести на nginx?
 // без задачи работать не стоит
-if ( isset(  $_REQUEST[ 'task' ] ) ) {
-	$task = $_REQUEST[ 'task' ];
+if ( empty( $_REQUEST[ 'task' ] ) ) {
+	exit;
 }
 else {
-	exit;
+	$task = $_REQUEST[ 'task' ];
 }
 
 require_once 'core.php';
