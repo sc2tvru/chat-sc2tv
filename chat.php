@@ -441,6 +441,7 @@ class Chat {
 				);
 			}
 			
+			// TODO: rewrite this shit
 			if ( in_array( 3, $msg[ 'roleIds' ] ) ) {
 				$msg[ 'role' ] = 'root';
 			} elseif ( in_array( 4, $msg[ 'roleIds' ] ) ) {
@@ -453,7 +454,12 @@ class Chat {
 					count( array_intersect( array( 6, 7 ), $msg[ 'roleIds' ] ) ) > 0
 				) {
 				$msg[ 'role' ] = 'editor';
-			} else {
+			} elseif (
+					count( array_intersect( array( 28, 29 ), $msg[ 'roleIds' ] ) ) > 0
+				) {
+				$msg[ 'role' ] = 'userstream-editor';
+			}
+			else {
 				$msg[ 'role' ] = 'user';
 			}
 			if ( $msg[ 'uid' ] === PRIME_TIME_UID ) {

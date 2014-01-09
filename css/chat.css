@@ -3,27 +3,27 @@
 color:#7797be !important;
 }
 .role-user{
-    color:#7797be !important;
+	color:#7797be !important;
 }
 .user-3{
 color:#BC3C3E !important;
 font-style: italic;
 }
 .role-root{
-    color:#BC3C3E !important;
-    font-style: italic;
+	color:#BC3C3E !important;
+	font-style: italic;
 }
 .user-4{
 color:#BC3C3E !important;
 }
 .role-admin{
-    color:#BC3C3E !important;
+	color:#BC3C3E !important;
 }
 .user-5 {
 color:#C57C08 !important;
 }
 .role-moderator {
-    color:#C57C08 !important;
+	color:#C57C08 !important;
 }
 .user-6,
 .user-7,
@@ -32,13 +32,16 @@ color:#C57C08 !important;
 color: #dad871 !important;
 }
 .role-editor{
-    color: #dad871 !important;
+	color: #dad871 !important;
+}
+.role-userstream-editor{
+	color: #dad871 !important;
 }
 .user-9{
 color: #5DA130 !important;
 }
 .role-streamer{
-    color: #5DA130 !important;
+	color: #5DA130 !important;
 }
 
 #dialog2{
