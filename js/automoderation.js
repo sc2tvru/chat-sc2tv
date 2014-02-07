@@ -34,7 +34,7 @@ function GetReasonById( reasonId ) {
 		break;
 		
 		case 12:
-			reason = 'Вредные ссылки';
+			reason = 'Порно, шок-контент, вирусы';
 		break;
 			
 		case 2:
@@ -62,6 +62,7 @@ function GetReasonById( reasonId ) {
 		break;
 		
 		case 10:
+			//TODO: replace if you need to add new reason
 			reason = 'Негативный троллинг';
 		break;
 		

@@ -992,7 +992,7 @@ class AutoModeration {
 			case 5:
 			// Национализм, нацизм
 			case 6:
-			// Вредные ссылки
+			// Вредные ссылки => Порно, шок-контент, вирусы
 			case 12:
 			// Спойлер
 			case 14:
@@ -1010,7 +1010,8 @@ class AutoModeration {
 			// Клевета
 			case 9:
 			// Негативный троллинг
-			case 10:
+			// replace if you need to add new reason
+			// case 10:
 			// Транслит, удаффщина, капсы
 			case 11:
 			// Вредные флэшмобы
