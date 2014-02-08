@@ -7,8 +7,8 @@
 
 class AutoModeration {
 	private $db, $memcache, $user;
-    
-	function __construct ( $memcacheObject, $user ) {
+  
+	function __construct( $memcacheObject, $user ) {
 		$this->memcache = $memcacheObject;
 		$this->user = $user;
 	}
@@ -47,16 +47,18 @@ class AutoModeration {
 		$timeOnSiteAfterReg = CITIZEN_DAYS_ON_SITE_AFTER_REG * 86400;
 		
 		// время, за которое не должно быть нарушений в чате и форуме
-		$timeBeforeNowWithoutInfractions = CITIZEN_DAYS_BEFORE_WITHOUT_INFRACTIONS * 86400;
+		$timeToLookForInfractions = CITIZEN_DAYS_BEFORE_WITHOUT_INFRACTIONS * 86400;
 		
 		// если с момента регистрации прошло недостаточно времени
 		if ( ( CURRENT_TIME - $this->user[ 'created' ] < $timeOnSiteAfterReg ) ||
-			// или есть бан(ы) в чате, но он(и) недопустимы для получения статуса гражданина
-			$this->IsUserBanAllowedForCitizen( $this->user, $timeBeforeNowWithoutInfractions ) === false ) {
+			// или есть бан(ы) в чате, но он(и) недопустимы для получения статуса
+			// гражданина
+			$this->DoesUserHaveNotAllowedBans($this->user,$timeToLookForInfractions)){
 			
 			$this->user[ 'isCitizen' ] = FALSE;
-			$this->user[ 'noCitizenReason' ] = 'с момента регистрации прошло недостаточно времени или есть бан(ы) в чате, но он(и) недопустимы для получения статуса гражданина';
-			$this->memcache->Set( $chatAuthMemcacheKey, $this->user, CHAT_USER_AUTHORIZATION_TTL );
+			$this->user[ 'noCitizenReason' ] = CHAT_AM_NOT_CITIZEN;
+			$this->memcache->Set( $chatAuthMemcacheKey, $this->user,
+				CHAT_USER_AUTHORIZATION_TTL );
 			
 			return FALSE;
 		}
@@ -68,12 +70,12 @@ class AutoModeration {
 			WHERE userid = "' . $this->user[ 'uid' ] . '"
 			AND action = 0
 			AND points >= 1
-			AND dateline > ' .( CURRENT_TIME - $timeBeforeNowWithoutInfractions );
+			AND dateline > ' .( CURRENT_TIME - $timeToLookForInfractions );
 		
 		$this->SetDatabase();
 		$queryResult = $this->db->Query( $queryString );
 		
-		if ( $queryResult == false ) {
+		if ( $queryResult === FALSE ) {
 			SaveForDebug( $queryString );
 			exit;
 		}
@@ -84,9 +86,13 @@ class AutoModeration {
 				
 			if( $infractionTotalCount > 1 ) {
 				$this->user[ 'isCitizen' ] = FALSE;
-				$this->user[ 'noCitizenReason' ] = 'количество нарушений на форуме за последние ' . CITIZEN_DAYS_BEFORE_WITHOUT_INFRACTIONS
-					.' дней с числом баллов больше одного (' . $infractionTotalCount .') превышает допустимое (1)';
-				$this->memcache->Set( $chatAuthMemcacheKey, $this->user, CHAT_USER_AUTHORIZATION_TTL );
+				$this->user[ 'noCitizenReason' ] =
+					'количество нарушений на форуме за последние '
+					. CITIZEN_DAYS_BEFORE_WITHOUT_INFRACTIONS
+					.' дней с числом баллов больше одного (' . $infractionTotalCount
+					.') превышает допустимое (1)';
+				$this->memcache->Set( $chatAuthMemcacheKey, $this->user,
+					CHAT_USER_AUTHORIZATION_TTL );
 				
 				return FALSE;
 			}
@@ -113,20 +119,20 @@ class AutoModeration {
 			$userData = mysql_fetch_assoc( $result );
 			
 			if ( $userData[ 'commentsCount' ] <  $newsCommentsNeededCount ) {
-				AutoModerationMemcacheSet( $memcacheObj, $isCitizenMemcachekey, false,
+				AutoModerationMemcacheSet( $memcacheObj, $isCitizenMemcachekey, FALSE,
 					CITIZEN_STATUS_TTL );
-				return false;	
+				return FALSE;	
 			}
 		}
 		//*/
 		// число сообщений в чате
 		
 		// делаем через memcache, чтобы лишний раз не делать COUNT из базы
-		$chatMessagesCountMemcacheKey = 'AM_uid_'. $this->user[ 'uid' ] .'_chatMsgCount';
-		$chatMessagesCount = $this->memcache->Get( $chatMessagesCountMemcacheKey );
+		$messagesCountMemcacheKey = 'AM_uid_' . $this->user['uid'] .'_chatMsgCount';
+		$chatMessagesCount = $this->memcache->Get( $messagesCountMemcacheKey );
 		
 		// кол-во сообщений неизвестно, делаем запрос в базу
-		if ( $chatMessagesCount === false ) {
+		if ( $chatMessagesCount === FALSE ) {
 			$queryString = '
 				SELECT COUNT(id) as chatMessagesCount
 				FROM chat_message
@@ -134,7 +140,7 @@ class AutoModeration {
 			
 			$queryResult = $this->db->Query( $queryString );
 			
-			if ( $queryResult == false ) {
+			if ( $queryResult === FALSE ) {
 				SaveForDebug( $queryString );
 				exit;
 			}
@@ -143,71 +149,77 @@ class AutoModeration {
 			
 			$chatMessagesCount = $userData[ 'chatMessagesCount' ];
 			
-			$this->memcache->Set( $chatMessagesCountMemcacheKey, $chatMessagesCount,
+			$this->memcache->Set( $messagesCountMemcacheKey, $chatMessagesCount,
 				CITIZEN_CHAT_MSG_COUNT );
 		}
 		
 		if( $chatMessagesCount < CITIZEN_CHAT_POSTS_COUNT ) {
 			$this->user[ 'isCitizen' ] = FALSE;
-			$this->user[ 'noCitizenReason' ] = 'количество сообщений в чате (' . $chatMessagesCount .') меньше необходимого (' . CITIZEN_CHAT_POSTS_COUNT . ')';
-			$this->memcache->Set( $chatAuthMemcacheKey, $this->user, CHAT_USER_AUTHORIZATION_TTL );
+			$this->user[ 'noCitizenReason' ] =
+				'количество сообщений в чате (' . $chatMessagesCount
+				.') меньше необходимого (' . CITIZEN_CHAT_POSTS_COUNT . ')';
+			$this->memcache->Set( $chatAuthMemcacheKey, $this->user,
+				CHAT_USER_AUTHORIZATION_TTL );
 			
 			return FALSE;
 		}
 		
 		$this->user[ 'isCitizen' ] = TRUE;
-		$this->memcache->Set( $chatAuthMemcacheKey, $this->user, CHAT_USER_AUTHORIZATION_TTL );
+		$this->memcache->Set( $chatAuthMemcacheKey, $this->user,
+			CHAT_USER_AUTHORIZATION_TTL );
 		return TRUE;
 	}
 	
 	
 	/**
-	 * проверка, являются ли баны пользователя в чате допустимыми для статуса гражданина
-	 * @param array $userInfo - информация по пользователю
-	 * @param int $timeBeforeNowWithoutInfractions - величина просматриваемого на баны периода времени в секундах
+	 * проверка на наличие у пользователя банов в чате, недопустимых для статуса
+	 * гражданина
+	 * @param array $user - информация по пользователю
+	 * @param int $timeToLookForInfractions - величина просматриваемого на баны
+	 * периода времени в секундах
 	 * @return bool
 	 */
-	private function IsUserBanAllowedForCitizen( $userInfo, $timeBeforeNowWithoutInfractions ) {
-		// был бан
-		if ( isset( $userInfo[ 'wasBanned' ] ) && $userInfo[ 'wasBanned' ] == '1' ) {
-			// с момента последнего бана прошло достаточно времени
-			if ( CURRENT_TIME - $userInfo[ 'banTime' ] >= $timeBeforeNowWithoutInfractions ) {
-				return true;
-			}
-			// длительность последнего бана больше допустимой для граждан
-			elseif( $userInfo[ 'banExpirationTime' ] - $userInfo[ 'banTime' ] > CITIZEN_ALLOWED_BAN_TIME ) {
-				return false;
-			}
-			else {
-				// проверка на кол-во банов, для граждан допустим только 1
-				$queryString = '
-					SELECT COUNT(id) as bansCount
-					FROM chat_ban
-					WHERE uid = "' . $userInfo[ 'uid' ] . '"
-					AND status = 1
-					AND banTime > ' .( CURRENT_TIME - $timeBeforeNowWithoutInfractions );
-				
-				$this->SetDatabase();
-				$queryResult = $this->db->Query( $queryString );
-				
-				if ( $queryResult == false ) {
-					SaveForDebug( $queryString );
-					exit;
-				}
-				
-				$userData = $queryResult->fetch_assoc();
-				$bansCount = $userData[ 'bansCount' ];
-				
-				if( $bansCount > 1 ) {
-					return false;
-				}
-				else {
-					return true;
-				}
-			}
+	private function DoesUserHaveNotAllowedBans($user, $timeToLookForInfractions){
+		// банов не было
+		if ( empty( $user[ 'wasBanned' ] ) ) {
+			return FALSE;
+		}
+		
+		// с момента последнего бана прошло достаточно времени
+		if ( CURRENT_TIME - $user[ 'banTime' ] >= $timeToLookForInfractions ) {
+			return FALSE;
+		}
+		// длительность последнего бана больше допустимой для граждан
+		elseif( 
+			$user['banExpirationTime'] - $user['banTime'] >	CITIZEN_ALLOWED_BAN_TIME
+			) {
+			return TRUE;
 		}
 		else {
-			return true;
+			// проверка на кол-во банов, для граждан допустим только 1
+			$queryString = '
+				SELECT COUNT(DISTINCT banTime) as bansCount
+				FROM chat_ban
+				WHERE uid = "' . $user[ 'uid' ] . '"
+				AND status = 1
+				AND banTime > ' .( CURRENT_TIME - $timeToLookForInfractions );
+			
+			$this->SetDatabase();
+			$queryResult = $this->db->Query( $queryString );
+			
+			if ( $queryResult === FALSE ) {
+				SaveForDebug( $queryString );
+				exit;
+			}
+			
+			$userData = $queryResult->fetch_assoc();
+			$bansCount = $userData[ 'bansCount' ];
+			
+			if( $bansCount > 1 ) {
+				return TRUE;
+			}
+			
+			return FALSE;
 		}
 	}
 	
@@ -219,17 +231,18 @@ class AutoModeration {
 	 * на стороне клиента оно уже есть
 	 * @param int messageId - id сообщения, за которое хотят бан
 	 * @param int reasonId - id причины, нарушения
-	 * @return array возвращает массив с ключами code и message
+	 * @return array возвращает массив с ключами code и result
 	 * code равен 0 для ошибки, 1 для успеха
 	 * result - сообщение пользователю
 	 */
-	public function VoteForUserBan( $uid, $userName, $messageId, $reasonId = 0 ) {
+	public function VoteForUserBan( $uid, $userName, $messageId, $reasonId ) {
 		$citizenId = $this->user[ 'uid' ];
 		
-		if ( $this->IsCitizen() == false ) {
+		if ( $this->IsCitizen() === FALSE ) {
 			$result = array(
 				'code' => 0,
-				'result' => 'Вы не гражданин, поэтому не можете голосовать.<br/>Причина: '. $this->user[ 'noCitizenReason' ]
+				'result' => 'Вы не гражданин и не можете голосовать.<br/>Причина: '
+					. $this->user[ 'noCitizenReason' ]
 			);
 			return $result;
 		}
@@ -243,16 +256,16 @@ class AutoModeration {
 		$messageId = (int)$messageId;
 		$reasonId = (int)$reasonId;
 		
-		if ( $reasonId > CITIZEN_REASONS_COUNT || $uid == 0 || $userName == ''
-			|| $citizenId == 0 || $messageId == 0 ) {
+		if ( $uid === 0 || $userName === '' || $messageId === 0 || $citizenId == 0
+			|| $reasonId <= 0 || $reasonId > CITIZEN_REASONS_COUNT ) {
 			$result = array(
 				'code' => 0,
-				'result' => 'Неверные параметры. Хак? За тобой уже выехал Каби xD'
+				'result' => CHAT_HACK_ATTEMPT
 			);
 			return $result;
 		}
 		
-		$banInfoMemcacheKey = 'ChatAmVotesForUid_'. $uid;
+		$banInfoMemcacheKey = 'ChatAmVotesForUid_' . $uid;
 		$banInfo = $this->memcache->Get( $banInfoMemcacheKey );
 		
 		$vote = array(
@@ -263,9 +276,11 @@ class AutoModeration {
 		
 		// первый голос за бан
 		if ( $banInfo === FALSE ) {
-			$banInfo[ $reasonId ] = array(
-				'votesCount' => 1,
-				'votes' => array( $vote )
+			$banInfo = array(
+				$reasonId => array(
+					'votesCount' => 1,
+					'votes' => array( $vote )
+				)
 			);
 		}
 		// последующие голоса
@@ -286,7 +301,8 @@ class AutoModeration {
 			if ( isset( $banInfo[ $reasonId ] ) ) {
 				// TODO для читаемости заменить на += 1 ?
 				// Но ++ почему-то не работает, так что надо будет проверить
-				$banInfo[ $reasonId ][ 'votesCount' ] = $banInfo[ $reasonId ][ 'votesCount' ] + 1;
+				$banInfo[ $reasonId ][ 'votesCount' ] =
+					$banInfo[ $reasonId ][ 'votesCount' ] + 1;
 				$banInfo[ $reasonId ][ 'votes' ][] = $vote;
 			}
 			else {
@@ -297,18 +313,19 @@ class AutoModeration {
 			}
 		}
 		
-		$isMoreVotesNeeded = true;
+		$isMoreVotesNeeded = TRUE;
 		
 		foreach( $banInfo as $reason => $votesForReason ) {
 			if ( $votesForReason[ 'votesCount' ] >= CITIZEN_VOTES_NEEDED ) {
-				$isMoreVotesNeeded = false;
+				$isMoreVotesNeeded = FALSE;
 				$realReasonId = $reason;
 				break;
 			}
 		}
 		
 		if ( $isMoreVotesNeeded ) {
-			$setResult = $this->memcache->Set( $banInfoMemcacheKey, $banInfo, CITIZEN_VOTE_TTL );
+			$setResult = $this->memcache->Set( $banInfoMemcacheKey, $banInfo,
+				CITIZEN_VOTE_TTL );
 			if ( $setResult === FALSE ) {
 				$result = array(
 					'code' => 0,
@@ -321,8 +338,6 @@ class AutoModeration {
 			return $this->BanUserByCitizens( $uid, $userName, $realReasonId,
 				$banInfo[ $realReasonId ][ 'votes' ] );
 		}
-		
-		//print_r( $banInfo );
 		
 		$result = array(
 			'code' => 1,
@@ -339,21 +354,24 @@ class AutoModeration {
 	 * @param string userName - его ник, для отображения сообщения о бане в чат,
 	 * чтобы не делать запрос, можно взять его - т.к. уже есть на клиенте в чате
 	 * @param int reasonId - id причины для выдачи бана или нарушения
-	 * @param array votes массив с голосами за бан, каждый голос сохраняется в базу
+	 * @param array votes массив с голосами за бан, каждый сохраняется в базу
 	 * выглядит так, см. VoteForUserBan()
 	 * $vote = array(
 			'citizenId' => $citizenId,
 			'messageId' => $messageId,
 			'time' => CURRENT_TIME
 		);
+	 * @return array возвращает массив с ключами code и result
+	 * code равен 0 для ошибки, 1 для успеха
 	 */
 	private function BanUserByCitizens( $uid, $userName, $reasonId, $votes ) {
 		// проверяем флаг в memcache на случай бана от модератора или граждан
 		$banInfoMemcacheKey = 'Chat_uid_' . $uid . '_BanInfo';
 		//SaveForDebug( 'BanUserByCitizens ' . $banInfoMemcacheKey );
 		
-		// делаем через Add, чтобы одновременно проверить отсутствие флага и установить его
-		// здесь ставится бан на 10 мин, чтобы застолбить бан, значения правильные выставляются дальше по коду
+		// делаем через Add, чтобы одновременно проверить отсутствие флага и
+		// установить его; здесь ставится бан на 10 мин, чтобы застолбить бан,
+		// значения правильные выставляются дальше по коду
 		$isUserBanned = $this->memcache->Add(
 			$banInfoMemcacheKey,
 			array(
@@ -363,7 +381,7 @@ class AutoModeration {
 			600
 		);
 		
-		if ( $isUserBanned === false ) {
+		if ( $isUserBanned === FALSE ) {
 			$result = array(
 				'code' => 0,
 				'result' => 'Уже забанен'
@@ -377,14 +395,24 @@ class AutoModeration {
 		$banDurationInfo = $this->GetBanDuration( $uid, $reasonId );
 		
 		$banDuration = $banDurationInfo[ 'banDuration' ];
+		if ( $banDuration === 0 ) {
+			$result = array(
+				'code' => 0,
+				'result' => CHAT_HACK_ATTEMPT
+			);
+			return $result;
+		}
+		
 		$banSerialNumber = $banDurationInfo[ 'banSerialNumber' ];  
 		
 		$banDurationInSeconds = $banDuration * 60;
 		$banExpirationTime = CURRENT_TIME + $banDurationInSeconds;
 		
 		$resultQuery = '
-			INSERT INTO chat_ban
-			( uid, banExpirationTime, moderatorId, banMessageId, banReasonId, banTime, banDuration )
+			INSERT INTO chat_ban (
+				uid, banExpirationTime, moderatorId, banMessageId, banReasonId, banTime,
+				banDuration
+			)
 			VALUES ';
 		
 		/*	поскольку несколько пользователей могут пожаловаться на одно сообщение,
@@ -415,12 +443,12 @@ class AutoModeration {
 		
 		$resultQuery .= implode( ',', $votesValueForQuery ) . ';';
 		
-		$noError = true;
+		$noError = TRUE;
 		$queryResult = $this->db->Query( $resultQuery );
 		
-		if ( $queryResult == false ) {
+		if ( $queryResult === FALSE ) {
 			SaveForDebug( $resultQuery );
-			$noError = false;
+			$noError = FALSE;
 		}
 		elseif ( CHAT_DELETE_BANNED_USERS_MESSAGE ) {
 			$updateQueryArray = array_unique( $updateQueryArray );
@@ -428,19 +456,19 @@ class AutoModeration {
 			foreach( $updateQueryArray as $queryString ) {
 				$queryResult = $this->db->Query( $queryString );
 				
-				if ( $queryResult == false ) {
+				if ( $queryResult === FALSE ) {
 					SaveForDebug( $queryString );
-					$noError = false;
+					$noError = FALSE;
 				}
 			}
 		}
 		
-		if ( $noError == true ) {
+		if ( $noError === TRUE ) {
 			/*	помечаем в memcache, что пользователь не гражданин,
 			 *	чтобы он не голосовал после своего бана,
 			 *	хотя у него не будет менюшки, но поснифать ссылку теоретически может
 			 */ 
-			$this->SaveIsUserCitizenInMemcache( $uid, false );
+			$this->SaveIsUserCitizenInMemcache( $uid, FALSE );
 			
 			// сохраняем данные по бану в memcache
 			$this->memcache->Set(
@@ -455,8 +483,10 @@ class AutoModeration {
 			global $chat;
 			$chat->SetDatabase( $this->db );
 			
-			$chat->WriteSystemMessage( 'Граждане SC2TV.RU забанили '. $userName .' на '
-				. $banDuration .' минут за '. $banSerialNumber . ' бан.' );
+			$chat->WriteSystemMessage(
+				'Граждане SC2TV.RU забанили '. $userName . ' на '	. $banDuration
+				. ' минут за '. $banSerialNumber . ' нарушение.'
+			);
 			
 			$result = array(
 				'code' => 1,
@@ -465,7 +495,8 @@ class AutoModeration {
 			return $result;
 		}
 		else {
-			// в случае ошибки нужно удалить флаг о бане, чтобы юзера могли забанить при следующей попытке
+			// в случае ошибки нужно удалить флаг о бане, чтобы юзера могли забанить
+			// при следующей попытке
 			$this->memcache->Delete( $banInfoMemcacheKey );
 			
 			$result = array(
@@ -480,7 +511,7 @@ class AutoModeration {
 	/**
 	 * сохранение в memcache, является ли пользователь гражданином
 	 * @param int $uid - id пользователя
-	 * @param boolean $value - да - true, нет - false
+	 * @param boolean $value - да - TRUE, нет - FALSE
 	 */
 	private function SaveIsUserCitizenInMemcache( $uid, $value ) {
 		$isCitizenMemcachekey = 'AM_isCitizen_'. $uid;
@@ -504,16 +535,16 @@ class AutoModeration {
 	 * uid забаненного и времени истечения бана, разделенных подчеркиванием _
 	 * оба значения состоят из цифр, поэтому никаких конфликтов _ не дает
 	 * @param string reason причина разбана
-	 * @param string banModerator - забанить модератора или граждан - true; нет - false
+	 * @param string banModerator забанить модератора/граждан - TRUE; нет - FALSE
 	 * @param int moderatorBanTime время бана в минутах
-	 * @return array возвращает массив с ключами code и message;
+	 * @return array возвращает массив с ключами code и result;
 	 * code равен 0 для ошибки, 1 для успеха
 	 * result - сообщение для пользователя
 	 */
-	public function CancelBan( $banKey, $reason, $banModerator, $moderatorBanTime ) {
+	public function CancelBan($banKey, $reason, $banModerator, $moderatorBanTime){
 		$judgeId = $this->user[ 'uid' ];
-		// проверка на право отменять бан
-		if ( $this->CheckRightToModifyBan() == false ) {
+		
+		if ( $this->CheckNoRightToModifyBan() ) {
 			$result = array(
 				'code' => 0,
 				'result' => 'Нет прав отменять бан.'
@@ -537,7 +568,7 @@ class AutoModeration {
 			return $result;
 		}
 		
-		$reason = date( 'm-d H:i:s', CURRENT_TIME ) . ' Отмена. Причина: ' . $reason;
+		$reason = date( 'm-d H:i:s', CURRENT_TIME ) . ' Отмена. Причина: ' .$reason;
 		
 		$queryString = '
 			UPDATE chat_ban
@@ -549,7 +580,7 @@ class AutoModeration {
 		
 		$queryResult = $this->db->Query( $queryString );
 		
-		if ( $queryResult === false ) {
+		if ( $queryResult === FALSE ) {
 			SaveForDebug( $queryString );
 			$result = array(
 				'code' => 0,
@@ -596,7 +627,7 @@ class AutoModeration {
 			
 			$queryResult = $this->db->Query( $queryString );
 			
-			if( $queryResult == false || $queryResult->num_rows == 0 ) {
+			if( $queryResult == FALSE || $queryResult->num_rows == 0 ) {
 				SaveForDebug( $queryString );
 				$result = array(
 					'code' => 0,
@@ -608,15 +639,17 @@ class AutoModeration {
 			$banDurationInSeconds = $moderatorBanTime * 60;
 			$moderatorbanExpirationTime = CURRENT_TIME + $banDurationInSeconds;
 			
-			$noError = true;
+			$noError = TRUE;
 			
 			while ( $banData = $queryResult->fetch_assoc() ) {
 				$moderatorId = (int)$banData[ 'moderatorId' ];
 				
 				// TODO пометить в xwiki, что banReasonId = 99 - обратный бан граждан
 				$queryString =
-					'INSERT INTO chat_ban
-					( uid, banExpirationTime, moderatorId, banReasonId, banTime, banDuration )
+					'INSERT INTO chat_ban	(
+						uid, banExpirationTime, moderatorId, banReasonId, banTime,
+						banDuration
+					)
 					VALUES(	'.
 						$moderatorId .', '.
 						$moderatorbanExpirationTime .', '.
@@ -629,8 +662,8 @@ class AutoModeration {
 				
 				$newResult = $this->db->Query( $queryString );
 				
-				if ( $newResult == false ) {
-					$noError = false;
+				if ( $newResult == FALSE ) {
+					$noError = FALSE;
 					SaveForDebug( $queryString );					
 				}
 				
@@ -647,7 +680,7 @@ class AutoModeration {
 				);
 			}
 			
-			if ( $noError == true ) {
+			if ( $noError == TRUE ) {
 				$resultMessage .= ' Граждане или модератор забанен.';
 			}
 			else {
@@ -674,15 +707,14 @@ class AutoModeration {
 	 * оба значения состоят из цифр, поэтому никаких конфликтов _ не дает
 	 * @param string reason - причина разбана
 	 * @param int newBanTime - новое время бана в минутах
-	 * @return array возвращает массив с ключами code и message;
+	 * @return array возвращает массив с ключами code и result;
 	 * code равен 0 для ошибки, 1 для успеха
 	 * result - сообщение пользователю
 	 */
 	public function EditBan( $banKey, $reason, $newBanTime ) {
 		$judgeId = $this->user[ 'uid' ];
 		
-		// проверка на право редактировать бан
-		if ( $this->CheckRightToModifyBan() == false ) {
+		if ( $this->CheckNoRightToModifyBan() ) {
 			$result = array(
 				'code' => 0,
 				'result' => 'Нет прав редактировать бан.'
@@ -705,7 +737,8 @@ class AutoModeration {
 			return $result;
 		}
 		
-		$reason = date( 'm-d H:i:s', CURRENT_TIME ) . ' Длительность изменена на '. $newBanTime .' мин. Причина: ' . $reason;
+		$reason = date( 'm-d H:i:s', CURRENT_TIME ) . ' Длительность изменена на '
+			. $newBanTime .' мин. Причина: ' . $reason;
 		
 		$banDurationInSeconds = $newBanTime * 60;
 		
@@ -721,7 +754,7 @@ class AutoModeration {
 		
 		$queryResult = $this->db->Query( $queryString );
 		
-		if ( $queryResult == false ) {
+		if ( $queryResult === FALSE ) {
 			SaveForDebug( $queryString );
 			$result = array(
 				'code' => 0,
@@ -734,9 +767,9 @@ class AutoModeration {
 		$banInfoMemcacheKey = 'Chat_uid_' . $uid . '_BanInfo';
 		$banInfo = $this->memcache->Get( $banInfoMemcacheKey );
 		/*SaveForDebug( 'EditBan banInfo banInfoMemcacheKey ='
-			. $banInfoMemcacheKey . var_export( $banInfo, true ) );
+			. $banInfoMemcacheKey . var_export( $banInfo, TRUE ) );
 		/*/
-		if ( $banInfo == false || !isset( $banInfo[ 'banTime' ] ) ) {
+		if ( $banInfo == FALSE || !isset( $banInfo[ 'banTime' ] ) ) {
 			// форсим релогин
 			$this->memcache->Set(
 				$banInfoMemcacheKey,
@@ -748,7 +781,8 @@ class AutoModeration {
 			);
 		}
 		else {
-			$banInfo[ 'banExpirationTime' ] = $banInfo[ 'banTime' ] + $banDurationInSeconds;
+			$banInfo[ 'banExpirationTime' ] = $banInfo[ 'banTime' ] +
+				$banDurationInSeconds;
 			$banInfo[ 'needUpdate' ] = 1;
 			
 			$banInfoTtl = $banInfo[ 'banExpirationTime' ] - CURRENT_TIME;
@@ -756,10 +790,10 @@ class AutoModeration {
 			if ( $banInfoTtl <= 0 ) {
 				$banInfoTtl = 259200;
 			}
-			/*
-			SaveForDebug( 'EditBan new banInfo' . var_export( $banInfo, true ) . ' ttl = ' .
-			$banInfoTtl );
-			*/
+			/* SaveForDebug(
+				'EditBan new banInfo' . var_export( $banInfo, TRUE ) . ' ttl = ' .
+				$banInfoTtl
+			);*/
 			$this->memcache->Set(
 				$banInfoMemcacheKey,
 				$banInfo,
@@ -791,7 +825,11 @@ class AutoModeration {
 		$uid = $this->user[ 'uid' ];
 		$userName = $this->user[ 'name' ];
 		
-		$reason = preg_replace( '/[^\x20-\x7E\x{400}-\x{45F}\x{490}\x{491}\x{207}\x{239}]+/us', '',  $reason );
+		$reason = preg_replace(
+			'/[^\x20-\x7E\x{400}-\x{45F}\x{490}\x{491}\x{207}\x{239}]+/us',
+			'',
+			$reason
+		);
 		$reason = preg_replace( '#[\s]+#uis', ' ', $reason );
 		$reason = htmlspecialchars( $reason, ENT_QUOTES, 'UTF-8' );
 		
@@ -820,7 +858,7 @@ class AutoModeration {
 		);
 		
 		// жалоба граждан идет за 2 от обычных пользователей
-		if ( $this->IsCitizen() == true ) {
+		if ( $this->IsCitizen() == TRUE ) {
 			$complainIncrement = 2;
 		}
 		else {
@@ -830,14 +868,14 @@ class AutoModeration {
 		$complainsList = $this->memcache->Get( COMPLAINS_LIST_MEMCACHE_KEY );
 		
 		// предполагаем, что это самая 1я жалоба вообще
-		$complainInfo = false;
+		$complainInfo = FALSE;
 		
 		if ( isset( $complainsList[ $banKey ] ) ) {
 			$complainInfo = $complainsList[ $banKey ];
 		}
 		
 		// 1я жалоба на этого пользователя
-		if ( $complainInfo === false ) {
+		if ( $complainInfo === FALSE ) {
 			$complainInfo = array(
 				'count' => $complainIncrement,
 				'complains' => array( $complain )
@@ -862,7 +900,8 @@ class AutoModeration {
 			$complainInfo[ 'complains' ][] = $complain;
 		}
 		
-		// запоминаем время, когда последний раз жаловались на бан, чтобы почистить массив
+		// запоминаем время, когда последний раз жаловались на бан, чтобы почистить
+		// массив
 		$complainInfo[ 'lastTime' ] = CURRENT_TIME;
 		$complainsList[ $banKey ] = $complainInfo;
 		
@@ -885,7 +924,8 @@ class AutoModeration {
 	
 		if ( flock( $complainsCacheFile, LOCK_EX | LOCK_NB ) ) {
 			// жалоб не так много, поэтому можно пока перезаписывать весь массив
-			$this->memcache->Set( COMPLAINS_LIST_MEMCACHE_KEY, $complainsList, COMPLAINS_TTL );
+			$this->memcache->Set( COMPLAINS_LIST_MEMCACHE_KEY, $complainsList,
+				COMPLAINS_TTL );
 			
 			// и перезаписать файл в memfs
 			$dataJs = 'var complainsList = ' . json_encode( $complainsListPublic );
@@ -914,26 +954,27 @@ class AutoModeration {
 	
 	
 	/**
-	 * Проверка прав на возможность совершать операции с банами
+	 * Проверка на отсутствие прав совершать операции с банами
 	 * @return boolean
 	 */
-	private function CheckRightToModifyBan() {
+	private function CheckNoRightToModifyBan() {
 		switch ( $this->user[ 'rid' ] ) {
 			case 3:
 			case 4:
 			case 5:
-				return true;
+				return FALSE;
 			break;
 			
 			default:
-				return false;
+				return TRUE;
 			break;
 		}
 	}
 	
 	
 	/**
-	 * Определение длительности нового бана с учетом количества предыдущих и причины бана
+	 * Определение длительности нового бана с учетом количества предыдущих и
+	 * причины бана
 	 * @param int uid - id пользователя, которого банят
 	 * @param int reasonId - id причины
 	 * @return array массив с ключами banDuration - длительность нового бана и
@@ -955,7 +996,7 @@ class AutoModeration {
 		
 		$queryResult = $this->db->Query( $queryString );
 		
-		if ( $queryResult == false ) {
+		if ( $queryResult === FALSE ) {
 			SaveForDebug( $queryString );
 			exit;
 		}
@@ -1020,7 +1061,7 @@ class AutoModeration {
 			break;
 			
 			default:
-				$banDuration = 10;
+				$banDuration = 0;
 		}
 		
 		return $banDuration;
