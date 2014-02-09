@@ -365,6 +365,20 @@ class AutoModeration {
 	 * code равен 0 для ошибки, 1 для успеха
 	 */
 	private function BanUserByCitizens( $uid, $userName, $reasonId, $votes ) {
+		// Adolf не хочет, чтобы его банили
+		if ( $uid === 231 ) {
+			global $chat;
+			$chat->SetDatabase( $this->db );
+			
+			$chat->WriteSystemMessage( CHAT_NO_BANS_FOR_ADOLF_TO_MAIN );
+			
+			$result = array(
+				'code' => 0,
+				'result' => CHAT_NO_BANS_FOR_ADOLF_TO_USER
+			);
+			return $result;
+		}
+		
 		// проверяем флаг в memcache на случай бана от модератора или граждан
 		$banInfoMemcacheKey = 'Chat_uid_' . $uid . '_BanInfo';
 		//SaveForDebug( 'BanUserByCitizens ' . $banInfoMemcacheKey );
@@ -485,7 +499,7 @@ class AutoModeration {
 			
 			$chat->WriteSystemMessage(
 				'Граждане SC2TV.RU забанили '. $userName . ' на '	. $banDuration
-				. ' минут за '. $banSerialNumber . ' нарушение.'
+				. ' минут, ' . $banSerialNumber . ' нарушение.'
 			);
 			
 			$result = array(
