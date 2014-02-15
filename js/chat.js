@@ -439,34 +439,31 @@ function ProcessReplaces( messageInfo ) {
 function GetSpecColor( uid ) {
 	var color = '';
 	switch( uid ) {
-		// Laylah
-		case '20546':
-		// Kitsune
-		case '11378':
-		// Mary_zerg
-		case '65377':
-		// Siena
-		case '8324':
-    //milkSHake
-    case '22600':
-		//Cuddlez
-		case '63034':
+		//moderators-girls... and cuddlez
+		case '20546':// Laylah
+		case '11378':// Kitsune
+		case '65377':// Mary_zerg
+		case '8324':// Siena
+		case '22600':// milkSHake
+		case '63034':// Cuddlez
+		case '64978':// Eurobeat Mantis
 			color = '#FFC0CB';
-		break;
-		// Kas
-		case '62395':
+		break;	
+		
+		case '62395':// Kas
 			color = '#5DA130';
-			break;
-		// Usual color of regular users
 		break;
+		
+		// Usual color of regular users
 		case '7787':// Unstable.
 		case '60490':// Twilight_Sparkle
 		case '108457':// abilisk
-		case '84873':// abilisk
+		case '84873':// Stranzz
 		case '14929':// [7x]Atlant
 		case '102924':// Hyperon
 			color = '#C9D5E5';
-			break;
+		break;
+		
 		default:
 			color = '';
 	}
@@ -864,6 +861,10 @@ function BuildHtml( messageList ) {
 				
 				if ( messageList[ i ].roleIds.indexOf( 24 ) !== -1 ) {
 					namePrefix = '<img src="/img/donate_01.png" width="12" height="11" class="top-supporter" />';
+				}
+				
+				if ( messageList[ i ].uid == 47260 ) {//kingcobra
+					namePrefix = '<img src="/img/photon.png" width="17" height="15" />';
 				}
 				break;
 		}
