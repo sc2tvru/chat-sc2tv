@@ -869,9 +869,6 @@ function BuildHtml( messageList ) {
 				break;
 		}
 			
-		if( namePrefix ) {
-			nicknameClass += ' nick-with-prefix';
-		}
 		
 		channelId = messageList[ i ].channelId;
 		
@@ -894,7 +891,7 @@ function BuildHtml( messageList ) {
 		
 		var currentMessage = ProcessReplaces( messageList[ i ] );
 		
-		channelHTML = '<div class="channel-' + channelId + ' mess message_' + messageList[ i ].id + '"><span' + customColorStyle + ' class="' + nicknameClass + '"' + userMenu + 'title="' + messageList[ i ].date + '">' + namePrefix + messageList[ i ].name + '</span><p class="' + textClass + '">' + currentMessage + '</p></div>' + channelHTML;
+		channelHTML = '<div class="channel-' + channelId + ' mess message_' + messageList[ i ].id + '"><span style="white-space: pre;"> ' + namePrefix + '<span' + customColorStyle + ' class="' + nicknameClass + '"' + userMenu + 'title="' + messageList[ i ].date + '">' + messageList[ i ].name + '</span></span><p class="' + textClass + '">' + currentMessage + '</p></div>' + channelHTML;
 	}
 	
 	return channelHTML;

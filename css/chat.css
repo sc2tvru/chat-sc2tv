@@ -112,7 +112,6 @@ div#dialog2 div#chat-form span {
 }
 #dialog2 .nick {font-size:11px;padding-right:7px;margin:0 }
 #dialog2 .nick:after {content:':';position:relative;}
-#dialog2 .nick-with-prefix {white-space:nowrap;}
 /*system user*/
 #dialog2 .user-1{color:#808080;font-size:10px;cursor:auto;}
 #dialog2 .system-nick {
