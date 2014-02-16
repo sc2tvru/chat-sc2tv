@@ -231,7 +231,7 @@ function GetChannelId( id ) {
 function AddChannelTitles(){
 	var channelMaxNum = channelList.length - 1;
 	for( i=0; i <= channelMaxNum; i++) {
-		$( 'div.channel-' + channelList[ i ].channelId + ' > span' ).each(function(index) {
+		$( 'div.channel-' + channelList[ i ].channelId + ' > span > span' ).each(function(index) {
 			$( this ).attr( 'title', $( this ).attr( 'title' ) + ' @ ' + channelList[ i ].channelTitle );
 		});
 	}
