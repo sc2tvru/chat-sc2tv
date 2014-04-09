@@ -444,6 +444,8 @@ class Chat {
 			// TODO: rewrite this shit
 			if ( in_array( 3, $msg[ 'roleIds' ] ) ) {
 				$msg[ 'role' ] = 'root';
+			} elseif ( in_array( 31, $msg[ 'roleIds' ] ) ) {
+				$msg[ 'role' ] = 'color-red';
 			} elseif ( in_array( 4, $msg[ 'roleIds' ] ) ) {
 				$msg[ 'role' ] = 'admin';
 			} elseif ( in_array( 5, $msg[ 'roleIds' ] ) ) {
