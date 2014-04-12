@@ -443,6 +443,7 @@ function GetSpecColor( uid ) {
 		case '20546':// Laylah
 		case '11378':// Kitsune
 		case '65377':// Mary_zerg
+		case '8324':// Siena
 		case '22600':// milkSHake
 		case '63034':// Cuddlez
 		case '64978':// Eurobeat Mantis
