@@ -41,7 +41,7 @@ $data[] = array(
 $data = array_merge(
 	$data,
 	GetDataByQuery( $queryPrimeTimeStream, $isPrimeTimeQuery = TRUE ),
-	GetDataByQuery( $queryStreamChannel ),
+	GetDataByQuery( $queryStreamChannel )
 );
 
 $dataJson = json_encode( array( 'channel' => $data ) );
