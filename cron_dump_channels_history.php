@@ -7,31 +7,13 @@ require_once 'db.php';
 
 $db = new MySqlDb( CHAT_DB_HOST, CHAT_DB_NAME, CHAT_DB_USER, CHAT_DB_PASSWORD );
 
-$queryStream = 'SELECT `node`.`nid` AS `stream_id`,
+$queryStreamChannel = 'SELECT `node`.`nid` AS `stream_id`,
 `node`.`title` AS `stream_title`
-FROM `content_type_stream`, `node`, `users`
+FROM `content_type_stream_channel`, `node`, `users`
 WHERE `users`.`uid` = `node`.`uid`
-AND `content_type_stream`.`nid`=`node`.`nid`
-AND NOW() >`content_type_stream`.`field_stream_time_value`
-AND `node`.`status` = 1
-ORDER BY `node`.`created` DESC LIMIT 20';
-
-$queryUserStream = 'SELECT `node`.`nid` AS `stream_id`,
-`node`.`title` AS `stream_title`
-FROM `content_type_userstream`, `node`, `users`
-WHERE `users`.`uid` = `node`.`uid`
-AND `content_type_userstream`.`nid`=`node`.`nid`
+AND `content_type_stream_channel`.`nid`=`node`.`nid`
 AND `node`.`status` = 1
 ORDER BY `node`.`changed` DESC LIMIT 100';
-
-$queryRealStream = 'SELECT `node`.`nid` AS `stream_id`,`node`.`status`,
-`node`.`title` AS `stream_title`
-FROM `content_type_life_stream`, `node`, `users`
-WHERE `users`.`uid` = `node`.`uid`
-AND `content_type_life_stream`.`nid`=`node`.`nid`
-AND `node`.`status` = 1
-AND NOW() >`content_type_life_stream`.`field_lifest_start_time_value`
-ORDER BY `node`.`changed` DESC LIMIT 20';
 
 $queryPrimeTimeStreamNoRubric = 'SELECT `node`.`nid` AS `stream_id`,
 `node`.`title` AS `stream_title`
@@ -54,9 +36,7 @@ $data[] = array(
 
 $data = array_merge(
 	$data,
-	GetDataByQuery( $queryStream ),
-	GetDataByQuery( $queryUserStream ),
-	GetDataByQuery( $queryRealStream ),
+	GetDataByQuery( $queryStreamChannel ),
 	GetDataByQuery( $queryPrimeTimeStreamNoRubric )
 );
 
