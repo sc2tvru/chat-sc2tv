@@ -450,6 +450,8 @@ class Chat {
 				$msg[ 'role' ] = 'admin';
 			} elseif ( in_array( 5, $msg[ 'roleIds' ] ) ) {
 				$msg[ 'role' ] = 'moderator';
+			} elseif ( in_array( 25, $msg[ 'roleIds' ] ) ) {
+				$msg[ 'role' ] = 'prime-streamer';
 			} elseif ( in_array( 9, $msg[ 'roleIds' ] ) ) {
 				$msg[ 'role' ] = 'streamer';
 			} elseif (
