@@ -68,7 +68,7 @@ else {
 			+ '" height="' + smiles[i].height+ '"class="chat-smile'
 			+ inactiveSmileClass + '" alt="' + smiles[i].code + '"/>';
 		
-		if ( i > 0 && i % 37 == 0 && i < ( smilesCount - 1 ) && !privateStarted ) {
+		if ( i > 0 && i % 51 == 0 && i < ( smilesCount - 1 ) && !privateStarted ) {
 			smileHtml += '</div><div id="smile-panel-tab-' + t + '">';
 			smilePanelTabsHtml += '<span id="smile-panel-pager-' + t
 				+ '" data-tab-number="' + t +'">[ ' + t + ' ]</span>';
@@ -88,7 +88,7 @@ smiles_btn = '<span id="smile-btn">smile</span>';
 smile_panel = '<div id="chat-smile-panel">' + smileHtml + '<div id="chat-smile-panel-close">X</div></div>';
 divForFullScreen = '<div id="full-screen-place">.</div>';
 
-form_chat = '<div id="chat-form"><form id="chat-form-id" method="post" action=""><input maxlength="1024" type="text" name="chat-text" class="chat-text"/></form>' + chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + smiles_btn + ' ' + chat_rules_link + ' ' + chat_history_link + ' ' + chat_ban_history_link + smile_panel + '</div>';
+form_chat = '<div id="chat-form"><form id="chat-form-id" method="post" action=""><input maxlength="1024" type="text" name="chat-text" class="chat-text"/></form>' + chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + smiles_btn + ' ' + chat_rules_link + ' ' + chat_history_link + ' ' + chat_ban_history_link + '</div>';
 
 form_anon = '<div id="chat-form">' + divForFullScreen + chat_vkl_btn + ' ' + img_btn + ' ' + color_btn + ' ' + chat_history_link + ' <span>В чате могут писать только <a href="//sc2tv.ru/user/register" target="_top">зарегистрированные</a> пользователи.</span></div>';
  
@@ -529,6 +529,10 @@ function BuildChat( dataForBuild ) {
 
 	$('#dialog2').html('<div id="add_styles"></div><div class="chat-channel-name"><div title="перейти на главный канал" class="channel 0">main</div><div id="stream-room" title="перейти на другой канал" class="channel other">other</div><br style="clear:both"/></div><div id="chat"></div>'+myform);
   
+	if( myform == form_chat ) {
+		$('#dialog2').append(smile_panel);
+	}
+	
 	if ( top === self ) {
 		$( '#dialog2' ).css( 'background-color', '#000000' );
 	}

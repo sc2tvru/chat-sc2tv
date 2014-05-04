@@ -54,6 +54,7 @@ color: #5DA130 !important;
 #dialog2{
 	width:216px;
 	height:100%;
+	position:relative;
 }
 
 #chat{
@@ -266,9 +267,9 @@ cursor:pointer;
 	display:none;
 	z-index:9999 !important;
 	position: absolute;
-	top: 95px;
-	left: 25px;
-	width:170px;
+	bottom: 46px;
+	left: 2px;
+	width:195px;
 	border:1px solid #aaa;
 	padding:2px !important;
 	margin:0px !important;
@@ -301,6 +302,7 @@ cursor:pointer;
 #chat-smile-panel span{
 	cursor:pointer;
 	margin:3px;
+	color:#ffffff;
 }
 
 #chat-smile-panel span:hover{
