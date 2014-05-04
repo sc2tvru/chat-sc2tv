@@ -447,6 +447,7 @@ function GetSpecColor( uid ) {
 		case '22600':// milkSHake
 		case '63034':// Cuddlez
 		case '64978':// Eurobeat Mantis
+		case '117231':// arachnidsGrip
 			color = '#FFC0CB';
 		break;	
 		
