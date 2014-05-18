@@ -448,6 +448,7 @@ function GetSpecColor( uid ) {
 		case '63034':// Cuddlez
 		case '64978':// Eurobeat Mantis
 		case '117231':// arachnidsGrip
+		case '57891':// silvara
 			color = '#FFC0CB';
 		break;	
 		
@@ -870,6 +871,10 @@ function BuildHtml( messageList ) {
 				
 				if ( messageList[ i ].uid == 47260 ) {//kingcobra
 					namePrefix = '<img src="/img/photon.png" width="17" height="15" />';
+				}
+				
+				if ( messageList[ i ].uid == 57891 ) {//silvara
+					namePrefix = '<img src="/img/uprls.png" width="17" height="17" />';
 				}
 				break;
 		}
