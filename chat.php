@@ -446,6 +446,8 @@ class Chat {
 				$msg[ 'role' ] = 'root';
 			} elseif ( in_array( 31, $msg[ 'roleIds' ] ) ) {
 				$msg[ 'role' ] = 'color-red';
+			} elseif ( in_array( 32, $msg[ 'roleIds' ] ) ) {
+				$msg[ 'role' ] = 'color-pink';
 			} elseif ( in_array( 4, $msg[ 'roleIds' ] ) ) {
 				$msg[ 'role' ] = 'admin';
 			} elseif ( in_array( 5, $msg[ 'roleIds' ] ) ) {
