@@ -864,7 +864,10 @@ function BuildHtml( messageList ) {
 					}
 				}
 				
-				if ( messageList[ i ].roleIds.indexOf( 24 ) !== -1 ) {
+				if ( messageList[ i ].roleIds.indexOf( 35 ) !== -1 ) {
+					namePrefix = '<img src="/img/antidonate.png" width="16" height="16" class="top-antisupporter" />';
+				}
+				else if ( messageList[ i ].roleIds.indexOf( 24 ) !== -1 ) {
 					namePrefix = '<img src="/img/donate_01.png" width="12" height="11" class="top-supporter" />';
 				}
 				

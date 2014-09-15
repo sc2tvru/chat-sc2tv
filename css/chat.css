@@ -379,6 +379,11 @@ body{
     margin-right: 2px;
     height: 11px;
 }
+.top-antisupporter{
+    display: inline-block;
+    margin-right: 2px;
+    height: 16px;
+}
 .primetime-bot{
     display: inline-block;
     margin-right: 2px;
