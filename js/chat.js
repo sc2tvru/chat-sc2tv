@@ -462,6 +462,7 @@ function GetSpecColor( uid ) {
 		case '84873':// Stranzz
 		case '14929':// [7x]Atlant
 		case '102924':// Hyperon
+		case '121946':
 			color = '#C9D5E5';
 		break;
 		
