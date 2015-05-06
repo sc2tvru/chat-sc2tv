@@ -435,41 +435,6 @@ function ProcessReplaces( messageInfo ) {
 }
 
 
-// спеццвета
-function GetSpecColor( uid ) {
-	var color = '';
-	switch( uid ) {
-		//moderators-girls... and cuddlez
-		case '11378':// Kitsune
-		case '65377':// Mary_zerg
-		case '22600':// milkSHake
-		case '63034':// Cuddlez
-		case '64978':// Eurobeat Mantis
-		case '117231':// arachnidsGrip
-			color = '#FFC0CB';
-		break;	
-		
-		case '62395':// Kas
-			color = '#5DA130';
-		break;
-		
-		// Usual color of regular users
-		case '7787':// Unstable.
-		case '60490':// Twilight_Sparkle
-		case '108457':// abilisk
-		case '84873':// Stranzz
-		case '14929':// [7x]Atlant
-		case '102924':// Hyperon
-			color = '#C9D5E5';
-		break;
-		
-		default:
-			color = '';
-	}
-	return color;
-}
-
-
 RegExp.escape = function(text) {
 	if ( text != undefined ) {
 		return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
@@ -825,8 +790,6 @@ function BuildHtml( messageList ) {
  
 	for( i=0; i < messageCount; i++ ) {
 		var nicknameClass = 'nick';
-		var color = '';
-		var customColorStyle = '';
     var namePrefix = '';
 		
 		// сообщения пользователей и системы выглядят по-разному
@@ -841,7 +804,6 @@ function BuildHtml( messageList ) {
 			case '-1':
 				nicknameClass = 'system-nick';
 				var textClass = 'system_text';
-				customColorStyle = '';
 				break;
 			// user message
 			default:
@@ -852,14 +814,7 @@ function BuildHtml( messageList ) {
 					nicknameClass += ' user-2';
 				}
 				else {
-					color = GetSpecColor( messageList[ i ].uid );
-					// если не блат, то цвет по классу группы
-					if ( color == '' ) {
-						nicknameClass += ' role-' + messageList[ i ].role;
-					}
-					else {
-						customColorStyle = ' style="color:' + color + ';"';
-					}
+					nicknameClass += ' role-' + messageList[ i ].role;
 				}
 				
 				if ( messageList[ i ].roleIds.indexOf( 35 ) !== -1 ) {
@@ -897,7 +852,7 @@ function BuildHtml( messageList ) {
 		
 		var currentMessage = ProcessReplaces( messageList[ i ] );
 		
-		channelHTML = '<div class="channel-' + channelId + ' mess message_' + messageList[ i ].id + '"><span style="white-space: pre;">' + namePrefix + '<span' + customColorStyle + ' class="' + nicknameClass + '"' + userMenu + 'title="' + messageList[ i ].date + '">' + messageList[ i ].name + '</span></span><p class="' + textClass + '">' + currentMessage + '</p></div>' + channelHTML;
+		channelHTML = '<div class="channel-' + channelId + ' mess message_' + messageList[ i ].id + '"><span style="white-space: pre;">' + namePrefix + '<span class="' + nicknameClass + '"' + userMenu + 'title="' + messageList[ i ].date + '">' + messageList[ i ].name + '</span></span><p class="' + textClass + '">' + currentMessage + '</p></div>' + channelHTML;
 	}
 	
 	return channelHTML;
