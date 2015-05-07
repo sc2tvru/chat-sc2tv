@@ -17,13 +17,31 @@ font-style: italic;
 color:#BC3C3E !important;
 }
 .role-color-red{
-	color:#BC3C3E !important;
+	color:#FF0000 !important;
 }
 .role-color-pink{
 	color:#FFC0CB !important;
 }
 .role-color-purple{
-	color:#DF92F9 !important;
+	color:#EE82EE !important;
+}
+.role-color-green{
+	color:#00FF00 !important;
+}
+.role-color-yellow{
+	color:#FFFF00 !important;
+}
+.role-color-brown{
+	color:#A52A2A !important;
+}
+.role-color-orange{
+	color:#FFA500 !important;
+}
+.role-color-blue{
+	color:#87CEFA !important;
+}
+.role-color-white{
+	color:#FFFFFF !important;
 }
 .user-5 {
 color:#C57C08 !important;

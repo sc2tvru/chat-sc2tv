@@ -340,7 +340,7 @@ class Chat {
 	 *  запись сообщений из базы в файл в memfs
 	 *  @param int $channelId id канала
 	 */
-	private function WriteChannelCache( $channelId = 0 ) {
+	public function WriteChannelCache( $channelId = 0 ) {
 		if ( $channelId >= 0 ) {
 			//$isCacheActualMemcacheKey = 'ChatChActual-' . $channelId;
 			$channelFileName = CHAT_MEMFS_DIR . '/channel-' . $channelId . '.json';
@@ -411,7 +411,7 @@ class Chat {
 				FROM chat_message '. $index_condition .'
 				LEFT JOIN users on users.uid = chat_message.uid
 				WHERE '. $channelCondition .'
-				date > "' . date( 'Y-m-d H:i:s', CURRENT_TIME - 259200 ) . '" AND
+				((date > "' . date( 'Y-m-d H:i:s', CURRENT_TIME - 259200 ) . '" AND chat_message.uid != -2) OR (date > "' . date( 'Y-m-d H:i:s', CURRENT_TIME - 3600 ) . '" AND chat_message.uid = -2)) AND
 				deletedBy is NULL
 				ORDER BY id DESC LIMIT '. $messagesCount;
 		
@@ -440,7 +440,7 @@ class Chat {
 					array_map( 'intval', explode ( ',', $msg[ 'roleIds' ] ) )
 				);
 			}
-			
+	
 			// TODO: rewrite this shit
 			if ( in_array( 31, $msg[ 'roleIds' ] ) ) {
 				$msg[ 'role' ] = 'color-red';
@@ -448,6 +448,18 @@ class Chat {
 				$msg[ 'role' ] = 'color-pink';
 			} elseif ( in_array( 33, $msg[ 'roleIds' ] ) ) {
 				$msg[ 'role' ] = 'color-purple';
+			} elseif ( in_array( 36, $msg[ 'roleIds' ] ) ) {
+				$msg[ 'role' ] = 'color-green';
+			} elseif ( in_array( 37, $msg[ 'roleIds' ] ) ) {
+				$msg[ 'role' ] = 'color-yellow';
+			} elseif ( in_array( 38, $msg[ 'roleIds' ] ) ) {
+				$msg[ 'role' ] = 'color-brown';
+			} elseif ( in_array( 39, $msg[ 'roleIds' ] ) ) {
+				$msg[ 'role' ] = 'color-orange';
+			} elseif ( in_array( 40, $msg[ 'roleIds' ] ) ) {
+				$msg[ 'role' ] = 'color-blue';
+			} elseif ( in_array( 41, $msg[ 'roleIds' ] ) ) {
+				$msg[ 'role' ] = 'color-white';
 			} elseif ( in_array( 3, $msg[ 'roleIds' ] ) ) {
 				$msg[ 'role' ] = 'root';
 			} elseif ( in_array( 5, $msg[ 'roleIds' ] ) ) {

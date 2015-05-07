@@ -41,41 +41,37 @@ if ( userInfo.type == 'anon' || userInfo.type == 'newbie'
 	smileHtml = '';
 }
 else {
-	smileHtml = '<div id="smile-panel-tab-1">';
-	smilePanelTabsHtml = '<span id="smile-panel-pager-1" data-tab-number="1">[ 1 ]</span>';
-	var privateStarted = false;
-	for( i=0,t=2; i < smilesCount; i++ ) {
-		inactiveSmileClass = '';
-		if ( smiles[i].private ) {
-			if ( !privateStarted ) {
-				privateStarted = true;
-				smileHtml += '</div><div id="smile-panel-tab-' + t + '">';
-				smilePanelTabsHtml += '<span id="smile-panel-pager-' + t
-					+ '" data-tab-number="' + t +'">prime</span>';
-				smileHtml += '<a href="http://prime.sc2tv.ru/donate" target="_blank">Получить смайлы</a><br/>';
-			}
-			
-			inactiveSmileClass = '-not-available';
-			for( k=0; k < userInfo.roleIds.length; k++){
-				if (smiles[i].roles.indexOf( userInfo.roleIds[k] ) !== -1) {
-					inactiveSmileClass = '';
-					break;
-				}
-			}
+	smilePages = [];
+	for(i = 0; i < smilesCount; i++){
+		if(!smilePages[smiles[i].page]){
+			smilePages[smiles[i].page] = [];
 		}
-		smileHtml += '<img src="' + CHAT_IMG_DIR + smiles[i].img
-			+'" title="' + smiles[i].code +'" width="' + smiles[i].width
-			+ '" height="' + smiles[i].height+ '"class="chat-smile'
-			+ inactiveSmileClass + '" alt="' + smiles[i].code + '"/>';
-		
-		if ( i > 0 && i % 51 == 0 && i < ( smilesCount - 1 ) && !privateStarted ) {
-			smileHtml += '</div><div id="smile-panel-tab-' + t + '">';
-			smilePanelTabsHtml += '<span id="smile-panel-pager-' + t
-				+ '" data-tab-number="' + t +'">[ ' + t + ' ]</span>';
-			t++;
-		}
+		smilePages[smiles[i].page].push(i);
 	}
-	smileHtml += '</div>' + smilePanelTabsHtml;
+	
+	smileHtml = '';
+	smilePanelTabsHtml = '';
+	$.each(smilePages, function(page, list){
+		if(page && list){
+			smileHtml += '<div id="smile-panel-tab-' + page + '">';
+			$.each(list, function(index, i){
+				inactiveSmileClass = '-not-available';
+				for( k=0; k < userInfo.roleIds.length; k++){
+					if (smiles[i].roles.indexOf( userInfo.roleIds[k] ) !== -1) {
+						inactiveSmileClass = '';
+						break;
+					}
+				}
+				smileHtml += '<img src="' + CHAT_IMG_DIR + smiles[i].img
+					+'" title="' + smiles[i].code +'" width="' + smiles[i].width
+					+ '" height="' + smiles[i].height+ '"class="chat-smile'
+					+ inactiveSmileClass + '" alt="' + smiles[i].code + '"/>';
+			})
+			smileHtml += '</div>';
+			smilePanelTabsHtml += '<span id="smile-panel-pager-' + page + '" data-tab-number="' + page + '">[ ' + page + ' ]</span>';
+		}
+	})
+	smileHtml += smilePanelTabsHtml;
 }
 
 chat_rules_link = '<a title="Правила чата" href="' + SC2TV_URL + '/chat-rules" target="_blank">rules</a>';

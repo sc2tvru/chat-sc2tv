@@ -6,7 +6,7 @@ header( 'Content-Type: application/javascript' );
 
 $db = GetDb();
 
-$smilesResult = $db->Query( 'SELECT * FROM chat_smile' );
+$smilesResult = $db->Query( 'SELECT * FROM chat_smile ORDER BY `page` ASC, `sid` ASC' );
 
 if ( $smilesResult === FALSE ) {
     SaveForDebug( 'Fetching smiles failed' );
@@ -16,7 +16,6 @@ if ( $smilesResult === FALSE ) {
 $smiles = array();
 while ( $smile = $smilesResult->fetch_assoc() ) {
     $smile['roles'] = array();
-    $smile['private'] = false;
     $smiles[$smile['code']] = $smile;
 }
 
@@ -41,18 +40,19 @@ while ( $role = $rolesResult->fetch_assoc() ) {
 $public = array();
 $private = array();
 foreach ( $smiles as $smile ) {
-    if ( count( array_diff( $smile['roles'], array( 2 ) ) ) > 0 ) {
+    /*if ( count( array_diff( $smile['roles'], array( 2 ) ) ) > 0 ) {
         $smile['private'] = true;
         $private[] = $smile;
-    } else {
+    } else {*/
         $public[] = $smile;
-    }
+    //}
 }
 
 
 
 echo "var smiles = ";
-echo json_encode( array_merge( $public, $private) );
+//echo json_encode( array_merge( $public, $private) );
+echo json_encode( $public ) ;
 echo ";
 
 var CHAT_IMG_DIR = '/img/';
