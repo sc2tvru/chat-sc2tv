@@ -48,12 +48,16 @@ else {
 		}
 		smilePages[smiles[i].page].push(i);
 	}
+	pagesCost = [0, 0, 200, 400, 800, 1600, 0]
 	
 	smileHtml = '';
 	smilePanelTabsHtml = '';
 	$.each(smilePages, function(page, list){
 		if(page && list){
 			smileHtml += '<div id="smile-panel-tab-' + page + '">';
+			if(pagesCost[page]){
+				smileHtml += '<span>' + pagesCost[page] + ' рублей стримеру</span><br>';
+			}
 			$.each(list, function(index, i){
 				inactiveSmileClass = '-not-available';
 				for( k=0; k < userInfo.roleIds.length; k++){
