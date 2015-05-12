@@ -817,15 +817,12 @@ function BuildHtml( messageList ) {
 					nicknameClass += ' role-' + messageList[ i ].role;
 				}
 				
-				if ( messageList[ i ].roleIds.indexOf( 35 ) !== -1 ) {
-					namePrefix = '<img src="/img/antidonate.png" width="16" height="16" class="top-antisupporter" />';
-				}
-				else if ( messageList[ i ].roleIds.indexOf( 24 ) !== -1 ) {
-					namePrefix = '<img src="/img/donate_01.png" width="12" height="11" class="top-supporter" />';
+				if ( messageList[ i ].roleIds.indexOf( 47 ) !== -1 ) {
+					namePrefix = '<img src="/img/icons/teammember.png" width="9" height="9" />';
 				}
 				
 				if ( messageList[ i ].uid == 47260 ) {//kingcobra
-					namePrefix = '<img src="/img/photon.png" width="17" height="15" />';
+					namePrefix = '<img src="/img/icons/photon.png" width="17" height="15" />';
 				}
 				break;
 		}
