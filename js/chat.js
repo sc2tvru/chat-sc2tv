@@ -798,7 +798,7 @@ function BuildHtml( messageList ) {
 			case '-2':
 				nicknameClass = 'primetimebot-nick';
 				var textClass = 'primetime_text';
-				namePrefix = '<img src="/img/primetime_bot.png" width="16" height="16" class="primetime-bot" />';
+				namePrefix = '<img src="/img/icons/primetime_bot.png" width="16" height="16" class="primetime-bot" />';
 				break;
 			// system message
 			case '-1':
