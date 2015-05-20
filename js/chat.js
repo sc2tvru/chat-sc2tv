@@ -48,7 +48,7 @@ else {
 		}
 		smilePages[smiles[i].page].push(i);
 	}
-	pagesCost = [0, 0, 200, 400, 800, 1600, 0]
+	pagesCost = [0, 100, 200, 400, 800, 1600, 0]
 	
 	smileHtml = '';
 	smilePanelTabsHtml = '';
@@ -56,6 +56,7 @@ else {
 		if(list){
 			smileHtml += '<div id="smile-panel-tab-' + page + '">';
 			if(pagesCost[page]){
+				smileHtml += '<span style="font-size:12px; font-weight:bold;">' + page + ' LEVEL</span><br>';
 				smileHtml += '<span>' + pagesCost[page] + ' рублей стримеру</span><br>';
 			}
 			$.each(list, function(index, i){
