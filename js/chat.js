@@ -53,7 +53,7 @@ else {
 	smileHtml = '';
 	smilePanelTabsHtml = '';
 	$.each(smilePages, function(page, list){
-		if(page && list){
+		if(list){
 			smileHtml += '<div id="smile-panel-tab-' + page + '">';
 			if(pagesCost[page]){
 				smileHtml += '<span>' + pagesCost[page] + ' рублей стримеру</span><br>';
@@ -537,7 +537,7 @@ function BuildChat( dataForBuild ) {
 		$( '#chat-smile-panel > span').removeClass( 'active' );
 		$( '#chat-smile-panel > div' ).hide();
 		$( '#chat-smile-panel' ).show();
-		$( '#chat-smile-panel > div#smile-panel-tab-1' ).show();
+		$( '#chat-smile-panel > div#smile-panel-tab-0' ).show();
 	});
 	
 	chatObj = document.getElementById( 'chat' );
