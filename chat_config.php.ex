@@ -1,6 +1,7 @@
 <?php
 define( 'DRUPAL_SESSION', 'SESS4a29996287c6a61196a9cfc443f0fdb3' );
 define( 'DRUPAL_TO_CHAT_KEY', '' );
+define( 'FS_TO_CHAT_KEY', '' );
 
 define( 'CHAT_DB_HOST', '' );
 define( 'CHAT_DB_USER', '' );

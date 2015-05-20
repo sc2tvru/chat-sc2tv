@@ -55,7 +55,8 @@ class Chat {
             [rid] => 4
         )
 	 */
-	public function GetAuthInfo() {
+	public function GetAuthInfo($uid = NULL) {
+	  if($uid === NULL){
 		if( empty( $_COOKIE[ DRUPAL_SESSION ] ) || 
 			preg_match( '/[^a-z\d]+/i', $_COOKIE[ DRUPAL_SESSION ] ) ) {
 			$this->user[ 'error' ] = CHAT_COOKIE_NOT_FOUND;
@@ -78,16 +79,30 @@ class Chat {
 		// регулярки выше должно хватить, но на всякий случай
 		// лучше подготовить. TODO: Убрать?
 		list( $drupalSession ) = $this->db->PrepareParams( $drupalSession );
+		// roles priority Moderator > Root > Admin > Streamer > others
 		
-    // roles priority Moderator > Root > Admin > Streamer > others
-    $queryString = 'SELECT users.uid as uid, name, created, rid, banExpirationTime, banTime,
-      chat_ban.status as ban, rid in (5) as isModerator, rid in (4) as isAdmin, rid in (3) as isRoot,
-      (SELECT GROUP_CONCAT(rid SEPARATOR ",") FROM users_roles WHERE users_roles.uid = users.uid) as roleIds
-      FROM users INNER JOIN sessions using(uid)
-      LEFT JOIN chat_ban ON users.uid = chat_ban.uid
-      LEFT JOIN users_roles ON users_roles.uid = users.uid
-      WHERE sid = "'. $drupalSession .'"
-      ORDER BY isModerator DESC, isRoot DESC, isAdmin DESC, ban DESC, banExpirationTime DESC, rid ASC LIMIT 1';
+		$queryString = 'SELECT users.uid as uid, name, created, rid, banExpirationTime, banTime,
+		  chat_ban.status as ban, rid in (5) as isModerator, rid in (4) as isAdmin, rid in (3) as isRoot,
+		  (SELECT GROUP_CONCAT(rid SEPARATOR ",") FROM users_roles WHERE users_roles.uid = users.uid) as roleIds
+		  FROM users INNER JOIN sessions using(uid)
+		  LEFT JOIN chat_ban ON users.uid = chat_ban.uid
+		  LEFT JOIN users_roles ON users_roles.uid = users.uid
+		  WHERE sid = "'. $drupalSession .'"
+		  ORDER BY isModerator DESC, isRoot DESC, isAdmin DESC, ban DESC, banExpirationTime DESC, rid ASC LIMIT 1';
+	  }
+	  else {
+		$chatAuthMemcacheKey = false;
+		// roles priority Moderator > Root > Admin > Streamer > others
+		$queryString = 'SELECT users.uid as uid, name, created, rid, banExpirationTime, banTime,
+		  chat_ban.status as ban, rid in (5) as isModerator, rid in (4) as isAdmin, rid in (3) as isRoot,
+		  (SELECT GROUP_CONCAT(rid SEPARATOR ",") FROM users_roles WHERE users_roles.uid = users.uid) as roleIds, sessions.sid
+		  FROM users
+		  LEFT JOIN sessions using(uid)
+		  LEFT JOIN chat_ban ON users.uid = chat_ban.uid
+		  LEFT JOIN users_roles ON users_roles.uid = users.uid
+		  WHERE users.uid = "'. (int)$uid .'"
+		  ORDER BY isModerator DESC, isRoot DESC, isAdmin DESC, ban DESC, banExpirationTime DESC, rid ASC LIMIT 1';
+	  }
 
 		$queryResult = $this->db->Query( $queryString );
 
@@ -98,12 +113,17 @@ class Chat {
 		}
 
 		$userInfo = $queryResult->fetch_assoc();
-
+		
 		// Drupal обнуляет uid в сессии, если пользователю в профиле
 		// поставить статус blocked
 		if ( $userInfo === NULL || $userInfo[ 'uid' ] == 0 ) {
 			$this->user[ 'error' ] = CHAT_UID_FOR_SESSION_NOT_FOUND;
 			return;
+		}
+		
+		if(!$chatAuthMemcacheKey && isset($userInfo['sid'])){
+			$chatAuthMemcacheKey = 'ChatUserInfo_' . $userInfo['sid'];
+			unset($userInfo['sid']);
 		}
 		
 		$this->user = $userInfo;
@@ -125,11 +145,13 @@ class Chat {
 			$this->user[ 'rights' ] = -1;
 			$this->user[ 'type' ] = 'newbie';
 			$this->user[ 'error' ] = CHAT_NEWBIE_USER;
-			$this->memcache->Set(
-				$chatAuthMemcacheKey,
-				$this->user,
-				$newbieStatusTTL
-			);
+			if($chatAuthMemcacheKey){
+				$this->memcache->Set(
+					$chatAuthMemcacheKey,
+					$this->user,
+					$newbieStatusTTL
+				);
+			}
 			return;
 		}
 
@@ -143,7 +165,9 @@ class Chat {
 				$this->user[ 'rights' ] = -1;
 				$this->user[ 'type' ] = 'bannedInChat';
 				$this->user[ 'error' ] = CHAT_USER_BANNED_IN_CHAT;
-				$this->memcache->Set( $chatAuthMemcacheKey, $this->user, $banStatusTTL);
+				if($chatAuthMemcacheKey){
+					$this->memcache->Set( $chatAuthMemcacheKey, $this->user, $banStatusTTL);
+				}
 				return;
 			}
 			else {
@@ -175,20 +199,23 @@ class Chat {
 			$this->user[ 'rights' ] = 0;
 		}
 		
-		// генерируем токен на основе сессии и запоминаем
-		if ( empty( $_COOKIE[ CHAT_COOKIE_TOKEN ] ) ) {
-			$this->user[ 'token' ] = GenerateSecurityToken( $drupalSession );
-			setcookie( CHAT_COOKIE_TOKEN, $this->user[ 'token' ] );
+		if($uid === NULL){
+			// генерируем токен на основе сессии и запоминаем
+			if ( empty( $_COOKIE[ CHAT_COOKIE_TOKEN ] ) ) {
+				$this->user[ 'token' ] = GenerateSecurityToken( $drupalSession );
+				setcookie( CHAT_COOKIE_TOKEN, $this->user[ 'token' ] );
+			}
+			elseif(	!preg_match( '/[^a-z\d]+/i', $_COOKIE[ CHAT_COOKIE_TOKEN ] ) ) {
+				$this->user[ 'token' ] = $_COOKIE[ CHAT_COOKIE_TOKEN ];
+			}
+			if($chatAuthMemcacheKey){
+				$this->memcache->Set(
+					$chatAuthMemcacheKey,
+					$this->user,
+					CHAT_USER_AUTHORIZATION_TTL
+				);
+			}
 		}
-		elseif(	!preg_match( '/[^a-z\d]+/i', $_COOKIE[ CHAT_COOKIE_TOKEN ] ) ) {
-			$this->user[ 'token' ] = $_COOKIE[ CHAT_COOKIE_TOKEN ];
-		}
-		
-		$this->memcache->Set(
-			$chatAuthMemcacheKey,
-			$this->user,
-			CHAT_USER_AUTHORIZATION_TTL
-		);
 	}
 	
 	
