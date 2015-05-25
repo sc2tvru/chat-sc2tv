@@ -48,7 +48,7 @@ switch ( $task ) {
 		$chat->SetDatabase();
 		$res = $chat->WriteMessage( $message );
 		
-		if ( $res === true ) {
+		if ( $res !== false ) {
 			// для автомодерации, чтобы держать в памяти актуальное значение кол-ва сообщений
 			// в чате и лишний раз не обращаться за ним в базу
 			$chatMessagesCountMemcacheKey = 'AM_uid_'. $chat->user[ 'uid' ] .	'_chatMsgCount';

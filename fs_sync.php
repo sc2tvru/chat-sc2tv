@@ -20,9 +20,10 @@ if(isset($chat->user[ 'error' ]) && $chat->user[ 'error' ] !== ''){
 	print $chat->user['error'];
 	exit;
 }
-if($chat->WriteMessage($_POST['message'])){
+
+if($res = $chat->WriteMessage($_POST['message'])){
 	$chat->WriteChannelCache((int)$_POST['channel_id']);
-	print 'Ok';
+	print $res;
 	exit;
 }
 else {

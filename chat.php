@@ -709,13 +709,13 @@ class Chat {
 				$channelId .'")';
 
 		$queryResult = $this->db->Query( $queryString );
-		
 		if ( $queryResult ) {
+			$insert_id = $this->db->mysqli->insert_id;
 			// кэш текущего канала
 			$this->WriteChannelCache( $channelId );
 			// кэш модераторов
 			$this->WriteChannelCache( -1 );
-			return TRUE;
+			return $insert_id;
 		}
 		else {
 			return FALSE;
