@@ -818,6 +818,9 @@ function BuildHtml( messageList ) {
 					nicknameClass += ' role-' + messageList[ i ].role;
 				}
 				
+				if ( messageList[ i ].roleIds.indexOf( 24 ) !== -1 ) {
+					namePrefix = '<img src="/img/icons/donate_01.png" width="12" height="11" class="top-supporter" />';
+				}
 				if ( messageList[ i ].roleIds.indexOf( 47 ) !== -1 ) {
 					namePrefix = '<img src="/img/icons/teammember.png" width="9" height="9" />';
 				}
