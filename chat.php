@@ -568,7 +568,7 @@ class Chat {
 	 */
 	private function CheckForAutoBan( $message ) {
 		// 3 или 4 смайла смайла
-		if ( in_array( 20, $this->user[ 'roleIds' ] ) ) {
+		if ( in_array( 20, $this->user[ 'roleIds' ] ) || in_array( 14, $this->user[ 'roleIds' ] )) {
 			$pattern = '/(?::s:[^:]+:.*){4,}/usi';
 		} else {
 			$pattern = '/(?::s:[^:]+:.*){3,}/usi';

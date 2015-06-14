@@ -1010,7 +1010,7 @@ function IsStringCapsOrAbuse( str ) {
 
 function CheckForAutoBan( str ) {
 	// 3 или 4 смайла
-	if ( userInfo.roleIds.indexOf( 20 ) !== -1 ) {
+	if ( userInfo.roleIds.indexOf( 20 ) !== -1 || userInfo.roleIds.indexOf( 14 ) !== -1 ) {
 		regexp = /(?::s:[^:]+:.*){4,}/gi;
 	} else {
 		regexp = /(?::s:[^:]+:.*){3,}/gi;
